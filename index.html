@@ -55,7 +55,7 @@ a{color:inherit;}
 /* ---------- Tideline progress ---------- */
 .tide-track{
   position:fixed; top:0; left:0; right:0; height:5px; z-index:50;
-  background:rgba(255,255,255,0.5);
+  background:rgba(255,255,255,0.5); pointer-events:none;
 }
 .tide-fill{
   height:100%; width:0%;
@@ -71,7 +71,7 @@ a{color:inherit;}
 
 /* ---------- Top bar ---------- */
 .topbar{
-  position:sticky; top:5px; z-index:40;
+  position:sticky; top:5px; z-index:30;
   backdrop-filter:blur(10px);
   background:rgba(250,248,243,0.85);
   border-bottom:1px solid var(--line);
@@ -234,7 +234,9 @@ a{color:inherit;}
 .modal-overlay{
   position:fixed; inset:0; background:rgba(11,61,69,.45); backdrop-filter:blur(3px);
   display:none; align-items:flex-end; justify-content:center; z-index:100; padding:0;
+  pointer-events:none;
 }
+.modal-overlay.show{pointer-events:all;}
 .modal-overlay.show{display:flex;}
 @media (min-width:640px){
   .modal-overlay{align-items:center; padding:24px;}
