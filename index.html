@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0061)file:///Users/naphiac/Downloads/ocean-doula-birth-plan_6.html -->
+<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>海洋陪產 Ocean Doula｜生產計畫產生器</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>WAVE Support｜AI 生產計畫助理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./index_files/css2" rel="stylesheet">
 <style>
 :root{
   --deep:#0B3D45;
@@ -30,8 +30,10 @@ body{
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
   word-break:keep-all;
-  overflow-wrap:break-word;
+  overflow-wrap:anywhere;
   line-break:strict;
+  -webkit-hyphens:none;
+  hyphens:none;
 }
 h1,h2,h3,.serif{font-family:'Noto Serif TC', serif;}
 button{font-family:inherit; cursor:pointer; border:none; background:none;}
@@ -107,8 +109,8 @@ a{color:inherit;}
   font-size:13px; letter-spacing:3px; color:var(--coral); font-weight:600; margin-bottom:18px; text-transform:uppercase;
 }
 .hero h1{
-  font-size:clamp(28px, 5vw, 48px); font-weight:700; color:var(--deep); line-height:1.5; max-width:620px;
-  word-break:keep-all; overflow-wrap:break-word;
+  font-size:clamp(26px, 6vw, 52px); font-weight:700; color:var(--deep); line-height:1.4; max-width:620px;
+  white-space:nowrap; word-break:keep-all;
 }
 .hero h1 em{color:var(--ocean); font-style:normal; position:relative;}
 .hero p.lede{
@@ -121,11 +123,12 @@ a{color:inherit;}
   background:var(--ocean); color:#fff; font-size:16px; font-weight:600;
   padding:17px 38px; border-radius:100px; box-shadow:var(--shadow-lg);
   transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+  white-space:nowrap;
 }
 .btn-primary:hover{transform:translateY(-2px); background:var(--deep);}
 .btn-primary svg{transition:transform .25s ease;}
 .btn-primary:hover svg{transform:translateX(4px);}
-.hero-foot{margin-top:20px; font-size:12.5px; color:#7A9A9C; word-break:keep-all;}
+.hero-foot{margin-top:20px; font-size:12px; color:#7A9A9C; word-break:keep-all; line-height:1.9;}
 
 /* floating bubbles deco */
 .bubble{position:absolute; border-radius:50%; background:radial-gradient(circle at 30% 30%, rgba(95,179,184,.35), rgba(95,179,184,0));}
@@ -147,6 +150,7 @@ a{color:inherit;}
   background:#fff; border:1.5px solid var(--line); border-radius:18px;
   padding:22px 24px; display:flex; gap:16px; align-items:flex-start;
   transition:border-color .2s, box-shadow .2s, transform .2s;
+  word-break:keep-all;
 }
 .choice-card:hover{border-color:var(--lagoon); box-shadow:var(--shadow); transform:translateY(-2px);}
 .choice-card.selected{border-color:var(--ocean); background:linear-gradient(135deg, #fff, var(--foam)); box-shadow:var(--shadow);}
@@ -155,8 +159,9 @@ a{color:inherit;}
   background:var(--foam); display:flex; align-items:center; justify-content:center; font-size:20px;
 }
 .choice-card.selected .choice-icon{background:var(--ocean); color:#fff;}
-.choice-text strong{display:block; font-size:15px; color:var(--deep); margin-bottom:4px; font-weight:600; word-break:keep-all;}
-.choice-text span{font-size:13px; color:#5C7B7D; word-break:keep-all; display:block;}
+.choice-text strong{display:block; font-size:15px; color:var(--deep); margin-bottom:4px; font-weight:600; word-break:keep-all; line-height:1.6;}
+.choice-text{flex:1; min-width:0;}
+.choice-text span{font-size:13px; color:#5C7B7D; word-break:keep-all; display:block; line-height:1.7;}
 
 /* ---------- Email gate ---------- */
 .gate-card{
@@ -180,14 +185,14 @@ a{color:inherit;}
 }
 .field input:focus{outline:none; border-color:var(--ocean);}
 .gate-submit{
-  width:100%; background:var(--ocean); color:#fff; font-weight:600; font-size:15.5px;
+  width:100%; background:var(--ocean); color:#fff; font-weight:600; font-size:15px;
   padding:16px; border-radius:12px; margin-top:6px; transition:background .2s, transform .2s;
-  box-shadow:0 10px 24px rgba(26,107,114,.25);
+  box-shadow:0 10px 24px rgba(26,107,114,.25); word-break:keep-all;
 }
 .gate-submit:hover{background:var(--deep); transform:translateY(-1px);}
 .gate-privacy{font-size:11.5px; color:#8AA5A6; margin-top:16px;}
 .gate-benefits{display:flex; flex-direction:column; gap:10px; max-width:380px; margin:0 auto 28px; text-align:left;}
-.gate-benefits div{display:flex; gap:10px; font-size:13px; color:#3C5C60; align-items:flex-start; word-break:keep-all;}
+.gate-benefits div{display:flex; gap:10px; font-size:13px; color:#3C5C60; align-items:flex-start; word-break:keep-all; line-height:1.7;}
 .gate-benefits .check{color:var(--ocean); font-weight:700;}
 
 /* ---------- Builder layout ---------- */
@@ -216,7 +221,7 @@ a{color:inherit;}
   margin-bottom:8px; background:var(--sand);
 }
 .item-row:hover{background:var(--foam);}
-.item-name{font-size:14px; color:var(--deep); font-weight:500; word-break:keep-all;}
+.item-name{font-size:14px; color:var(--deep); font-weight:500; word-break:keep-all; flex:1; min-width:0;}
 .item-name small{display:block; font-size:12px; color:#7A9A9C; font-weight:400; margin-top:2px;}
 .item-toggle{
   flex:0 0 auto; font-size:13px; font-weight:600; color:var(--ocean);
@@ -243,31 +248,32 @@ a{color:inherit;}
 @media (min-width:640px){ .modal-card{border-radius:24px;} }
 @keyframes modalUp{from{transform:translateY(40px); opacity:0;} to{transform:translateY(0); opacity:1;}}
 .modal-close{position:absolute; top:18px; right:22px; font-size:22px; color:#9AB5B6; background:none;}
-.modal-card h3{font-size:18px; color:var(--deep); margin-bottom:14px; padding-right:30px; word-break:keep-all;}
-.modal-card p.q{font-size:13.5px; color:#496A6D; margin-bottom:22px; word-break:keep-all;}
+.modal-card h3{font-size:18px; color:var(--deep); margin-bottom:14px; padding-right:30px; word-break:keep-all; line-height:1.6;}
+.modal-card p.q{font-size:13.5px; color:#496A6D; margin-bottom:22px; word-break:keep-all; line-height:1.75;}
 .opt-grid{display:flex; flex-direction:column; gap:10px; margin-bottom:22px;}
 .opt-pill{
-  text-align:left; padding:14px 18px; border-radius:14px; border:1.5px solid var(--line);
-  font-size:14px; color:var(--deep); transition:all .18s; background:#fff; word-break:keep-all;
+  text-align:center; padding:14px 20px; border-radius:14px; border:1.5px solid var(--line);
+  font-size:14px; color:var(--deep); transition:all .18s; background:#fff;
+  word-break:keep-all; line-height:1.65; width:100%;
 }
 .opt-pill:hover{border-color:var(--lagoon);}
 .opt-pill.picked{background:var(--ocean); color:#fff; border-color:var(--ocean);}
 .modal-actions{display:flex; gap:10px;}
-.modal-save{flex:1; background:var(--ocean); color:#fff; font-weight:600; padding:14px; border-radius:12px; transition:background .2s;}
+.modal-save{flex:1; background:var(--ocean); color:#fff; font-weight:600; padding:14px; border-radius:12px; transition:background .2s; white-space:nowrap;}
 .modal-save:hover{background:var(--deep);}
 .modal-save:disabled{background:#D8E6E5; color:#9AB5B6; cursor:not-allowed;}
-.modal-remove{background:#FBEAE0; color:#C25E2E; font-weight:600; padding:14px 18px; border-radius:12px;}
+.modal-remove{background:#FBEAE0; color:#C25E2E; font-weight:600; padding:14px 18px; border-radius:12px; white-space:nowrap;}
 
 /* nav buttons */
 .builder-nav{display:flex; justify-content:space-between; margin-top:32px; gap:12px;}
 .btn-ghost{
-  font-size:14.5px; font-weight:600; color:var(--ocean); padding:14px 24px; border-radius:100px;
-  border:1.5px solid var(--line); background:#fff; transition:all .2s;
+  font-size:14px; font-weight:600; color:var(--ocean); padding:14px 20px; border-radius:100px;
+  border:1.5px solid var(--line); background:#fff; transition:all .2s; white-space:nowrap;
 }
 .btn-ghost:hover{border-color:var(--ocean);}
 .btn-next{
-  font-size:14.5px; font-weight:600; color:#fff; padding:14px 30px; border-radius:100px;
-  background:var(--ocean); box-shadow:0 10px 24px rgba(26,107,114,.22); transition:all .2s;
+  font-size:14px; font-weight:600; color:#fff; padding:14px 26px; border-radius:100px;
+  background:var(--ocean); box-shadow:0 10px 24px rgba(26,107,114,.22); transition:all .2s; white-space:nowrap;
 }
 .btn-next:hover{background:var(--deep); transform:translateY(-1px);}
 
@@ -293,13 +299,48 @@ a{color:inherit;}
 }
 .cta-card:hover{transform:translateY(-3px);}
 .cta-card .cta-tag{font-size:11.5px; letter-spacing:1.5px; text-transform:uppercase; opacity:.75; font-weight:700; margin-bottom:10px; display:block;}
-.cta-card h4{font-size:17px; margin-bottom:8px; font-weight:700; word-break:keep-all;}
-.cta-card p{font-size:13px; opacity:.9; margin-bottom:18px; word-break:keep-all;}
+.cta-card h4{font-size:16px; margin-bottom:8px; font-weight:700; word-break:keep-all; line-height:1.55;}
+.cta-card p{font-size:13px; opacity:.9; margin-bottom:18px; word-break:keep-all; line-height:1.75;}
 .cta-card .go{
   display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:700;
 }
 .cta-card.primary .go{color:#fff;}
 .cta-card.secondary .go{color:var(--ocean);}
+
+
+/* ---------- Visual Birth Plan ---------- */
+.visual-section{margin-top:48px;}
+.visual-section .vs-head{
+  display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px;
+}
+.visual-section h3{font-size:20px; color:var(--deep); font-weight:700; font-family:'Noto Serif TC',serif;}
+.vs-subhead{font-size:13px; color:#7A9A9C; margin-top:4px;}
+
+.plan-preview-wrap{
+  position:relative; border-radius:20px; overflow:hidden;
+  box-shadow:0 12px 40px rgba(11,61,69,0.13);
+}
+.plan-preview-wrap.locked::after{
+  content:''; position:absolute; inset:0;
+  backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
+  background:rgba(250,248,243,0.55);
+  border-radius:20px;
+}
+.plan-lock-overlay{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; z-index:10; text-align:center; padding:24px;
+}
+.plan-lock-overlay .lock-icon{font-size:32px; margin-bottom:12px;}
+.plan-lock-overlay h4{font-size:18px; color:var(--deep); font-weight:700; margin-bottom:8px; word-break:keep-all;}
+.plan-lock-overlay p{font-size:13px; color:#496A6D; max-width:280px; margin:0 auto 20px; word-break:keep-all; line-height:1.7;}
+.btn-unlock{
+  background:var(--ocean); color:#fff; font-weight:700; font-size:15px;
+  padding:14px 28px; border-radius:100px; box-shadow:0 8px 24px rgba(26,107,114,.3);
+  transition:background .2s, transform .2s; white-space:nowrap;
+}
+.btn-unlock:hover{background:var(--deep); transform:translateY(-2px);}
+
+#visualPlanSvg{display:block; width:100%; height:auto;}
 
 footer{text-align:center; padding:40px 24px 60px; font-size:12px; color:#9AB5B6;}
 footer a{text-decoration:underline;}
@@ -314,10 +355,10 @@ footer a{text-decoration:underline;}
 
 <div class="bg-wave">
   <svg class="w1" viewBox="0 0 1440 200" preserveAspectRatio="none" height="200">
-    <path d="M0,100 C240,180 480,20 720,100 C960,180 1200,20 1440,100 L1440,200 L0,200 Z" fill="#E8F4F1"/>
+    <path d="M0,100 C240,180 480,20 720,100 C960,180 1200,20 1440,100 L1440,200 L0,200 Z" fill="#E8F4F1"></path>
   </svg>
   <svg class="w2" viewBox="0 0 1440 200" preserveAspectRatio="none" height="160">
-    <path d="M0,120 C240,40 480,160 720,90 C960,30 1200,150 1440,90 L1440,200 L0,200 Z" fill="#DCEFEC"/>
+    <path d="M0,120 C240,40 480,160 720,90 C960,30 1200,150 1440,90 L1440,200 L0,200 Z" fill="#DCEFEC"></path>
   </svg>
 </div>
 
@@ -325,7 +366,7 @@ footer a{text-decoration:underline;}
 
 <div class="topbar">
   <div class="topbar-inner">
-    <div class="brand"><span class="brand-mark">🌊</span> 海洋陪產 Ocean Doula</div>
+    <div class="brand"><span class="brand-mark">🌊</span> WAVE Support</div>
     <div class="step-label" id="stepLabel">開始</div>
   </div>
 </div>
@@ -333,16 +374,16 @@ footer a{text-decoration:underline;}
 <!-- ===================== STAGE 0 : HERO ===================== -->
 <section class="stage active" id="stage-hero">
   <div class="hero">
-    <div class="hero-eyebrow">免費 · 專屬於妳的生產計畫</div>
-    <h1>溫柔生產，從<em>了解自己</em>開始。</h1>
-    <p class="lede">花 3 分鐘，整理出妳對這場生產最在意的事。海洋陪產陪妳，把直覺寫成一份能跟醫療團隊溝通的生產計畫書。</p>
+    <div class="hero-eyebrow">WAVE Support · AI 生產計畫助理</div>
+    <h1 style="white-space:nowrap;">讓 <em>WAVE</em> 陪你</h1>
+    <p class="lede">告訴 WAVE 妳的生產想法，AI 幫妳整理成一份清晰、完整、可以直接帶去產檢的生產計畫書。</p>
     <div class="hero-cta">
-      <button class="btn-primary" onclick="goTo('philosophy')">
+      <button class="btn-primary" onclick="goTo(&#39;philosophy&#39;)">
         開始建立我的生產計畫
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
       </button>
     </div>
-    <div class="hero-foot">不需要先懷孕 · 完成後可下載 PDF · 中文撰寫，符合台灣產檢情境</div>
+    <div class="hero-foot">由 AI 生成 · 完全免費 · 符合台灣產檢情境 · 完成後可下載 PDF</div>
   </div>
 </section>
 
@@ -354,9 +395,41 @@ footer a{text-decoration:underline;}
       <h2>在妳心中，理想的生產比較接近哪一種？</h2>
       <p class="sub">這不是測驗，沒有標準答案 —— 妳的計畫會依照這個方向客製化。</p>
     </div>
-    <div class="choice-grid" id="philosophyGrid"></div>
+    <div class="choice-grid" id="philosophyGrid">
+    <button class="choice-card " onclick="pickPhilosophy(&#39;unmedicated&#39;)">
+      <div class="choice-icon">🌿</div>
+      <div class="choice-text">
+        <strong>盡量自然、不打減痛分娩</strong>
+        <span>希望盡可能減少醫療介入，靠呼吸、姿勢與支持度過產程。</span>
+      </div>
+    </button>
+  
+    <button class="choice-card " onclick="pickPhilosophy(&#39;open&#39;)">
+      <div class="choice-icon">🌊</div>
+      <div class="choice-text">
+        <strong>保持彈性，視當下狀況決定</strong>
+        <span>想了解所有選項，依照產程進展，當下再決定要不要使用醫療協助。</span>
+      </div>
+    </button>
+  
+    <button class="choice-card " onclick="pickPhilosophy(&#39;medicated&#39;)">
+      <div class="choice-icon">💧</div>
+      <div class="choice-text">
+        <strong>希望有減痛分娩等醫療協助</strong>
+        <span>重視產程中的舒適與安心感，傾向使用減痛分娩或其他醫療資源。</span>
+      </div>
+    </button>
+  
+    <button class="choice-card " onclick="pickPhilosophy(&#39;csection&#39;)">
+      <div class="choice-icon">🤍</div>
+      <div class="choice-text">
+        <strong>計畫或可能需要剖腹產</strong>
+        <span>已知或預期會是剖腹產，想了解怎麼讓這個經驗也能盡量溫柔、自主。</span>
+      </div>
+    </button>
+  </div>
     <div class="builder-nav" style="justify-content:flex-end;">
-      <button class="btn-next" id="philosophyNext" disabled onclick="goTo('gate')">下一步</button>
+      <button class="btn-next" id="philosophyNext" disabled="" onclick="goTo(&#39;gate&#39;)">下一步</button>
     </div>
   </div>
 </section>
@@ -366,8 +439,8 @@ footer a{text-decoration:underline;}
   <div class="wrap" style="max-width:520px;">
     <div class="gate-card">
       <div class="gate-icon">🐚</div>
-      <h3>解鎖妳的專屬生產計畫</h3>
-      <p>留下姓名與 Email，立即開始填寫完整生產計畫 —— 我們也會把計畫的副本寄到妳的信箱，隨時可以回來修改。</p>
+      <h3>讓 WAVE 開始為妳生成計畫</h3>
+      <p>留下姓名與 Email，WAVE 就會根據妳的選擇，用 AI 為妳生成一份完整的生產計畫書，並寄到妳的信箱。</p>
       <div class="gate-benefits">
         <div><span class="check">✓</span> 涵蓋產前、產中、產後的完整自訂選項</div>
         <div><span class="check">✓</span> 可下載 PDF，直接帶去產檢給醫師 / 助產師看</div>
@@ -382,7 +455,7 @@ footer a{text-decoration:underline;}
           <label for="userEmail">Email</label>
           <input type="email" id="userEmail" placeholder="you@example.com">
         </div>
-        <button class="gate-submit" onclick="submitGate()">解鎖我的生產計畫</button>
+        <button class="gate-submit" onclick="submitGate()">讓 WAVE 開始生成</button>
         <div class="gate-privacy">我們不會寄送垃圾訊息，妳可以隨時取消訂閱。</div>
       </div>
     </div>
@@ -393,9 +466,9 @@ footer a{text-decoration:underline;}
 <section class="stage" id="stage-builder">
   <div class="wrap">
     <div class="s-head">
-      <div class="s-eyebrow" id="builderEyebrow">生產計畫書</div>
+      <div class="s-eyebrow" id="builderEyebrow">WAVE · AI 生產計畫</div>
       <h2 id="builderGreeting">為妳客製化的生產計畫</h2>
-      <p class="sub">點開每個區塊，選擇符合妳需求的項目。妳可以隨時回來修改，全部都先幫妳依照剛剛的選擇做了建議。</p>
+      <p class="sub">告訴 WAVE 妳的偏好，完成後 AI 會幫妳整理成一份完整的計畫書。點開每個區塊，選擇符合妳的選項。</p>
     </div>
     <div class="builder-progress">
       <span id="progCurrent" class="current">已選擇 0 項</span>
@@ -403,8 +476,8 @@ footer a{text-decoration:underline;}
     </div>
     <div id="categoryList"></div>
     <div class="builder-nav">
-      <button class="btn-ghost" onclick="goTo('philosophy')">← 返回上一步</button>
-      <button class="btn-next" onclick="goTo('finish')">完成，產生我的計畫 →</button>
+      <button class="btn-ghost" onclick="goTo(&#39;philosophy&#39;)">← 返回上一步</button>
+      <button class="btn-next" onclick="goTo(&#39;finish&#39;)">完成，產生我的計畫 →</button>
     </div>
   </div>
 </section>
@@ -414,7 +487,7 @@ footer a{text-decoration:underline;}
   <div class="wrap">
     <div class="finish-wrap">
       <div class="finish-icon">🌊</div>
-      <h2 class="serif" style="font-size:28px;">妳的生產計畫已經完成</h2>
+      <h2 class="serif" style="font-size:28px;">WAVE 已為妳生成計畫 🌊</h2>
       <p class="sub" style="margin-top:10px;" id="finishName"></p>
       <div class="finish-stats">
         <div class="finish-stat"><div class="num" id="statSelected">0</div><div class="lbl">已選擇的偏好</div></div>
@@ -422,30 +495,46 @@ footer a{text-decoration:underline;}
       </div>
     </div>
 
-    <div class="cta-row">
-      <div class="cta-card primary">
-        <span class="cta-tag">下一步</span>
-        <h4>預約海洋陪產團體諮詢</h4>
-        <p>帶著這份計畫，加入小團體諮詢，跟 Naph 一起把它變成真正可執行、能跟醫療團隊溝通的版本。</p>
-        <a class="go" href="#" id="bookingLink" target="_blank" rel="noopener">前往預約 →</a>
+    <!-- Visual Birth Plan Preview -->
+    <div class="visual-section">
+      <div class="vs-head">
+        <div>
+          <h3>🗺 妳的視覺生產計畫書</h3>
+          <div class="vs-subhead">一頁圖卡版，帶去產房讓醫護團隊一眼掌握妳的想法</div>
+        </div>
       </div>
-      <div class="cta-card secondary">
-        <span class="cta-tag" style="color:var(--coral);">收藏副本</span>
-        <h4>下載 / 寄送 PDF</h4>
-        <p>把這份計畫存成 PDF，或直接寄一份到妳的信箱，方便之後印出來帶去產檢診間。</p>
-        <a class="go" href="#" onclick="downloadPdf(); return false;">下載 PDF →</a>
+      <div class="plan-preview-wrap locked" id="planPreviewWrap">
+        <svg id="visualPlanSvg" viewBox="0 0 794 560" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="plan-lock-overlay" id="planLockOverlay">
+          <div class="lock-icon">🔒</div>
+          <h4>預約諮詢，解鎖視覺計畫書</h4>
+          <p>預約 Naph 的團體諮詢後，妳會在諮詢當天拿到這份可以帶去產房的精美版本。</p>
+          <a href="file:///Users/naphiac/Downloads/ocean-doula-birth-plan_6.html#" id="bookingLink" target="_blank" rel="noopener">
+            <button class="btn-unlock">預約團體諮詢，解鎖計畫書 →</button>
+          </a>
+        </div>
       </div>
     </div>
 
-    <div style="text-align:center; margin-top:30px;">
-      <button class="btn-ghost" onclick="goTo('builder')">← 回去再調整選項</button>
+    <!-- Text plan + back -->
+    <div style="margin-top:32px;">
+      <div class="cta-card secondary" style="max-width:100%;">
+        <span class="cta-tag" style="color:var(--coral);">文字版副本</span>
+        <h4>下載文字版計畫書</h4>
+        <p>先把文字版存起來備用，帶著它去產檢時可以跟醫師討論，視覺版等諮詢時再一起完成。</p>
+        <a class="go" href="file:///Users/naphiac/Downloads/ocean-doula-birth-plan_6.html#" onclick="downloadPdf(); return false;">下載文字版 PDF →</a>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:24px;">
+      <button class="btn-ghost" onclick="goTo(&#39;builder&#39;)">← 回去再調整選項</button>
     </div>
   </div>
 </section>
 
 <footer>
-  © 2026 海洋陪產 Ocean Doula．本工具僅供教育與溝通參考，不能取代妳與醫療團隊之間的專業評估與決定。<br>
-  <a href="https://www.oceandoula.com" target="_blank">www.oceandoula.com</a>
+  © 2026 WAVE Support by Ocean Doula．本工具僅供教育與溝通參考，不能取代妳與醫療團隊之間的專業評估與決定。<br>
+  <a href="https://www.oceandoula.com/" target="_blank">www.oceandoula.com</a>
 </footer>
 
 <!-- ===================== MODAL ===================== -->
@@ -468,7 +557,7 @@ const CATEGORIES = [
   {
     id:'before', name:'產前準備', icon:'📋',
     items:[
-      {id:'support', name:'陪產與支持者', desc:'誰會在產房陪妳？', type:'text', placeholder:'例如：先生、媽媽、доula 的名字'},
+      {id:'support', name:'陪產與支持者', desc:'誰會在產房陪妳？', type:'text', placeholder:'例如：先生、Doula 陪產員'},
       {id:'place', name:'生產地點', desc:'醫院 / 助產所 / 居家', type:'text', placeholder:'例如：台北市某醫院'},
       {id:'hospital_time', name:'什麼時候去醫院／待產中心', desc:'多數醫院會建議在規律陣痛、符合「5-1-1」原則（每5分鐘一次、每次持續1分鐘、持續1小時）時入院。提早抵達可能會被建議先回家，除非破水、胎動異常或有緊急狀況。',
         type:'choice', options:['一感覺到陣痛就想去','規律陣痛、符合5-1-1原則再去','由醫師／助產師判斷']},
@@ -622,7 +711,7 @@ async function submitGate(){
 
   state.user = {name, email};
   btn.disabled = false;
-  btn.textContent = '解鎖我的生產計畫';
+  btn.textContent = '讓 WAVE 開始生成';
   goTo('builder');
 }
 
@@ -650,7 +739,7 @@ function totalAnswered(){
 
 function renderBuilder(){
   document.getElementById('builderGreeting').textContent =
-    state.user.name ? `${state.user.name}，這是為妳客製化的生產計畫` : '為妳客製化的生產計畫';
+    state.user.name ? `${state.user.name}，WAVE 正在為妳準備計畫` : 'WAVE 正在為妳準備計畫';
   document.getElementById('progCurrent').textContent = `已選擇 ${totalAnswered()} 項`;
 
   const list = document.getElementById('categoryList');
@@ -775,12 +864,11 @@ function removeAnswer(){
 =========================================================== */
 function renderFinish(){
   document.getElementById('finishName').textContent =
-    state.user.name ? `${state.user.name}，妳的計畫已經寄到 ${state.user.email}` : '妳的計畫已經準備好了';
+    state.user.name ? `${state.user.name}，妳的計畫已經準備好了` : '妳的計畫已經準備好了';
   document.getElementById('statSelected').textContent = totalAnswered();
   document.getElementById('statCats').textContent = CATEGORIES.filter(c=>answeredCountForCategory(c)>0).length;
-
-  // TODO: replace with your real booking page URL on oceandoula.com
   document.getElementById('bookingLink').href = 'https://www.oceandoula.com/booking';
+  renderVisualPlan();
 }
 
 function downloadPdf(){
@@ -788,9 +876,216 @@ function downloadPdf(){
 }
 
 /* ===========================================================
+   VISUAL BIRTH PLAN SVG GENERATOR
+=========================================================== */
+const ICON_MAP = {
+  // philosophy
+  unmedicated: {path:'M12 2C8 2 4 6 4 10c0 5 8 12 8 12s8-7 8-12c0-4-4-8-8-8zm0 10a2 2 0 110-4 2 2 0 010 4z', label:'自然生產'},
+  open:        {path:'M21 12c0 5-4 9-9 9S3 17 3 12 7 3 12 3s9 4 9 9zM12 8v4l3 3', label:'保持彈性'},
+  medicated:   {path:'M9 3h6l1 3H8L9 3zM5 8h14l-1 13H6L5 8zm4 4v5m4-5v5', label:'減痛分娩'},
+  csection:    {path:'M12 22s-8-5-8-11a8 8 0 0116 0c0 6-8 11-8 11z M9 12h6 M12 9v6', label:'剖腹產'},
+  // pain
+  '冷熱敷':    {path:'M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83', label:'冷熱敷'},
+  '按摩':      {path:'M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3', label:'按摩'},
+  '減痛分娩（硬脊膜外）': {path:'M9 3h6l1 3H8L9 3zM5 8h14l-1 13H6L5 8z', label:'無痛分娩'},
+  '笑氣':      {path:'M12 2a10 10 0 100 20A10 10 0 0012 2zm0 6v4l3 2', label:'笑氣'},
+  '水中減痛（溫水池/淋浴）': {path:'M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z M12 9a3 3 0 100 6 3 3 0 000-6z', label:'水中減痛'},
+  '自由進食與飲水': {path:'M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z', label:'自由飲食'},
+  '催眠生產（HypnoBirthing）': {path:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-4h2v2h-2zm0-10h2v8h-2z', label:'催眠生產'},
+  // movement
+  '站立':      {path:'M12 2a3 3 0 100 6 3 3 0 000-6zM9 10h6l1 5h-2l-1 7h-2l-1-7H8l1-5z', label:'站立'},
+  '走動':      {path:'M13 4a1 1 0 100 2 1 1 0 000-2zm-2 3l-3 4 2 1 1 4h2l1-3 2 2v4h2v-5l-3-3 1-3 2 2h2V7h-4l-2 2-1-2H11z', label:'走動'},
+  '生產球（瑜珈球）': {path:'M12 2a10 10 0 100 20A10 10 0 0012 2zm0 3a7 7 0 017 7 7 7 0 01-7 7 7 7 0 01-7-7 7 7 0 017-7z', label:'生產球'},
+  '水療池 / 浴缸': {path:'M2 12s3-5 10-5 10 5 10 5v4H2v-4zM6 12V7a2 2 0 012-2h8a2 2 0 012 2v5', label:'水療池'},
+  // birth moment
+  '希望延遲剪斷臍帶': {path:'M12 22V12M12 12C9 9 5 8 3 10M12 12c3-3 7-4 9-2M8 17l4-5 4 5', label:'延遲剪臍'},
+  '希望寶寶出生後立即肌膚接觸': {path:'M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z', label:'肌膚接觸'},
+  '希望使用鏡子看見生產過程': {path:'M12 2a10 10 0 100 20A10 10 0 0012 2zm0 4a6 6 0 110 12A6 6 0 0112 6zm0 2a4 4 0 100 8 4 4 0 000-8z', label:'使用鏡子'},
+  // postpartum
+  '維生素K注射': {path:'M9 3h6l1 3H8L9 3zM5 8h14l-1 13H6L5 8zm7 3v6', label:'維生素K'},
+  '沐浴時間可以延後': {path:'M4 12h16M4 12a8 8 0 018-8M4 12a8 8 0 008 8M20 12a8 8 0 01-8 8M20 12a8 8 0 00-8-8', label:'延後沐浴'},
+  // c-section
+  '希望伴侶全程在場': {path:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75', label:'伴侶在場'},
+  '希望在手術台上就開始肌膚接觸': {path:'M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z', label:'手術台接觸'},
+  // monitoring
+  '間歇性監測（限制較少）': {path:'M22 12h-4l-3 9L9 3l-3 9H2', label:'間歇監測'},
+  '連續性外部監測': {path:'M22 12h-4l-3 9L9 3l-3 9H2', label:'連續監測'},
+  '若有提供，希望使用無線監測': {path:'M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01', label:'無線監測'},
+  // hydration
+  '喝水／吃冰塊': {path:'M12 2.69l5.66 5.66a8 8 0 11-11.31 0z', label:'喝水冰塊'},
+  '清流質（果凍、高湯、冰棒）': {path:'M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z', label:'清流質'},
+  '點滴輸液': {path:'M9 3h6l1 3H8L9 3zM5 8h14l-1 13H6L5 8z M12 10v6', label:'點滴'},
+  // pushing
+  '想嘗試不同姿勢': {path:'M12 2a3 3 0 100 6 3 3 0 000-6zM5 22l2-8h10l2 8H5z M9 14l3-4 3 4', label:'自由姿勢'},
+  '希望延遲剪斷臍帶 ': {path:'M12 22V12M8 17l4-5 4 5', label:'延遲剪臍'},
+};
+
+// Section icons (for category headers in visual plan)
+const SEC_ICONS = {
+  before:       'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+  pain:         'M12 2.69l5.66 5.66a8 8 0 11-11.31 0z',
+  labor:        'M22 12h-4l-3 9L9 3l-3 9H2',
+  pushing:      'M12 2a3 3 0 100 6 3 3 0 000-6zM9 10h6l1 5h-2l-1 7h-2l-1-7H8l1-5z',
+  csection_pref:'M12 22s-8-5-8-11a8 8 0 0116 0c0 6-8 11-8 11z M9 12h6 M12 9v6',
+  postpartum:   'M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z',
+  unexpected:   'M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm0-11v-4m0 8h.01',
+};
+
+const PALETTE = {
+  deep:'#0B3D45', ocean:'#1A6B72', lagoon:'#5FB3B8',
+  foam:'#E8F4F1', sand:'#FAF8F3', coral:'#D98E5C',
+  seafoam:'#A8D5D1', mist:'#D4EEEC'
+};
+
+function svgIcon(path, x, y, size=20, color='#1A6B72'){
+  const scale = size/24;
+  return `<g transform="translate(${x},${y}) scale(${scale})">
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>`;
+}
+
+function svgText(txt, x, y, opts={}){
+  const {size=11, color='#0B3D45', anchor='middle', weight='normal', maxW=80} = opts;
+  // Truncate if too long
+  const display = txt.length > 8 ? txt.slice(0,7)+'…' : txt;
+  return `<text x="${x}" y="${y}" font-family="Noto Sans TC, sans-serif" font-size="${size}" fill="${color}" text-anchor="${anchor}" font-weight="${weight}">${display}</text>`;
+}
+
+function renderVisualPlan(){
+  const svg = document.getElementById('visualPlanSvg');
+  const W = 794, H = 560;
+  const pad = 32;
+
+  // Collect all selected preference chips
+  const chips = [];
+
+  // Philosophy chip
+  if(state.philosophy){
+    const p = PHILOSOPHIES.find(x=>x.id===state.philosophy);
+    if(p) chips.push({label: p.title.slice(0,8), icon: ICON_MAP[state.philosophy], section:'生產理念', secId:'philosophy'});
+  }
+
+  // All answered items → individual chips
+  CATEGORIES.forEach(cat=>{
+    cat.items.forEach(item=>{
+      const val = state.answers[item.id];
+      if(!val) return;
+      if(Array.isArray(val)){
+        val.forEach(v=>{
+          const ic = ICON_MAP[v] || ICON_MAP[v.trim()];
+          chips.push({label: ic ? ic.label : (v.length>7?v.slice(0,6)+'…':v), icon: ic, section: cat.name, secId: cat.id});
+        });
+      } else {
+        const ic = ICON_MAP[item.id];
+        const shortVal = val.length > 8 ? val.slice(0,7)+'…' : val;
+        chips.push({label: item.name.length>7?item.name.slice(0,6)+'…':item.name, icon: ic, section: cat.name, secId: cat.id, note: shortVal});
+      }
+    });
+  });
+
+  // Group by section
+  const sections = {};
+  chips.forEach(c=>{
+    if(!sections[c.section]) sections[c.section] = {id:c.secId, items:[]};
+    sections[c.section].items.push(c);
+  });
+  const secKeys = Object.keys(sections);
+
+  // Layout constants
+  const CHIP_W = 88, CHIP_H = 88, COL_GAP = 12, ROW_GAP = 12;
+  const HEADER_H = 60, SEC_GAP = 18;
+  const cols = Math.floor((W - pad*2 + COL_GAP) / (CHIP_W + COL_GAP));
+
+  let parts = [];
+
+  // Background
+  parts.push(`<rect width="${W}" height="${H}" fill="${PALETTE.sand}"/>`);
+
+  // Top header bar
+  parts.push(`<rect x="0" y="0" width="${W}" height="52" fill="${PALETTE.ocean}"/>`);
+  // Wave deco in header
+  parts.push(`<path d="M0 40 C${W*0.15} 20 ${W*0.3} 52 ${W*0.5} 35 C${W*0.7} 18 ${W*0.85} 45 ${W} 30 L${W} 52 L0 52Z" fill="rgba(255,255,255,0.12)"/>`);
+  parts.push(`<text x="${pad}" y="34" font-family="Noto Serif TC, serif" font-size="18" fill="white" font-weight="700">🌊 WAVE Support · 生產計畫書</text>`);
+  if(state.user.name){
+    parts.push(`<text x="${W-pad}" y="34" font-family="Noto Sans TC, sans-serif" font-size="12" fill="rgba(255,255,255,0.85)" text-anchor="end">${state.user.name}</text>`);
+  }
+
+  // Watermark text bottom
+  parts.push(`<text x="${W/2}" y="${H-10}" font-family="Noto Sans TC, sans-serif" font-size="10" fill="${PALETTE.lagoon}" text-anchor="middle" opacity="0.6">oceandoula.com · 本計畫僅供溝通參考，不取代醫療專業建議</text>`);
+
+  // Render sections
+  let curY = 64;
+
+  if(secKeys.length === 0){
+    parts.push(`<text x="${W/2}" y="${H/2}" font-family="Noto Sans TC,sans-serif" font-size="14" fill="${PALETTE.ocean}" text-anchor="middle">請先填寫生產計畫，視覺版將自動生成</text>`);
+  }
+
+  secKeys.forEach((secName, si)=>{
+    const sec = sections[secName];
+    const items = sec.items;
+    if(items.length === 0) return;
+    if(curY > H - 80) return; // overflow guard
+
+    // Section label bar
+    const secIconPath = SEC_ICONS[sec.id] || SEC_ICONS.before;
+    parts.push(`<rect x="${pad}" y="${curY}" width="${W - pad*2}" height="28" rx="8" fill="${PALETTE.mist}"/>`);
+    parts.push(svgIcon(secIconPath, pad+6, curY+4, 20, PALETTE.ocean));
+    parts.push(`<text x="${pad+30}" y="${curY+19}" font-family="Noto Sans TC, sans-serif" font-size="12" fill="${PALETTE.deep}" font-weight="700">${secName}</text>`);
+    curY += 34;
+
+    // Chips in rows
+    let chipX = pad, chipY = curY;
+    items.forEach((chip, ci)=>{
+      if(chipX + CHIP_W > W - pad){
+        chipX = pad;
+        chipY += CHIP_H + ROW_GAP;
+      }
+      if(chipY + CHIP_H > H - 24) return; // overflow guard
+
+      // Chip background
+      parts.push(`<rect x="${chipX}" y="${chipY}" width="${CHIP_W}" height="${CHIP_H}" rx="14" fill="white" stroke="${PALETTE.line||'#CFE3E1'}" stroke-width="1.2"/>`);
+      // Subtle top accent
+      parts.push(`<rect x="${chipX}" y="${chipY}" width="${CHIP_W}" height="4" rx="14" fill="${PALETTE.lagoon}" opacity="0.6"/>`);
+      // Icon circle bg
+      parts.push(`<circle cx="${chipX+CHIP_W/2}" cy="${chipY+28}" r="18" fill="${PALETTE.foam}"/>`);
+      // Icon
+      if(chip.icon){
+        parts.push(svgIcon(chip.icon.path, chipX+CHIP_W/2-10, chipY+18, 20, PALETTE.ocean));
+      } else {
+        // Fallback: first char as big text
+        parts.push(`<text x="${chipX+CHIP_W/2}" y="${chipY+34}" font-family="Noto Sans TC,sans-serif" font-size="16" fill="${PALETTE.ocean}" text-anchor="middle">${chip.label[0]}</text>`);
+      }
+      // Label
+      const label = chip.label.length > 6 ? chip.label.slice(0,5)+'…' : chip.label;
+      parts.push(`<text x="${chipX+CHIP_W/2}" y="${chipY+58}" font-family="Noto Sans TC, sans-serif" font-size="10" fill="${PALETTE.deep}" text-anchor="middle" font-weight="500">${label}</text>`);
+      // Note (for text items)
+      if(chip.note){
+        const note = chip.note.length > 7 ? chip.note.slice(0,6)+'…' : chip.note;
+        parts.push(`<text x="${chipX+CHIP_W/2}" y="${chipY+71}" font-family="Noto Sans TC, sans-serif" font-size="9" fill="#7A9A9C" text-anchor="middle">${note}</text>`);
+      }
+
+      chipX += CHIP_W + COL_GAP;
+      // Update curY tracking
+      if(ci === items.length-1){
+        curY = chipY + CHIP_H + SEC_GAP;
+      }
+    });
+
+    if(items.length > 0 && chipX === pad){
+      // already wrapped, curY updated above
+    } else if(items.length > 0){
+      curY = chipY + CHIP_H + SEC_GAP;
+    }
+  });
+
+  svg.innerHTML = parts.join('\n');
+}
+
+/* ===========================================================
    INIT
 =========================================================== */
 renderPhilosophy();
 </script>
-</body>
-</html>
+
+
+</body></html>
