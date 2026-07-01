@@ -835,7 +835,7 @@ function renderFinish(){
     state.user.name ? `${state.user.name}，妳的計畫已經準備好了` : '妳的計畫已經準備好了';
   document.getElementById('statSelected').textContent = totalAnswered();
   document.getElementById('statCats').textContent = CATEGORIES.filter(c=>answeredCountForCategory(c)>0).length;
-  document.getElementById('bookingLink').href = 'https://www.oceandoula.com/booking';
+  document.getElementById('bookingLink').href = 'https://calendly.com/oceanmamadoula/15minfree';
   renderVisualPlan();
 }
 
