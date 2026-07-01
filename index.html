@@ -923,99 +923,77 @@ async function generateAIPlan(){
   document.getElementById('aiPlanContent').style.display = 'none';
   document.getElementById('aiError').style.display = 'none';
 
-  // Small delay so loading animation shows
-  await new Promise(r => setTimeout(r, 600));
+  await new Promise(function(r){ setTimeout(r, 500); });
 
   try {
-    const name = state.user.name || '妳';
-    const phil = PHILOSOPHIES.find(p=>p.id===state.philosophy);
-    const philText = phil ? phil.title : '';
+    var name = state.user.name || '妳';
+    var phil = PHILOSOPHIES.find(function(p){ return p.id===state.philosophy; });
+    var philText = phil ? phil.title : '';
 
-    // Helper to get answer
-    const ans = id => state.answers[id];
-    const ansArr = id => Array.isArray(state.answers[id]) ? state.answers[id] : [];
-    const has = id => isAnswered(id);
+    function ans(id){ return state.answers[id]; }
+    function ansArr(id){ return Array.isArray(state.answers[id]) ? state.answers[id] : []; }
+    function has(id){ return isAnswered(id); }
+    function li(text){ return '<li>' + text + '</li>'; }
+    function ul(items){ return items.length ? '<ul>' + items.map(function(i){ return li(i); }).join('') + '</ul>' : ''; }
 
-    let sections = [];
+    var html = '';
 
-    // ── 開場白 ──────────────────────────────────────────────────
-    let intro = `親愛的醫療與照護團隊，
+    // 開場白
+    html += '<p>親愛的醫療與照護團隊，</p>';
+    html += '<p>我是 ' + name + '。這份生產計畫書整理了我在生產過程中最在意的事，希望能幫助我們共同創造一個安全、被尊重的生產經驗。</p>';
+    if(philText) html += '<p>我的生產理念是：<strong>' + philText + '</strong></p>';
+    if(has('belief')) html += '<p>對我來說最重要的是：' + ans('belief') + '</p>';
 
-我是 ${name}。這份生產計畫書整理了我在生產過程中最在意的事，希望能幫助我們共同創造一個安全、被尊重的生產經驗。`;
-    if(philText) intro += `
+    // 產前準備
+    var before = [];
+    if(has('support')) before.push('陪產支持者：' + ans('support'));
+    if(has('place')) before.push('生產地點：' + ans('place'));
+    if(has('hospital_time')) before.push('入院時機：' + ans('hospital_time'));
+    if(before.length){ html += '<h4>📋 產前準備</h4>' + ul(before); }
 
-我的整體生產理念是：${philText}。`;
-    if(has('belief')) intro += `
-對我來說最重要的是：${ans('belief')}`;
-    sections.push({title: null, body: intro});
+    // 疼痛管理
+    var pain = [];
+    if(has('consent')) pain.push('減痛告知偏好：' + ans('consent'));
+    if(ansArr('med_options').length) pain.push('有興趣的減痛方式：' + ansArr('med_options').join('、'));
+    if(ansArr('coping').length) pain.push('非藥物舒緩方式：' + ansArr('coping').join('、'));
+    if(pain.length){ html += '<h4>💧 疼痛管理</h4>' + ul(pain); }
 
-    // ── 產前準備 ────────────────────────────────────────────────
-    let beforeItems = [];
-    if(has('support')) beforeItems.push(`陪產支持者：${ans('support')}`);
-    if(has('place')) beforeItems.push(`生產地點：${ans('place')}`);
-    if(has('hospital_time')) beforeItems.push(`入院時機：${ans('hospital_time')}`);
-    if(beforeItems.length) sections.push({title:'📋 產前準備', body: beforeItems.map(i=>`• ${i}`).join('
-')});
+    // 產程中
+    var labor = [];
+    if(has('induction')) labor.push('催生／引產：' + ans('induction'));
+    if(ansArr('movement').length) labor.push('活動與姿勢：' + ansArr('movement').join('、'));
+    if(ansArr('equipment').length) labor.push('生產輔具：' + ansArr('equipment').join('、'));
+    if(has('exams')) labor.push('內診偏好：' + ans('exams'));
+    if(has('monitoring')) labor.push('胎兒監測：' + ans('monitoring'));
+    if(ansArr('hydration').length) labor.push('補水方式：' + ansArr('hydration').join('、'));
+    if(labor.length){ html += '<h4>🌀 產程中</h4>' + ul(labor); }
 
-    // ── 疼痛與減痛 ──────────────────────────────────────────────
-    let painItems = [];
-    if(has('consent')) painItems.push(`減痛告知偏好：${ans('consent')}`);
-    if(ansArr('med_options').length) painItems.push(`有興趣的減痛方式：${ansArr('med_options').join('、')}`);
-    if(ansArr('coping').length) painItems.push(`非藥物舒緩方式：${ansArr('coping').join('、')}`);
-    if(painItems.length) sections.push({title:'💧 疼痛管理', body: painItems.map(i=>`• ${i}`).join('
-')});
+    // 用力與生產
+    var push = [];
+    if(ansArr('push_pref').length) push.push('用力偏好：' + ansArr('push_pref').join('、'));
+    if(ansArr('delivery_pref').length) push.push('出生那一刻：' + ansArr('delivery_pref').join('、'));
+    if(push.length){ html += '<h4>🌅 用力與生產</h4>' + ul(push); }
 
-    // ── 產程中 ──────────────────────────────────────────────────
-    let laborItems = [];
-    if(has('induction')) laborItems.push(`催生／引產：${ans('induction')}`);
-    if(ansArr('movement').length) laborItems.push(`活動與姿勢：${ansArr('movement').join('、')}`);
-    if(ansArr('equipment').length) laborItems.push(`生產輔具：${ansArr('equipment').join('、')}`);
-    if(has('exams')) laborItems.push(`內診偏好：${ans('exams')}`);
-    if(has('monitoring')) laborItems.push(`胎兒監測：${ans('monitoring')}`);
-    if(ansArr('hydration').length) laborItems.push(`補水方式：${ansArr('hydration').join('、')}`);
-    if(laborItems.length) sections.push({title:'🌀 產程中', body: laborItems.map(i=>`• ${i}`).join('
-')});
+    // 若需要剖腹產
+    var cs = [];
+    if(has('cs_partner')) cs.push('伴侶陪同：' + ans('cs_partner'));
+    if(has('cs_skin')) cs.push('肌膚接觸：' + ans('cs_skin'));
+    if(has('cs_curtain')) cs.push('看見寶寶出生：' + ans('cs_curtain'));
+    if(cs.length){ html += '<h4>🤍 若需要剖腹產</h4>' + ul(cs); }
 
-    // ── 用力與生產 ──────────────────────────────────────────────
-    let pushItems = [];
-    if(ansArr('push_pref').length) pushItems.push(`用力偏好：${ansArr('push_pref').join('、')}`);
-    if(ansArr('delivery_pref').length) pushItems.push(`出生那一刻：${ansArr('delivery_pref').join('、')}`);
-    if(pushItems.length) sections.push({title:'🌅 用力與生產', body: pushItems.map(i=>`• ${i}`).join('
-')});
+    // 產後
+    var pp = [];
+    if(has('skin_to_skin')) pp.push('肌膚接觸：' + ans('skin_to_skin'));
+    if(has('placenta')) pp.push('胎盤：' + ans('placenta'));
+    if(ansArr('newborn_proc').length) pp.push('新生兒處置：' + ansArr('newborn_proc').join('、'));
+    if(pp.length){ html += '<h4>🌤 產後立即時刻</h4>' + ul(pp); }
 
-    // ── 若需要剖腹產 ────────────────────────────────────────────
-    let csItems = [];
-    if(has('cs_partner')) csItems.push(`伴侶陪同：${ans('cs_partner')}`);
-    if(has('cs_skin')) csItems.push(`肌膚接觸：${ans('cs_skin')}`);
-    if(has('cs_curtain')) csItems.push(`看見寶寶出生：${ans('cs_curtain')}`);
-    if(csItems.length) sections.push({title:'🤍 若需要剖腹產', body: csItems.map(i=>`• ${i}`).join('
-')});
+    // 若情況有變化
+    if(has('flex_note')){ html += '<h4>🧭 若情況有變化</h4><ul>' + li(ans('flex_note')) + '</ul>'; }
 
-    // ── 產後 ────────────────────────────────────────────────────
-    let ppItems = [];
-    if(has('skin_to_skin')) ppItems.push(`肌膚接觸：${ans('skin_to_skin')}`);
-    if(has('placenta')) ppItems.push(`胎盤：${ans('placenta')}`);
-    if(ansArr('newborn_proc').length) ppItems.push(`新生兒處置：${ansArr('newborn_proc').join('、')}`);
-    if(ppItems.length) sections.push({title:'🌤 產後立即時刻', body: ppItems.map(i=>`• ${i}`).join('
-')});
-
-    // ── 若情況有變化 ────────────────────────────────────────────
-    if(has('flex_note')){
-      sections.push({title:'🧭 若情況有變化', body:`• ${ans('flex_note')}`});
-    }
-
-    // ── 結語 ────────────────────────────────────────────────────
-    sections.push({title: null, body:`感謝您花時間閱讀我的生產計畫。我理解生產過程充滿變數，這份計畫代表的是我的期望與價值觀，而非一成不變的規定。期待與您的團隊共同合作，迎接寶寶的到來。
-
-— ${name}`});
-
-    // ── Render ───────────────────────────────────────────────────
-    const html = sections.map(s => {
-      const title = s.title ? `<h4>${s.title}</h4>` : '';
-      const body = s.body.replace(/
-/g, '<br>');
-      return `${title}<p>${body}</p>`;
-    }).join('');
+    // 結語
+    html += '<p>感謝您花時間閱讀我的生產計畫。我理解生產過程充滿變數，這份計畫代表的是我的期望與價值觀。期待與您的團隊共同合作，迎接寶寶的到來。</p>';
+    html += '<p>— ' + name + '</p>';
 
     document.getElementById('aiPlanContent').innerHTML = html;
     document.getElementById('aiLoading').style.display = 'none';
