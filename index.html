@@ -308,6 +308,56 @@ a{color:inherit;}
 .cta-card.secondary .go{color:var(--ocean);}
 
 
+
+/* ---------- AI Generated Plan ---------- */
+.ai-section{margin-top:36px;}
+.ai-section h3{font-size:20px; color:var(--deep); font-weight:700; font-family:"Noto Serif TC",serif; margin-bottom:6px;}
+.ai-section .ai-sub{font-size:13px; color:#7A9A9C; margin-bottom:20px;}
+
+.ai-plan-box{
+  background:#fff; border-radius:20px; border:1.5px solid var(--line);
+  padding:32px 28px; position:relative; overflow:hidden;
+}
+.ai-plan-box::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:4px;
+  background:linear-gradient(90deg, var(--lagoon), var(--ocean), var(--coral));
+}
+.ai-loading{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:48px 24px; text-align:center; gap:16px;
+}
+.ai-loading .wave-dots{display:flex; gap:8px; align-items:center;}
+.ai-loading .wave-dots span{
+  width:10px; height:10px; border-radius:50%; background:var(--lagoon);
+  animation:waveDot 1.2s ease-in-out infinite;
+}
+.ai-loading .wave-dots span:nth-child(2){animation-delay:.2s;}
+.ai-loading .wave-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes waveDot{0%,80%,100%{transform:scale(0.7); opacity:.5;} 40%{transform:scale(1); opacity:1;}}
+.ai-loading p{font-size:14px; color:#7A9A9C; word-break:keep-all;}
+
+.ai-plan-content{font-size:14.5px; color:var(--deep); line-height:2; word-break:keep-all;}
+.ai-plan-content h4{
+  font-family:"Noto Serif TC",serif; font-size:16px; color:var(--ocean);
+  font-weight:700; margin:24px 0 8px; padding-bottom:6px;
+  border-bottom:1.5px solid var(--foam);
+}
+.ai-plan-content h4:first-child{margin-top:0;}
+.ai-plan-content p{margin-bottom:10px; color:#3C5C60;}
+.ai-plan-content ul{padding-left:18px; margin-bottom:10px;}
+.ai-plan-content li{margin-bottom:6px; color:#3C5C60;}
+
+.ai-error{text-align:center; padding:32px; color:#C25E2E; font-size:14px; word-break:keep-all;}
+.ai-error button{margin-top:16px; background:var(--ocean); color:#fff; padding:12px 24px; border-radius:100px; font-size:14px; font-weight:600;}
+
+.btn-regenerate{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:13px; font-weight:600; color:var(--ocean); margin-top:20px;
+  padding:10px 20px; border-radius:100px; border:1.5px solid var(--line);
+  background:#fff; transition:all .2s; white-space:nowrap;
+}
+.btn-regenerate:hover{border-color:var(--ocean);}
+
 /* ---------- Visual Birth Plan ---------- */
 .visual-section{margin-top:48px;}
 .visual-section .vs-head{
@@ -461,6 +511,24 @@ footer a{text-decoration:underline;}
         <div class="finish-stat"><div class="num" id="statSelected">0</div><div class="lbl">已選擇的偏好</div></div>
         <div class="finish-stat"><div class="num" id="statCats">0</div><div class="lbl">涵蓋類別</div></div>
       </div>
+    </div>
+
+    <!-- AI Generated Plan -->
+    <div class="ai-section">
+      <h3>✨ WAVE 為妳生成的計畫書</h3>
+      <div class="ai-sub">根據妳的選擇，由 AI 整理成一份可以直接跟醫療團隊分享的文字版計畫書</div>
+      <div class="ai-plan-box" id="aiPlanBox">
+        <div class="ai-loading" id="aiLoading">
+          <div class="wave-dots"><span></span><span></span><span></span></div>
+          <p>WAVE 正在為妳整理計畫書，請稍候…</p>
+        </div>
+        <div class="ai-plan-content" id="aiPlanContent" style="display:none;"></div>
+        <div class="ai-error" id="aiError" style="display:none;">
+          <p>生成時發生問題，請稍後再試</p>
+          <button onclick="generateAIPlan()">重新生成</button>
+        </div>
+      </div>
+      <button class="btn-regenerate" onclick="generateAIPlan()">↺ 重新生成</button>
     </div>
 
     <!-- Visual Birth Plan Preview -->
@@ -837,10 +905,82 @@ function renderFinish(){
   document.getElementById('statCats').textContent = CATEGORIES.filter(c=>answeredCountForCategory(c)>0).length;
   document.getElementById('bookingLink').href = 'https://calendly.com/oceanmamadoula/15minfree';
   renderVisualPlan();
+  generateAIPlan();
 }
 
 function downloadPdf(){
   window.print();
+}
+
+
+/* ===========================================================
+   AI PLAN GENERATOR
+=========================================================== */
+async function generateAIPlan(){
+  // Show loading
+  document.getElementById('aiLoading').style.display = 'flex';
+  document.getElementById('aiPlanContent').style.display = 'none';
+  document.getElementById('aiError').style.display = 'none';
+
+  // Build prompt from state
+  const name = state.user.name || '妳';
+  const phil = PHILOSOPHIES.find(p=>p.id===state.philosophy);
+  const philText = phil ? phil.title : '未指定';
+
+  let answerLines = [];
+  CATEGORIES.forEach(cat=>{
+    cat.items.forEach(item=>{
+      const val = state.answers[item.id];
+      if(!val) return;
+      const valText = Array.isArray(val) ? val.join('、') : val;
+      answerLines.push(`【${cat.name}】${item.name}：${valText}`);
+    });
+  });
+
+  const prompt = `你是一位專業的台灣陪產員（Doula），請根據以下準媽媽的生產偏好，用繁體中文幫她整理成一份溫柔、清晰、專業的生產計畫書。
+
+準媽媽姓名：${name}
+生產理念：${philText}
+
+填寫的偏好：
+${answerLines.join('
+')}
+
+請用以下格式輸出，每個區塊用 #### 作為標題，內容用條列方式呈現。語氣要溫暖、尊重、以媽媽為中心。不要加入她沒有填寫的內容。不要加入任何免責聲明。直接輸出計畫書內容，不要有前言。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+
+    // Render markdown-lite
+    const html = text
+      .replace(/#### (.+)/g, '<h4>$1</h4>')
+      .replace(/### (.+)/g, '<h4>$1</h4>')
+      .replace(/## (.+)/g, '<h4>$1</h4>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^[\-\*] (.+)/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>\n?)+/g, s => '<ul>'+s+'</ul>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/^(?!<[hup])/gm, '')
+      .trim();
+
+    document.getElementById('aiPlanContent').innerHTML = html || text;
+    document.getElementById('aiLoading').style.display = 'none';
+    document.getElementById('aiPlanContent').style.display = 'block';
+  } catch(e) {
+    console.error(e);
+    document.getElementById('aiLoading').style.display = 'none';
+    document.getElementById('aiError').style.display = 'block';
+  }
 }
 
 /* ===========================================================
