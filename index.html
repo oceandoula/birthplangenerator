@@ -1,12 +1,13 @@
-<!DOCTYPE html>
-<!-- saved from url=(0061)file:///Users/naphiac/Downloads/ocean-doula-birth-plan_9.html -->
-<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WAVE Support｜AI 生產計畫助理</title>
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="./index_files/css2" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --deep:#0B3D45;
@@ -355,10 +356,10 @@ footer a{text-decoration:underline;}
 
 <div class="bg-wave">
   <svg class="w1" viewBox="0 0 1440 200" preserveAspectRatio="none" height="200">
-    <path d="M0,100 C240,180 480,20 720,100 C960,180 1200,20 1440,100 L1440,200 L0,200 Z" fill="#E8F4F1"></path>
+    <path d="M0,100 C240,180 480,20 720,100 C960,180 1200,20 1440,100 L1440,200 L0,200 Z" fill="#E8F4F1"/>
   </svg>
   <svg class="w2" viewBox="0 0 1440 200" preserveAspectRatio="none" height="160">
-    <path d="M0,120 C240,40 480,160 720,90 C960,30 1200,150 1440,90 L1440,200 L0,200 Z" fill="#DCEFEC"></path>
+    <path d="M0,120 C240,40 480,160 720,90 C960,30 1200,150 1440,90 L1440,200 L0,200 Z" fill="#DCEFEC"/>
   </svg>
 </div>
 
@@ -378,9 +379,9 @@ footer a{text-decoration:underline;}
     <h1 style="white-space:nowrap;">讓 <em>WAVE</em> 陪你</h1>
     <p class="lede">告訴 WAVE 妳的生產想法，AI 幫妳整理成一份清晰、完整、可以直接帶去產檢的生產計畫書。</p>
     <div class="hero-cta">
-      <button class="btn-primary" onclick="goTo(&#39;philosophy&#39;)">
+      <button class="btn-primary" onclick="goTo('philosophy')">
         開始建立我的生產計畫
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
     <div class="hero-foot">由 AI 生成 · 完全免費 · 符合台灣產檢情境 · 完成後可下載 PDF</div>
@@ -395,41 +396,9 @@ footer a{text-decoration:underline;}
       <h2>在妳心中，理想的生產比較接近哪一種？</h2>
       <p class="sub">這不是測驗，沒有標準答案 —— 妳的計畫會依照這個方向客製化。</p>
     </div>
-    <div class="choice-grid" id="philosophyGrid">
-    <button class="choice-card " onclick="pickPhilosophy(&#39;unmedicated&#39;)">
-      <div class="choice-icon">🌿</div>
-      <div class="choice-text">
-        <strong>盡量自然、不打減痛分娩</strong>
-        <span>希望盡可能減少醫療介入，靠呼吸、姿勢與支持度過產程。</span>
-      </div>
-    </button>
-  
-    <button class="choice-card " onclick="pickPhilosophy(&#39;open&#39;)">
-      <div class="choice-icon">🌊</div>
-      <div class="choice-text">
-        <strong>保持彈性，視當下狀況決定</strong>
-        <span>想了解所有選項，依照產程進展，當下再決定要不要使用醫療協助。</span>
-      </div>
-    </button>
-  
-    <button class="choice-card " onclick="pickPhilosophy(&#39;medicated&#39;)">
-      <div class="choice-icon">💧</div>
-      <div class="choice-text">
-        <strong>希望有減痛分娩等醫療協助</strong>
-        <span>重視產程中的舒適與安心感，傾向使用減痛分娩或其他醫療資源。</span>
-      </div>
-    </button>
-  
-    <button class="choice-card " onclick="pickPhilosophy(&#39;csection&#39;)">
-      <div class="choice-icon">🤍</div>
-      <div class="choice-text">
-        <strong>計畫或可能需要剖腹產</strong>
-        <span>已知或預期會是剖腹產，想了解怎麼讓這個經驗也能盡量溫柔、自主。</span>
-      </div>
-    </button>
-  </div>
+    <div class="choice-grid" id="philosophyGrid"></div>
     <div class="builder-nav" style="justify-content:flex-end;">
-      <button class="btn-next" id="philosophyNext" disabled="" onclick="goTo(&#39;gate&#39;)">下一步</button>
+      <button class="btn-next" id="philosophyNext" disabled onclick="goTo('gate')">下一步</button>
     </div>
   </div>
 </section>
@@ -476,8 +445,8 @@ footer a{text-decoration:underline;}
     </div>
     <div id="categoryList"></div>
     <div class="builder-nav">
-      <button class="btn-ghost" onclick="goTo(&#39;philosophy&#39;)">← 返回上一步</button>
-      <button class="btn-next" onclick="goTo(&#39;finish&#39;)">完成，產生我的計畫 →</button>
+      <button class="btn-ghost" onclick="goTo('philosophy')">← 返回上一步</button>
+      <button class="btn-next" onclick="goTo('finish')">完成，產生我的計畫 →</button>
     </div>
   </div>
 </section>
@@ -509,7 +478,7 @@ footer a{text-decoration:underline;}
           <div class="lock-icon">🔒</div>
           <h4>預約諮詢，解鎖視覺計畫書</h4>
           <p>預約 Naph 的生產計畫諮詢後，妳會在諮詢當天拿到這份可以帶去產房的精美版本。</p>
-          <a href="file:///Users/naphiac/Downloads/ocean-doula-birth-plan_9.html#" id="bookingLink" target="_blank" rel="noopener">
+          <a href="#" id="bookingLink" target="_blank" rel="noopener">
             <button class="btn-unlock">預約生產計畫諮詢，解鎖計畫書 →</button>
           </a>
         </div>
@@ -522,19 +491,19 @@ footer a{text-decoration:underline;}
         <span class="cta-tag" style="color:var(--coral);">文字版副本</span>
         <h4>下載文字版計畫書</h4>
         <p>先把文字版存起來備用，帶著它去產檢時可以跟醫師討論，視覺版等諮詢時再一起完成。</p>
-        <a class="go" href="file:///Users/naphiac/Downloads/ocean-doula-birth-plan_9.html#" onclick="downloadPdf(); return false;">下載文字版 PDF →</a>
+        <a class="go" href="#" onclick="downloadPdf(); return false;">下載文字版 PDF →</a>
       </div>
     </div>
 
     <div style="text-align:center; margin-top:24px;">
-      <button class="btn-ghost" onclick="goTo(&#39;builder&#39;)">← 回去再調整選項</button>
+      <button class="btn-ghost" onclick="goTo('builder')">← 回去再調整選項</button>
     </div>
   </div>
 </section>
 
 <footer>
   © 2026 WAVE Support by Ocean Doula．本工具僅供教育與溝通參考，不能取代妳與醫療團隊之間的專業評估與決定。<br>
-  <a href="https://www.oceandoula.com/" target="_blank">www.oceandoula.com</a>
+  <a href="https://www.oceandoula.com" target="_blank">www.oceandoula.com</a>
 </footer>
 
 <!-- ===================== MODAL ===================== -->
@@ -1086,6 +1055,5 @@ function renderVisualPlan(){
 =========================================================== */
 renderPhilosophy();
 </script>
-
-
-</body></html>
+</body>
+</html>
