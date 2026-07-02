@@ -1014,6 +1014,7 @@ async function generateAIPlan(){
     var pp = [];
     if(has('skin_to_skin')) pp.push('肌膚接觸：' + ans('skin_to_skin'));
     if(has('placenta')) pp.push('胎盤：' + ans('placenta'));
+    if(ansArr('feeding_pref').length) pp.push('哺乳偏好：' + ansArr('feeding_pref').join('、'));
     if(ansArr('newborn_proc').length) pp.push('新生兒與產後照護：' + ansArr('newborn_proc').join('、'));
     if(pp.length){ html += '<h4>✨ 產後黃金時刻</h4>' + ul(pp); }
 
