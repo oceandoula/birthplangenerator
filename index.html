@@ -492,7 +492,7 @@ footer a{text-decoration:underline;}
     </div>
     <div class="builder-progress">
       <span id="progCurrent" class="current">已選擇 0 項</span>
-      <span id="progTotal">共 7 大類別</span>
+      <span id="progTotal">共 8 大類別</span>
     </div>
     <div id="categoryList"></div>
     <div class="builder-nav">
@@ -608,7 +608,7 @@ const CATEGORIES = [
       {id:'consent', name:'醫療團隊是否主動提供減痛選項', desc:'希望醫療團隊主動詢問，還是等妳主動提出需求？',
         type:'choice', options:['請主動跟我說明我的選項','不用主動提，我需要時會說']},
       {id:'med_options', name:'有興趣的減痛方式', desc:'可多選', type:'multi',
-        options:['減痛分娩（硬脊膜外）','笑氣','針劑止痛','暫不使用藥物方式']},
+        options:['減痛分娩（硬脊膜外）','笑氣','針劑止痛','TENS 電療儀','暫不使用藥物方式']},
       {id:'coping', name:'非藥物的舒緩方式', desc:'可多選', type:'multi',
         options:['冷熱敷','音樂／影片轉移注意力','催眠生產（HypnoBirthing）','按摩','自由進食與飲水','水中減痛（溫水池/淋浴）']},
     ]
@@ -634,7 +634,7 @@ const CATEGORIES = [
     id:'pushing', name:'用力與生產', icon:'🌅',
     items:[
       {id:'push_pref', name:'用力時的偏好', desc:'可多選', type:'multi',
-        options:['希望支持者幫忙托腿','想使用蹲式把桿','想使用生產椅','想嘗試不同姿勢','想等到自己有衝動才用力（若無減痛分娩）','希望被引導何時用力']},
+        options:['希望支持者幫忙托腿','想使用蹲式把桿','想使用生產椅','想嘗試不同姿勢','想等到自己有衝動才用力（若無減痛分娩）','希望被引導何時用力','希望拍照或錄影記錄']},
       {id:'delivery_pref', name:'胎兒出生那一刻', desc:'可多選', type:'multi',
         options:['希望使用鏡子看見生產過程','希望延遲剪斷臍帶','希望寶寶出生後立即肌膚接觸','希望伴侶協助「接住」寶寶（若安全許可）']},
     ]
@@ -648,11 +648,32 @@ const CATEGORIES = [
     ]
   },
   {
-    id:'postpartum', name:'產後立即時刻', icon:'🌤',
+    id:'postpartum', name:'產後黃金時刻', icon:'🌤',
     items:[
-      {id:'skin_to_skin', name:'肌膚接觸與第一次餵奶', desc:'', type:'choice', options:['希望立即肌膚接觸，延後常規檢查','希望先完成基本檢查再接觸']},
-      {id:'placenta', name:'胎盤處理方式', desc:'', type:'choice', options:['醫院常規處理','希望帶回家（需確認醫院規定）','想了解延遲剪臍 / 臍帶血保存']},
+      {id:'skin_to_skin', name:'肌膚接觸與第一次餵奶', desc:'', type:'choice', options:['希望出生後立即肌膚接觸（延後常規檢查）','希望先完成基本檢查再接觸','希望在手術台上就開始肌膚接觸（剖腹產）']},
+      {id:'placenta', name:'胎盤處理方式', desc:'', type:'choice', options:['醫院常規處理','希望帶回家','想了解延遲剪臍 / 臍帶血保存']},
       {id:'newborn_proc', name:'新生兒常規處置', desc:'可多選', type:'multi', options:['維生素K注射','新生兒篩檢','沐浴時間可以延後']},
+    ]
+  },
+  {
+    id:'environment', name:'生產環境', icon:'🌿',
+    items:[
+      {id:'lighting', name:'燈光', desc:'妳希望產房的燈光怎麼調整？', type:'multi',
+        options:['希望調暗燈光','希望保留自然光','讓醫療團隊決定']},
+      {id:'music', name:'音樂', desc:'妳希望產房有音樂嗎？', type:'choice',
+        options:['希望播放我自己的音樂播放清單','希望保持安靜','隨意，讓醫療團隊決定']},
+      {id:'temperature', name:'室溫', desc:'妳對室溫有偏好嗎？', type:'choice',
+        options:['希望室溫偏涼','希望室溫偏暖','隨意']},
+      {id:'privacy', name:'隱私與人員進出', desc:'妳希望如何管理產房的人員進出？', type:'multi',
+        options:['希望限制進出人數','不希望有實習生或不認識的醫療人員','所有進入的人請先敲門並自我介紹','歡迎醫療團隊正常進出']},
+      {id:'scent', name:'香氛', desc:'妳希望使用香氛或精油嗎？', type:'choice',
+        options:['希望使用我自己帶的精油或香氛','不需要，保持自然氣味','隨意']},
+      {id:'personal_items', name:'自帶物品', desc:'妳計畫帶哪些個人物品？', type:'multi',
+        options:['自己的枕頭或毯子','自己的衣物或生產裙','生產球','精油或香氛','音響或播放設備','其他個人物品']},
+      {id:'visitors', name:'陪產人數', desc:'妳希望陪產人數怎麼安排？', type:'choice',
+        options:['只希望一位支持者','希望兩位支持者','希望支持者可以輪流進出','隨意']},
+      {id:'photo_rules', name:'拍照與錄影', desc:'妳希望如何記錄生產過程？', type:'multi',
+        options:['希望伴侶拍照記錄','希望錄影記錄生產過程','希望醫療團隊不要拍照','不需要任何拍照或錄影']},
     ]
   },
   {
@@ -986,7 +1007,19 @@ async function generateAIPlan(){
     if(has('skin_to_skin')) pp.push('肌膚接觸：' + ans('skin_to_skin'));
     if(has('placenta')) pp.push('胎盤：' + ans('placenta'));
     if(ansArr('newborn_proc').length) pp.push('新生兒處置：' + ansArr('newborn_proc').join('、'));
-    if(pp.length){ html += '<h4>🌤 產後立即時刻</h4>' + ul(pp); }
+    if(pp.length){ html += '<h4>🌤 產後黃金時刻</h4>' + ul(pp); }
+
+    // 生產環境
+    var env = [];
+    if(has('lighting')) env.push('燈光：' + ansArr('lighting').join('、'));
+    if(has('music')) env.push('音樂：' + ans('music'));
+    if(has('temperature')) env.push('室溫：' + ans('temperature'));
+    if(ansArr('privacy').length) env.push('隱私：' + ansArr('privacy').join('、'));
+    if(has('scent')) env.push('香氛：' + ans('scent'));
+    if(ansArr('personal_items').length) env.push('自帶物品：' + ansArr('personal_items').join('、'));
+    if(has('visitors')) env.push('陪產人數：' + ans('visitors'));
+    if(ansArr('photo_rules').length) env.push('拍照錄影：' + ansArr('photo_rules').join('、'));
+    if(env.length){ html += '<h4>🌿 生產環境</h4>' + ul(env); }
 
     // 若情況有變化
     if(has('flex_note')){ html += '<h4>🧭 若情況有變化</h4><ul>' + li(ans('flex_note')) + '</ul>'; }
