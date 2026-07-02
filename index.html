@@ -600,6 +600,10 @@ const CATEGORIES = [
       {id:'hospital_time', name:'什麼時候去醫院／待產中心', desc:'多數醫院會建議在規律陣痛、符合「5-1-1」原則（每5分鐘一次、每次持續1分鐘、持續1小時）時入院。提早抵達可能會被建議先回家，除非破水、胎動異常或有緊急狀況。',
         type:'choice', options:['一感覺到陣痛就想去','規律陣痛、符合5-1-1原則再去','由醫師／助產師判斷']},
       {id:'belief', name:'我最在意的生產信念', desc:'用一句話描述對妳最重要的事', type:'text', placeholder:'例如：希望被尊重、知情同意每一個決定'},
+      {id:'perineal_prep', name:'產前會陰按摩', desc:'妳有在練習產前會陰按摩嗎？', type:'choice',
+        options:['有在練習，請在生產時配合','還沒有，希望了解更多','不打算練習']},
+      {id:'vbac', name:'VBAC（剖腹後自然產）', desc:'若妳有剖腹產史，是否考慮這次自然產？', type:'choice',
+        options:['是，我希望嘗試 VBAC','否，計畫重複剖腹產','第一胎，不適用']},
     ]
   },
   {
@@ -659,7 +663,7 @@ const CATEGORIES = [
       {id:'push_pref', name:'用力時的偏好', desc:'可多選', type:'multi',
         options:['希望支持者幫忙托腿','想使用蹲式把桿','想使用生產椅','想嘗試不同姿勢','想等到自己有衝動才用力（若無減痛分娩）','希望被引導何時用力','希望拍照或錄影記錄']},
       {id:'delivery_pref', name:'胎兒出生那一刻', desc:'可多選', type:'multi',
-        options:['希望使用鏡子看見生產過程','希望延遲斷臍','希望寶寶出生後立即肌膚接觸','希望伴侶協助「接住」寶寶（若安全許可）','希望水中生產']},
+        options:['希望使用鏡子看見生產過程','希望延遲斷臍','希望寶寶出生後立即肌膚接觸','希望伴侶協助「接住」寶寶（若安全許可）','希望水中生產','希望會陰溫敷保護','希望避免側切（除非必要）','希望避免產鉗或真空吸引','希望伴侶剪斷臍帶']},
     ]
   },
   {
@@ -675,7 +679,7 @@ const CATEGORIES = [
     items:[
       {id:'skin_to_skin', name:'肌膚接觸與第一次餵奶', desc:'', type:'choice', options:['希望出生後立即肌膚接觸（延後常規檢查）','希望先完成基本檢查再接觸','希望在手術台上就開始肌膚接觸（剖腹產）']},
       {id:'placenta', name:'胎盤處理方式', desc:'', type:'choice', options:['醫院常規處理','希望帶回家','想了解延遲剪臍 / 臍帶血保存']},
-      {id:'newborn_proc', name:'新生兒常規處置', desc:'可多選', type:'multi', options:['維生素K注射','新生兒篩檢','延後新生兒篩檢','沐浴時間可以延後']},
+      {id:'newborn_proc', name:'新生兒常規處置', desc:'可多選', type:'multi', options:['維生素K注射','新生兒篩檢','延後新生兒篩檢','沐浴時間可以延後','希望寶寶同室照護（不送嬰兒室）','紅黴素眼藥水偏好（請告知選項）','希望保存臍帶血','希望捐贈臍帶血']},
     ]
   },
   {
@@ -994,7 +998,7 @@ async function generateAIPlan(){
     // 用力與生產
     var push = [];
     if(ansArr('push_pref').length) push.push('用力偏好：' + ansArr('push_pref').join('、'));
-    if(ansArr('delivery_pref').length) push.push('出生那一刻：' + ansArr('delivery_pref').join('、'));
+    if(ansArr('delivery_pref').length) push.push('出生偏好：' + ansArr('delivery_pref').join('、'));
     if(push.length){ html += '<h4>🌅 用力與生產</h4>' + ul(push); }
 
     // 若需要剖腹產
@@ -1003,14 +1007,15 @@ async function generateAIPlan(){
     if(has('cs_skin')) cs.push('肌膚接觸：' + ans('cs_skin'));
     if(has('cs_curtain')) cs.push('看見寶寶出生：' + ans('cs_curtain'));
     if(has('cs_cord')) cs.push('臍帶處理：' + ans('cs_cord'));
+    if(has('cs_incision')) cs.push('手術切口記錄：' + ans('cs_incision'));
     if(cs.length){ html += '<h4>🤍 若需要剖腹產</h4>' + ul(cs); }
 
     // 產後
     var pp = [];
     if(has('skin_to_skin')) pp.push('肌膚接觸：' + ans('skin_to_skin'));
     if(has('placenta')) pp.push('胎盤：' + ans('placenta'));
-    if(ansArr('newborn_proc').length) pp.push('新生兒處置：' + ansArr('newborn_proc').join('、'));
-    if(pp.length){ html += '<h4>🌤 產後黃金時刻</h4>' + ul(pp); }
+    if(ansArr('newborn_proc').length) pp.push('新生兒與產後照護：' + ansArr('newborn_proc').join('、'));
+    if(pp.length){ html += '<h4>✨ 產後黃金時刻</h4>' + ul(pp); }
 
     // 生產環境
     var env = [];
