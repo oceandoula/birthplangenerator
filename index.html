@@ -405,6 +405,96 @@ a{color:inherit;}
 
 #visualPlanSvg{display:block; width:100%; height:auto;}
 
+
+/* ---------- Unlock Code System ---------- */
+.unlock-section{
+  margin-top:32px; background:#fff; border-radius:20px;
+  border:1.5px solid var(--line); overflow:hidden;
+}
+.unlock-section::before{
+  content:''; display:block; height:4px;
+  background:linear-gradient(90deg,var(--lagoon),var(--ocean),var(--coral));
+}
+.unlock-inner{padding:28px 28px 24px;}
+.unlock-inner h3{font-size:18px;font-family:"Noto Serif TC",serif;color:var(--deep);margin-bottom:6px;word-break:keep-all;}
+.unlock-inner p{font-size:13px;color:#496A6D;margin-bottom:20px;word-break:keep-all;line-height:1.7;}
+.unlock-input-row{display:flex;gap:10px;margin-bottom:10px;}
+.unlock-input{
+  flex:1;padding:13px 16px;border-radius:12px;border:1.5px solid var(--line);
+  font-size:15px;font-family:inherit;letter-spacing:2px;text-transform:uppercase;
+  transition:border-color .2s;
+}
+.unlock-input:focus{outline:none;border-color:var(--ocean);}
+.unlock-input::placeholder{letter-spacing:0;text-transform:none;}
+.btn-unlock-submit{
+  background:var(--ocean);color:#fff;font-weight:700;font-size:14px;
+  padding:13px 22px;border-radius:12px;white-space:nowrap;
+  transition:background .2s;font-family:inherit;
+}
+.btn-unlock-submit:hover{background:var(--deep);}
+.unlock-msg{font-size:12px;min-height:18px;word-break:keep-all;}
+.unlock-msg.success{color:#2E8B6A;}
+.unlock-msg.error{color:#C25E2E;}
+
+/* Pricing CTA cards */
+.pricing-cta{display:grid;gap:14px;margin-top:32px;}
+@media(min-width:560px){.pricing-cta{grid-template-columns:1fr 1fr;}}
+.price-cta-card{
+  border-radius:20px;padding:24px 22px;position:relative;overflow:hidden;
+  transition:transform .25s,box-shadow .25s;text-decoration:none;display:block;
+}
+.price-cta-card:hover{transform:translateY(-3px);}
+.price-cta-card.tier-basic{
+  background:#fff;border:1.5px solid var(--line);
+  box-shadow:0 4px 16px rgba(11,61,69,.07);
+}
+.price-cta-card.tier-pro{
+  background:linear-gradient(150deg,var(--ocean),var(--deep));
+  box-shadow:0 12px 32px rgba(26,107,114,.25);
+}
+.price-cta-card .tier-badge{
+  font-size:10px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;
+  margin-bottom:10px;display:block;
+}
+.tier-basic .tier-badge{color:var(--coral);}
+.tier-pro .tier-badge{color:rgba(255,255,255,0.7);}
+.price-cta-card .tier-price{
+  font-family:"Noto Serif TC",serif;font-size:36px;font-weight:700;margin-bottom:4px;line-height:1;
+}
+.tier-basic .tier-price{color:var(--ocean);}
+.tier-pro .tier-price{color:#fff;}
+.price-cta-card .tier-name{font-size:15px;font-weight:700;margin-bottom:8px;word-break:keep-all;}
+.tier-basic .tier-name{color:var(--deep);}
+.tier-pro .tier-name{color:#fff;}
+.price-cta-card .tier-desc{font-size:12.5px;margin-bottom:18px;word-break:keep-all;line-height:1.7;}
+.tier-basic .tier-desc{color:#496A6D;}
+.tier-pro .tier-desc{color:rgba(255,255,255,0.8);}
+.price-cta-card .tier-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13.5px;font-weight:700;padding:12px 20px;border-radius:100px;
+  white-space:nowrap;font-family:inherit;width:100%;justify-content:center;
+  transition:all .2s;
+}
+.tier-basic .tier-btn{background:var(--ocean);color:#fff;}
+.tier-basic .tier-btn:hover{background:var(--deep);}
+.tier-pro .tier-btn{background:rgba(255,255,255,0.15);color:#fff;border:1.5px solid rgba(255,255,255,0.3);}
+.tier-pro .tier-btn:hover{background:rgba(255,255,255,0.25);}
+
+/* Free option */
+.free-cta{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  background:#fff;border:1.5px solid var(--line);border-radius:16px;
+  padding:18px 22px;margin-top:16px;flex-wrap:wrap;
+}
+.free-cta .left h4{font-size:14.5px;font-weight:600;color:var(--deep);margin-bottom:3px;word-break:keep-all;}
+.free-cta .left p{font-size:12.5px;color:#7A9A9C;word-break:keep-all;}
+.btn-free-cta{
+  white-space:nowrap;font-size:13px;font-weight:600;color:var(--ocean);
+  padding:10px 20px;border-radius:100px;border:1.5px solid var(--line);
+  background:#fff;transition:all .2s;font-family:inherit;
+}
+.btn-free-cta:hover{border-color:var(--ocean);}
+
 footer{text-align:center; padding:40px 24px 60px; font-size:12px; color:#9AB5B6;}
 footer a{text-decoration:underline;}
 
@@ -556,27 +646,56 @@ footer a{text-decoration:underline;}
         <svg id="visualPlanSvg" viewBox="0 0 794 560" xmlns="http://www.w3.org/2000/svg"></svg>
         <div class="plan-lock-overlay" id="planLockOverlay">
           <div class="lock-icon">🔒</div>
-          <h4>預約諮詢，解鎖視覺計畫書</h4>
-          <p>預約 Naph 的生產計畫諮詢後，妳會在諮詢當天拿到這份可以帶去產房的精美版本。</p>
-          <a href="#" id="bookingLink" target="_blank" rel="noopener">
-            <button class="btn-unlock">預約生產計畫諮詢，解鎖計畫書 →</button>
-          </a>
+          <h4>輸入解鎖碼，立即查看視覺計畫書</h4>
+          <p>購買後 email 裡有解鎖碼，輸入就能立刻看到並下載妳的視覺計畫書。</p>
         </div>
       </div>
     </div>
 
-    <!-- Text plan + back -->
-    <div style="margin-top:32px;">
-      <div class="cta-card secondary" style="max-width:100%;">
-        <span class="cta-tag" style="color:var(--coral);">文字版副本</span>
-        <h4>下載文字版計畫書</h4>
-        <p>先把文字版存起來備用，帶著它去產檢時可以跟醫師討論，視覺版等諮詢時再一起完成。</p>
-        <a class="go" href="#" onclick="downloadPdf(); return false;">下載文字版 PDF →</a>
+    <!-- Unlock code input -->
+    <div class="unlock-section">
+      <div class="unlock-inner">
+        <h3>🔑 已購買？輸入解鎖碼</h3>
+        <p>購買完成後，妳的 email 裡會有一組解鎖碼。輸入後即可立刻查看並列印視覺計畫書。</p>
+        <div class="unlock-input-row">
+          <input type="text" class="unlock-input" id="unlockInput" placeholder="輸入解鎖碼，例如：WAVE9" maxlength="20"/>
+          <button class="btn-unlock-submit" onclick="submitUnlock()">解鎖</button>
+        </div>
+        <div class="unlock-msg" id="unlockMsg"></div>
       </div>
     </div>
 
-    <div style="text-align:center; margin-top:24px;">
-      <button class="btn-ghost" onclick="goTo('builder')">← 回去再調整選項</button>
+    <!-- Pricing CTAs -->
+    <div class="pricing-cta">
+      <a class="price-cta-card tier-basic" href="STRIPE_LINK_9" target="_blank" rel="noopener" id="stripe9Link">
+        <span class="tier-badge">視覺計畫書</span>
+        <div class="tier-price">$9 <span style="font-size:14px;font-weight:400;opacity:.7;">USD</span></div>
+        <div class="tier-name">視覺圖卡下載</div>
+        <div class="tier-desc">精美一頁式視覺計畫書，可列印帶去產房，高解析 PDF 即時下載。</div>
+        <button class="tier-btn">立刻購買 →</button>
+      </a>
+      <a class="price-cta-card tier-pro" href="STRIPE_LINK_97" target="_blank" rel="noopener" id="stripe97Link">
+        <span class="tier-badge">⭐ 最推薦</span>
+        <div class="tier-price">$97 <span style="font-size:14px;font-weight:400;opacity:.7;">USD</span></div>
+        <div class="tier-name">視覺計畫書 + 一對一諮詢</div>
+        <div class="tier-desc">視覺計畫書 + 與 Naphy 的 60 分鐘一對一諮詢，讓計畫真正被醫療團隊聽見。</div>
+        <button class="tier-btn">預約 + 購買 →</button>
+      </a>
+    </div>
+
+    <!-- Free option -->
+    <div class="free-cta">
+      <div class="left">
+        <h4>先預約免費 15 分鐘了解更多</h4>
+        <p>不確定哪個方案適合妳？先聊聊再決定。</p>
+      </div>
+      <button class="btn-free-cta" onclick="window.open('https://calendly.com/oceanmamadoula/15minfree','_blank')">免費預約 →</button>
+    </div>
+
+    <!-- Text plan download + back -->
+    <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <a href="#" onclick="downloadPdf();return false;" style="font-size:13px;color:var(--ocean);font-weight:600;text-decoration:underline;text-underline-offset:3px;">↓ 下載文字版計畫書（免費）</a>
+      <button class="btn-ghost" onclick="goTo('builder')" style="font-size:13px;">← 回去再調整選項</button>
     </div>
   </div>
 </section>
@@ -638,7 +757,7 @@ const LANG = {
     visualH3: '🗺 妳的視覺生產計畫書',
     visualSub: '一頁圖卡版，帶去產房讓醫護團隊一眼掌握妳的想法',
     lockH4: '預約諮詢，解鎖視覺計畫書',
-    lockP: '預約 Naph 的生產計畫諮詢後，妳會在諮詢當天拿到這份可以帶去產房的精美版本。',
+    lockP: '預約 Naphy 的生產計畫諮詢後，妳會在諮詢當天拿到這份可以帶去產房的精美版本。',
     lockBtn: '預約生產計畫諮詢，解鎖計畫書 →',
     ctaTag: '文字版副本',
     ctaH4: '下載文字版計畫書',
@@ -1669,6 +1788,55 @@ function renderVisualPlan(){
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.innerHTML = parts.join('\n');
 }
+
+
+/* ===========================================================
+   UNLOCK CODE SYSTEM
+=========================================================== */
+const UNLOCK_CODES = {
+  'WAVE9':  'basic',   // $9 視覺計畫書
+  'WAVE97': 'pro',     // $97 視覺 + 諮詢
+  'WAVE2026': 'basic', // 備用通用碼
+};
+
+function submitUnlock(){
+  const input = document.getElementById('unlockInput').value.trim().toUpperCase();
+  const msg = document.getElementById('unlockMsg');
+  const tier = UNLOCK_CODES[input];
+
+  if(!tier){
+    msg.className = 'unlock-msg error';
+    msg.textContent = '找不到這組解鎖碼，請確認 email 裡的碼是否正確。';
+    return;
+  }
+
+  // Unlock visual plan
+  const wrap = document.getElementById('planPreviewWrap');
+  const overlay = document.getElementById('planLockOverlay');
+  wrap.classList.remove('locked');
+  overlay.style.display = 'none';
+
+  msg.className = 'unlock-msg success';
+  msg.textContent = tier === 'pro'
+    ? '✓ 已解鎖！視覺計畫書已顯示，點右鍵或使用瀏覽器列印功能存成 PDF。'
+    : '✓ 已解鎖！視覺計畫書已顯示，點右鍵或使用瀏覽器列印功能存成 PDF。';
+
+  // Scroll to visual plan
+  document.querySelector('.visual-section').scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Store unlock state
+  state.unlocked = tier;
+}
+
+// Allow Enter key to submit
+document.addEventListener('DOMContentLoaded', function(){
+  const input = document.getElementById('unlockInput');
+  if(input){
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Enter') submitUnlock();
+    });
+  }
+});
 
 /* ===========================================================
    INIT
