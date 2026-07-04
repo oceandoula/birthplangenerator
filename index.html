@@ -420,6 +420,17 @@ a{color:inherit;}
 .plan-page{background:#F7FAFA;}
 
 
+/* ---------- Custom Input ---------- */
+.custom-input-wrap{margin-top:12px;}
+.custom-input{
+  width:100%;padding:12px 16px;
+  border:1.5px solid var(--line);border-radius:12px;
+  font-family:inherit;font-size:14px;color:var(--deep);
+  background:#FAFCFC;transition:border-color .2s;
+}
+.custom-input:focus{outline:none;border-color:var(--ocean);}
+.custom-input::placeholder{color:#9AB8BC;}
+
 /* ---------- Unlock Code System ---------- */
 .unlock-section{
   margin-top:32px; background:#fff; border-radius:20px;
@@ -1050,7 +1061,7 @@ const CATEGORIES = [
       {id:'push_pref', name:'用力時的偏好', desc:'可多選', type:'multi',
         options:['希望支持者幫忙托腿','想使用蹲式把桿','想使用生產椅','想嘗試不同姿勢','想等到自己有衝動才用力（若無減痛分娩）','希望被引導何時用力','希望拍照或錄影記錄']},
       {id:'delivery_pref', name:'胎兒出生那一刻', desc:'可多選', type:'multi',
-        options:['希望使用鏡子看見生產過程','希望延遲斷臍','希望寶寶出生後立即肌膚接觸','希望伴侶協助接住寶寶（若安全許可）','希望水中生產','希望會陰溫敷保護','希望避免側切（除非必要）','希望避免產鉗或真空吸引','希望伴侶剪斷臍帶','Maternal Assisted Caesarean（媽媽親手引導寶寶，適用剖腹產）']},
+        options:['希望使用鏡子看見生產過程','希望延遲斷臍','希望寶寶出生後立即肌膚接觸','希望伴侶協助接住寶寶（若安全許可）','希望水中生產','希望會陰溫敷保護','希望避免側切（除非必要）','希望避免產鉗或真空吸引','希望伴侶剪斷臍帶','希望以呼吸引導用力（避免閉氣出力）','希望等待胎盤自然娩出（避免主動處置第三產程）','Maternal Assisted Caesarean（媽媽親手引導寶寶，適用剖腹產）']},
     ]
   },
   {
@@ -1066,7 +1077,7 @@ const CATEGORIES = [
     items:[
       {id:'skin_to_skin', name:'肌膚接觸與第一次餵奶', desc:'', type:'choice', options:['希望出生後立即肌膚接觸（延後常規檢查）','希望先完成基本檢查再接觸','希望在手術台上就開始肌膚接觸（剖腹產）','希望嘗試 Maternal Assisted Caesarean（由我親手引導寶寶出來）']},
       {id:'placenta', name:'胎盤處理方式', desc:'', type:'choice', options:['醫院常規處理','希望帶回家','胎盤膠囊化（請協助保存）','蓮花生產（不剪斷臍帶，自然脫落）','想了解臍帶血保存或捐贈']},
-      {id:'newborn_proc', name:'新生兒常規處置', desc:'可多選', type:'multi', options:['維生素K注射','新生兒篩檢','延後新生兒篩檢','沐浴時間可以延後','希望寶寶同室照護（不送嬰兒室）','紅黴素眼藥水偏好（請告知選項）','希望保存臍帶血','希望捐贈臍帶血','菌群移植（Vaginal Seeding，請協助）']},
+      {id:'newborn_proc', name:'新生兒常規處置', desc:'可多選', type:'multi', options:['維生素K注射','新生兒篩檢','延後新生兒篩檢','沐浴時間可以延後','希望寶寶同室照護（不送嬰兒室）','紅黴素眼藥水偏好（請告知選項）','黃金一小時不分離（延後所有非緊急處置）','希望保存臍帶血','希望捐贈臍帶血','菌群移植（Vaginal Seeding，請協助）']},
     ]
   },
   {
@@ -1331,16 +1342,30 @@ function renderModal(){
         style="width:100%; padding:14px 16px; border:1.5px solid var(--line); border-radius:14px; font-family:inherit; font-size:14.5px; resize:vertical;"
         placeholder="${item.placeholder||''}">${val}</textarea>`;
   } else if(item.type==='choice'){
+    const customVal = state.customAnswers && state.customAnswers[item.id] ? state.customAnswers[item.id] : '';
     body = `<div class="opt-grid">` + item.options.map(opt=>{
       const picked = state.answers[item.id]===opt;
       return `<button class="opt-pill ${picked?'picked':''}" onclick="selectChoice('${escapeAttr(opt)}')">${opt}</button>`;
-    }).join('') + `</div>`;
+    }).join('') + `</div>
+    <div class="custom-input-wrap">
+      <input type="text" class="custom-input" id="customInput_${item.id}"
+        placeholder="${currentLang==='en'?'Other / add your own…':'其他 / 自行填寫…'}"
+        value="${customVal}"
+        oninput="handleCustomInput('${item.id}', this.value)"/>
+    </div>`;
   } else if(item.type==='multi'){
     const current = state.answers[item.id] || [];
+    const customVal = state.customAnswers && state.customAnswers[item.id] ? state.customAnswers[item.id] : '';
     body = `<div class="opt-grid">` + item.options.map(opt=>{
       const picked = current.includes(opt);
       return `<button class="opt-pill ${picked?'picked':''}" onclick="toggleMulti('${escapeAttr(opt)}')">${opt}</button>`;
-    }).join('') + `</div>`;
+    }).join('') + `</div>
+    <div class="custom-input-wrap">
+      <input type="text" class="custom-input" id="customInput_${item.id}"
+        placeholder="${currentLang==='en'?'Other / add your own…':'其他 / 自行填寫…'}"
+        value="${customVal}"
+        oninput="handleCustomInput('${item.id}', this.value)"/>
+    </div>`;
   }
 
   const hasValue = isAnswered(item.id);
@@ -1357,6 +1382,19 @@ function renderModal(){
   `;
 }
 function escapeAttr(s){ return s.replace(/'/g, "\\'"); }
+
+function handleCustomInput(id, val){
+  if(!state.customAnswers) state.customAnswers = {};
+  state.customAnswers[id] = val;
+  // If something typed, save as answer too (append to existing)
+  if(val.trim()){
+    // For display in summarize - store in a special key
+    if(!state.answers['_custom_'+id]) state.answers['_custom_'+id] = val;
+    else state.answers['_custom_'+id] = val;
+  } else {
+    delete state.answers['_custom_'+id];
+  }
+}
 
 function selectChoice(opt){
   activeItem.tempValue = opt;
