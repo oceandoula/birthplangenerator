@@ -403,9 +403,21 @@ a{color:inherit;}
 }
 .btn-unlock:hover{background:var(--deep); transform:translateY(-2px);}
 
-#visualPlanContainer{display:flex;flex-direction:column;gap:0;}
-.plan-page{width:100%;display:block;}
-.plan-page svg{display:block;width:100%;height:auto;}
+#visualPlanContainer{display:flex;flex-direction:column;gap:16px;}
+.plan-page{
+  width:100%;display:block;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.plan-page svg{
+  display:block;
+  min-width:600px;   /* minimum readable width */
+  width:100%;
+  height:auto;
+}
+
+/* Fix icon bubble visibility - increase opacity on page bg */
+.plan-page{background:#F7FAFA;}
 
 
 /* ---------- Unlock Code System ---------- */
@@ -2141,27 +2153,27 @@ function renderVisualPlan(){
   function bubble(cx, cy, r, fill){
     const hx = (cx - r*0.28).toFixed(1);
     const hy = (cy - r*0.28).toFixed(1);
-    const rx = (r*0.36).toFixed(1);
-    const ry = (r*0.2).toFixed(1);
+    const rx = (r*0.38).toFixed(1);
+    const ry = (r*0.22).toFixed(1);
     const sx = (cx - r*0.5).toFixed(1);
     const sy = (cy - r*0.5).toFixed(1);
-    const sr = (r*0.09).toFixed(1);
+    const sr = (r*0.1).toFixed(1);
     return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"/>` +
-      `<ellipse cx="${hx}" cy="${hy}" rx="${rx}" ry="${ry}" fill="rgba(255,255,255,0.55)" transform="rotate(-35,${cx},${cy})"/>` +
-      `<circle cx="${sx}" cy="${sy}" r="${sr}" fill="rgba(255,255,255,0.6)"/>` +
-      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="0.8"/>`;
+      `<ellipse cx="${hx}" cy="${hy}" rx="${rx}" ry="${ry}" fill="rgba(255,255,255,0.65)" transform="rotate(-35,${cx},${cy})"/>` +
+      `<circle cx="${sx}" cy="${sy}" r="${sr}" fill="rgba(255,255,255,0.7)"/>` +
+      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"/>`;
   }
 
   // ── Section config ───────────────────────────────────────────
   const SEC_CFG = {
-    before:        {e:'📋', bar:'#A8D8DC', card:'#F0F9FA', bub:'#BDE8EE', tc:'#1A3A4A'},
-    environment:   {e:'🌿', bar:'#A8D8DC', card:'#F0F9FA', bub:'#BDE8EE', tc:'#1A3A4A'},
-    pain:          {e:'💧', bar:'#F0C0D8', card:'#FDF5F8', bub:'#F5D0E8', tc:'#3A1A3A'},
-    labor:         {e:'🌀', bar:'#A0D8EC', card:'#EEF9FD', bub:'#B8E8F4', tc:'#1A3A4A'},
-    pushing:       {e:'🌸', bar:'#F0C8D8', card:'#FDF5F8', bub:'#F8D0E4', tc:'#3A1A2A'},
-    csection_pref: {e:'🤍', bar:'#D0D0F0', card:'#F2F2FA', bub:'#D8D8F4', tc:'#1A1A3A'},
-    postpartum:    {e:'✨', bar:'#B8E0CC', card:'#F0FAF4', bub:'#C8EED8', tc:'#1A3A2A'},
-    unexpected:    {e:'🧭', bar:'#C8D8EC', card:'#F3F7FC', bub:'#D5E5F4', tc:'#1A3A4A'},
+    before:        {e:'📋', bar:'#A8D8DC', card:'#E8F6F8', bub:'#A8D8DC', tc:'#1A3A4A'},
+    environment:   {e:'🌿', bar:'#A8D8DC', card:'#E8F6F8', bub:'#A8D8DC', tc:'#1A3A4A'},
+    pain:          {e:'💧', bar:'#F0C0D8', card:'#FCF0F6', bub:'#F0C0D8', tc:'#3A1A3A'},
+    labor:         {e:'🌀', bar:'#A0D8EC', card:'#E6F6FC', bub:'#A0D8EC', tc:'#1A3A4A'},
+    pushing:       {e:'🌸', bar:'#F0C8D8', card:'#FCF0F5', bub:'#F0C8D8', tc:'#3A1A2A'},
+    csection_pref: {e:'🤍', bar:'#D0D0F0', card:'#EEEEF8', bub:'#D0D0F0', tc:'#1A1A3A'},
+    postpartum:    {e:'✨', bar:'#B8E0CC', card:'#E8F6EE', bub:'#B8E0CC', tc:'#1A3A2A'},
+    unexpected:    {e:'🧭', bar:'#C8D8EC', card:'#EAF0F8', bub:'#C8D8EC', tc:'#1A3A4A'},
   };
 
   const SEC_NAMES = {
