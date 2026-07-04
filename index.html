@@ -1031,8 +1031,8 @@ const CATEGORIES_EN = [
         type:'choice', options:['I\'m comfortable with routine internal exams','I\'d like to minimise internal exams unless medically necessary','I\'d like to avoid internal exams altogether unless I request one']},
       {id:'monitoring', name:'Fetal Monitoring', desc:'',
         type:'choice', options:['Intermittent monitoring (more freedom to move)','Intermittent preferred, continuous only if medically necessary','Continuous external fetal monitoring','Wireless monitoring if available']},
-      {id:'hydration', name:'Hydration During Labour', desc:'Select all that apply', type:'multi',
-        options:['Saline lock (IV port, no fluids)','IV fluids','Clear fluids (jelly, broth, ice blocks)','Water / ice chips']},
+      {id:'hydration', name:'Food & Drink During Labour', desc:'Select all that apply', type:'multi',
+        options:['Freedom to eat and drink during labour','Water / ice chips','Sports drink','Coconut water','Clear fluids (jelly, broth)','Saline lock only (no IV fluids)','Please avoid unnecessary fasting restrictions']},
     ]
   },
   {
@@ -1138,8 +1138,8 @@ const CATEGORIES = [
         type:'choice', options:['可以配合常規內診','希望盡量減少，除非醫療上必要','希望盡量避免，除非我主動要求']},
       {id:'monitoring', name:'胎兒監測方式', desc:'',
         type:'choice', options:['間歇性監測（限制較少）','原則上間歇性，醫療必要時才連續監測','連續性外部監測','若有提供，希望使用無線監測']},
-      {id:'hydration', name:'產程中的補水方式', desc:'可多選', type:'multi',
-        options:['留置點滴針頭備用','點滴輸液','清流質（果凍、高湯、冰棒）','喝水／吃冰塊']},
+      {id:'hydration', name:'產程中飲食', desc:'可多選', type:'multi',
+        options:['自由飲食（希望能在產程中自由進食）','喝水／吃冰塊','運動飲料','椰子水','清流質（果凍、高湯、冰棒）','留置點滴針頭備用','希望避免不必要的禁食限制']},
     ]
   },
   {
@@ -1674,7 +1674,7 @@ async function generateAIPlan(){
       if(ansArr('equipment').length) labor.push(`希望有以下輔具可以使用：${ansArr('equipment').join('、')}。`);
       if(has('exams')) labor.push(`內診方面：${ans('exams')}，麻煩每次前先告知。`);
       if(has('monitoring')) labor.push(`胎兒監測：${ans('monitoring')}。`);
-      if(ansArr('hydration').length) labor.push(`補水方式：${ansArr('hydration').join('、')}。`);
+      if(ansArr('hydration').length) labor.push(`產程中飲食：${ansArr('hydration').join('、')}。`);
       html += section('🌀','產程中', labor);
 
       // 用力與生產
