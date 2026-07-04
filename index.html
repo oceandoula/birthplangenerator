@@ -1408,8 +1408,6 @@ async function generateAIPlan(){
   document.getElementById('aiPlanContent').style.display = 'none';
   document.getElementById('aiError').style.display = 'none';
 
-  await new Promise(function(r){ setTimeout(r, 500); });
-
   try {
     var name = state.user.name || '妳';
     var phil = PHILOSOPHIES.find(function(p){ return p.id===state.philosophy; });
