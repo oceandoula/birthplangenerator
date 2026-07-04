@@ -2681,44 +2681,63 @@ function showRestoreBanner(){
 /* ===========================================================
    DOWNLOAD FUNCTIONS
 =========================================================== */
+function svgToCanvas(svgEl, scale){
+  return new Promise((resolve, reject) => {
+    try {
+      // Get SVG string
+      const serializer = new XMLSerializer();
+      let svgStr = serializer.serializeToString(svgEl);
+
+      // Fix font references
+      svgStr = svgStr.replace(/font-family="([^"]+)"/g, (m, f) => {
+        if(!f.includes('Noto')) return m;
+        return `font-family="${f}, sans-serif"`;
+      });
+
+      const W = 1123, H = 794;
+      const blob = new Blob([svgStr], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = W * scale;
+        canvas.height = H * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#F7FAFA';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas);
+      };
+      img.onerror = reject;
+      img.src = url;
+    } catch(e){ reject(e); }
+  });
+}
+
 async function downloadPNG(){
   const loading = document.getElementById('dlLoading');
   const container = document.getElementById('visualPlanContainer');
   if(!container){ alert('請先解鎖視覺計畫書'); return; }
-
   if(loading) loading.textContent = '⏳ 正在生成圖檔，請稍候…';
 
   try {
-    const pages = container.querySelectorAll('.plan-page svg');
-    if(!pages.length){ if(loading) loading.textContent = ''; alert('找不到計畫書內容'); return; }
+    const svgs = container.querySelectorAll('.plan-page svg');
+    if(!svgs.length){ if(loading) loading.textContent = ''; alert('找不到計畫書內容'); return; }
 
-    for(let i = 0; i < pages.length; i++){
-      const svg = pages[i];
-      const canvas = await html2canvas(svg.parentElement, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#F7FAFA',
-        windowWidth: 1123,
-        windowHeight: 794,
-        width: 1123,
-        height: 794,
-        logging: false
-      });
+    for(let i = 0; i < svgs.length; i++){
+      const canvas = await svgToCanvas(svgs[i], 2);
       const link = document.createElement('a');
-      link.download = pages.length > 1
-        ? `WAVE_生產計畫書_第${i+1}頁.png`
-        : 'WAVE_生產計畫書.png';
+      link.download = svgs.length > 1 ? `WAVE_生產計畫書_第${i+1}頁.png` : 'WAVE_生產計畫書.png';
       link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
-
-      // Small delay between pages
-      if(i < pages.length - 1) await new Promise(r => setTimeout(r, 500));
+      if(i < svgs.length - 1) await new Promise(r => setTimeout(r, 600));
     }
     if(loading) loading.textContent = '✅ 下載完成！';
     setTimeout(()=>{ if(loading) loading.textContent = ''; }, 3000);
   } catch(e) {
-    console.error('PNG download error:', e);
-    if(loading) loading.textContent = '下載失敗，請用列印功能另存 PDF。';
+    console.error('PNG error:', e);
+    if(loading) loading.textContent = '下載失敗，請改用列印功能。';
   }
 }
 
@@ -2726,44 +2745,28 @@ async function downloadPDFFile(){
   const loading = document.getElementById('dlLoading');
   const container = document.getElementById('visualPlanContainer');
   if(!container){ alert('請先解鎖視覺計畫書'); return; }
-
   if(loading) loading.textContent = '⏳ 正在生成 PDF，請稍候…';
 
   try {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
-    const pages = container.querySelectorAll('.plan-page svg');
-    if(!pages.length){ if(loading) loading.textContent = ''; alert('找不到計畫書內容'); return; }
+    const svgs = container.querySelectorAll('.plan-page svg');
+    if(!svgs.length){ if(loading) loading.textContent = ''; alert('找不到計畫書內容'); return; }
 
-    for(let i = 0; i < pages.length; i++){
-      if(i > 0) pdf.addPage('a4', 'landscape');
-      const svg = pages[i];
-      const svgEl = pages[i];
-      const svgClone = svgEl.cloneNode(true);
-      svgClone.setAttribute('width', '1123');
-      svgClone.setAttribute('height', '794');
-
-      const canvas = await html2canvas(svgEl.parentElement, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#F7FAFA',
-        windowWidth: 1123,
-        windowHeight: 794,
-        width: 1123,
-        height: 794,
-        logging: false
-      });
+    for(let i = 0; i < svgs.length; i++){
+      if(i > 0) pdf.addPage([297, 210], 'landscape');
+      const canvas = await svgToCanvas(svgs[i], 3);
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      // A4 landscape: 297mm x 210mm - fill entire page
-      pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
+      // Fill entire A4 landscape: 297mm × 210mm, no margins
+      pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
     }
 
     pdf.save('WAVE_生產計畫書.pdf');
     if(loading) loading.textContent = '✅ PDF 下載完成！';
     setTimeout(()=>{ if(loading) loading.textContent = ''; }, 3000);
   } catch(e) {
-    console.error('PDF download error:', e);
-    if(loading) loading.textContent = '下載失敗，請用列印功能另存 PDF。';
+    console.error('PDF error:', e);
+    if(loading) loading.textContent = '下載失敗，請改用列印功能。';
   }
 }
 
