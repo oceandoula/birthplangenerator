@@ -2698,6 +2698,8 @@ async function downloadPNG(){
         scale: 2,
         useCORS: true,
         backgroundColor: '#F7FAFA',
+        windowWidth: 1123,
+        windowHeight: 794,
         width: 1123,
         height: 794,
         logging: false
@@ -2736,17 +2738,24 @@ async function downloadPDFFile(){
     for(let i = 0; i < pages.length; i++){
       if(i > 0) pdf.addPage('a4', 'landscape');
       const svg = pages[i];
-      const canvas = await html2canvas(svg.parentElement, {
+      const svgEl = pages[i];
+      const svgClone = svgEl.cloneNode(true);
+      svgClone.setAttribute('width', '1123');
+      svgClone.setAttribute('height', '794');
+
+      const canvas = await html2canvas(svgEl.parentElement, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#F7FAFA',
+        windowWidth: 1123,
+        windowHeight: 794,
         width: 1123,
         height: 794,
         logging: false
       });
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      // A4 landscape: 297mm x 210mm
-      pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+      // A4 landscape: 297mm x 210mm - fill entire page
+      pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
     }
 
     pdf.save('WAVE_生產計畫書.pdf');
