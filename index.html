@@ -420,6 +420,23 @@ a{color:inherit;}
 .plan-page{background:#F7FAFA;}
 
 
+/* ---------- Restore Banner ---------- */
+.restore-banner{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#0B3D45;color:#fff;
+  border-radius:100px;padding:14px 24px;
+  display:flex;align-items:center;gap:14px;
+  box-shadow:0 8px 32px rgba(11,61,69,0.3);
+  z-index:9999;font-family:inherit;
+  animation:slide-up .4s ease;
+  max-width:calc(100vw - 48px);
+}
+@keyframes slide-up{from{transform:translateX(-50%) translateY(20px);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+.restore-banner p{font-size:13.5px;font-weight:600;margin:0;word-break:keep-all;}
+.restore-banner p small{font-weight:400;opacity:0.7;display:block;font-size:11px;}
+.btn-restore{background:#fff;color:#0B3D45;font-size:12px;font-weight:700;padding:8px 16px;border-radius:100px;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.btn-restore-dismiss{background:transparent;color:rgba(255,255,255,0.6);font-size:18px;border:none;cursor:pointer;padding:0;line-height:1;}
+
 /* ---------- Custom Input ---------- */
 .custom-input-wrap{margin-top:12px;}
 .custom-input{
@@ -2516,6 +2533,8 @@ function renderVisualPlan(){
 /* ===========================================================
    INIT
 =========================================================== */
+// Load saved state if available
+const hadSavedState = loadState();
 renderPhilosophy();
 </script>
 </body>
