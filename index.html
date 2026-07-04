@@ -1016,7 +1016,7 @@ const CATEGORIES_EN = [
     items:[
       {id:'skin_to_skin', name:'First Contact & Feeding', desc:'', type:'choice', options:['Immediate skin-to-skin, delay routine checks','Complete basic checks first, then skin-to-skin','Skin-to-skin on operating table (caesarean)']},
       {id:'feeding_pref', name:'Feeding Preferences', desc:'Select all that apply', type:'multi',
-        options:['Exclusive breastfeeding','I\'d like to start nursing as soon as possible','I\'d like lactation consultant (IBCLC) support','Please don\'t offer a dummy / pacifier','Please don\'t supplement with formula without asking','Small amount of formula is acceptable if needed','Expressed breast milk by bottle is fine','Not yet decided — I\'d like more information']},
+        options:['希望純母乳哺育','希望盡快開始親餵','希望哺乳顧問（IBCLC）的支援','不希望主動提供安撫奶嘴','不希望未經我同意補充配方奶','若需補充，我接受少量配方奶','瓶餵母乳也可以接受','尚未決定，希望了解更多選項']},
       {id:'placenta', name:'Placenta', desc:'', type:'choice',
         options:['Hospital standard handling','We would like to take the placenta home','Interested in delayed cord clamping / cord blood options']},
       {id:'newborn_proc', name:'Newborn Care & Procedures', desc:'Select all that apply', type:'multi',
@@ -1044,7 +1044,7 @@ const CATEGORIES = [
       {id:'perineal_prep', name:'產前會陰按摩', desc:'妳有在練習產前會陰按摩嗎？', type:'choice',
         options:['有在練習，請在生產時配合','還沒有，希望了解更多','不打算練習']},
       {id:'vbac', name:'VBAC（剖腹後自然產）', desc:'若妳有剖腹產史，是否考慮這次自然產？', type:'choice',
-        options:['是，我希望嘗試 VBAC','否，計畫重複剖腹產','第一胎，不適用']},
+        options:['是，我希望嘗試 VBAC（剖腹後自然產）','否，計畫重複剖腹產（ERCS）','尚未決定，希望了解更多','第一胎，不適用']},
     ]
   },
   {
@@ -1078,7 +1078,7 @@ const CATEGORIES = [
       {id:'med_options', name:'有興趣的減痛方式', desc:'可多選', type:'multi',
         options:['減痛分娩（硬脊膜外）','笑氣','針劑止痛','TENS 電療儀','暫不使用藥物方式']},
       {id:'coping', name:'非藥物的舒緩方式', desc:'可多選', type:'multi',
-        options:['冷熱敷','音樂／影片轉移注意力','催眠生產（HypnoBirthing）','按摩','自由進食與飲水','水中減痛（溫水池/淋浴）']},
+        options:['冷熱敷','音樂／影片轉移注意力','催眠生產（HypnoBirthing）','按摩','自由進食與飲水','水中減痛（溫水池/淋浴）','生產梳（閘門控制法）','震動按摩棒','愛撫（伴侶溫柔撫觸）','與伴侶親密接觸','唱歌或哼唱','冥想','肯定語句（Affirmations）']},
     ]
   },
   {
@@ -1104,7 +1104,7 @@ const CATEGORIES = [
       {id:'push_pref', name:'用力時的偏好', desc:'可多選', type:'multi',
         options:['希望支持者幫忙托腿','想使用蹲式把桿','想使用生產椅','想嘗試不同姿勢','想等到自己有衝動才用力（若無減痛分娩）','希望被引導何時用力','希望拍照或錄影記錄']},
       {id:'delivery_pref', name:'胎兒出生那一刻', desc:'可多選', type:'multi',
-        options:['希望使用鏡子看見生產過程','希望延遲斷臍','希望寶寶出生後立即肌膚接觸','希望伴侶協助「接住」寶寶（若安全許可）','希望水中生產','希望會陰溫敷保護','希望避免側切（除非必要）','希望避免產鉗或真空吸引','希望伴侶剪斷臍帶']},
+        options:['希望使用鏡子看見生產過程','希望延遲斷臍','希望寶寶出生後立即肌膚接觸','希望伴侶協助接住寶寶（若安全許可）','希望水中生產','希望會陰溫敷保護','希望避免側切（除非必要）','希望避免產鉗或真空吸引','希望伴侶剪斷臍帶','Maternal Assisted Caesarean（媽媽親手引導寶寶，適用剖腹產）']},
     ]
   },
   {
@@ -1118,9 +1118,9 @@ const CATEGORIES = [
   {
     id:'postpartum', name:'產後黃金時刻', icon:'🌤',
     items:[
-      {id:'skin_to_skin', name:'肌膚接觸與第一次餵奶', desc:'', type:'choice', options:['希望出生後立即肌膚接觸（延後常規檢查）','希望先完成基本檢查再接觸','希望在手術台上就開始肌膚接觸（剖腹產）']},
-      {id:'placenta', name:'胎盤處理方式', desc:'', type:'choice', options:['醫院常規處理','希望帶回家','想了解延遲剪臍 / 臍帶血保存']},
-      {id:'newborn_proc', name:'新生兒常規處置', desc:'可多選', type:'multi', options:['維生素K注射','新生兒篩檢','延後新生兒篩檢','沐浴時間可以延後','希望寶寶同室照護（不送嬰兒室）','紅黴素眼藥水偏好（請告知選項）','希望保存臍帶血','希望捐贈臍帶血']},
+      {id:'skin_to_skin', name:'肌膚接觸與第一次餵奶', desc:'', type:'choice', options:['希望出生後立即肌膚接觸（延後常規檢查）','希望先完成基本檢查再接觸','希望在手術台上就開始肌膚接觸（剖腹產）','希望嘗試 Maternal Assisted Caesarean（由我親手引導寶寶出來）']},
+      {id:'placenta', name:'胎盤處理方式', desc:'', type:'choice', options:['醫院常規處理','希望帶回家','胎盤膠囊化（請協助保存）','蓮花生產（不剪斷臍帶，自然脫落）','想了解臍帶血保存或捐贈']},
+      {id:'newborn_proc', name:'新生兒常規處置', desc:'可多選', type:'multi', options:['維生素K注射','新生兒篩檢','延後新生兒篩檢','沐浴時間可以延後','希望寶寶同室照護（不送嬰兒室）','紅黴素眼藥水偏好（請告知選項）','希望保存臍帶血','希望捐贈臍帶血','菌群移植（Vaginal Seeding，請協助）']},
     ]
   },
   {
