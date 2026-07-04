@@ -2577,6 +2577,88 @@ function renderVisualPlan(){
 }
 
 
+
+/* ===========================================================
+   UNLOCK CODE SYSTEM
+=========================================================== */
+const UNLOCK_CODES = {
+  // Launch 通用碼
+  'WAVE2026':   'basic',
+  'OCEAN0726':  'basic',
+  'WAVE2027':   'basic',
+  'OCEAN1026':  'basic',
+  // $97 專屬碼
+  'WAVEPLUS':   'pro',
+  'OCEAN97':    'pro',
+  // 諮詢個人碼
+  'NAPHY001': 'pro', 'NAPHY002': 'pro', 'NAPHY003': 'pro',
+  'NAPHY004': 'pro', 'NAPHY005': 'pro', 'NAPHY006': 'pro',
+  'NAPHY007': 'pro', 'NAPHY008': 'pro', 'NAPHY009': 'pro',
+  'NAPHY010': 'pro',
+  // Subscriber 測試碼
+  'WAVEFREE01': 'pro', 'WAVEFREE02': 'pro', 'WAVEFREE03': 'pro',
+  'WAVEFREE04': 'pro', 'WAVEFREE05': 'pro',
+  // 特殊用途
+  'WAVEBETA':   'pro',
+  'OCEANTEAM':  'pro',
+};
+
+function submitUnlock(){
+  const input = document.getElementById('unlockInput');
+  if(!input) return;
+  const code = input.value.trim().toUpperCase();
+  const msg = document.getElementById('unlockMsg');
+  const tier = UNLOCK_CODES[code];
+
+  if(!tier){
+    if(msg){ msg.className = 'unlock-msg error'; msg.textContent = '找不到這組解鎖碼，請確認 email 裡的碼是否正確。'; }
+    return;
+  }
+
+  // Unlock visual plan
+  const wrap = document.getElementById('planPreviewWrap');
+  const overlay = document.getElementById('planLockOverlay');
+  if(wrap) wrap.classList.remove('locked');
+  if(overlay) overlay.style.display = 'none';
+
+  if(msg){
+    msg.className = 'unlock-msg success';
+    msg.textContent = '✓ 已解鎖！視覺計畫書已顯示，點右鍵或使用瀏覽器列印功能存成 PDF。';
+  }
+
+  state.unlocked = tier;
+  saveState();
+
+  const vs = document.querySelector('.visual-section');
+  if(vs) vs.scrollIntoView({behavior:'smooth', block:'start'});
+
+  renderVisualPlan();
+}
+
+function openModal(catId, itemId){
+  openItem(catId, itemId);
+}
+
+function showRestoreBanner(){
+  if(document.getElementById('restoreBanner')) return;
+  const answeredCount = Object.keys(state.answers).length;
+  if(answeredCount === 0) return;
+  const banner = document.createElement('div');
+  banner.className = 'restore-banner';
+  banner.id = 'restoreBanner';
+  const isEN = currentLang === 'en';
+  banner.innerHTML = `
+    <div>
+      <p>${isEN ? 'Welcome back! Your answers are saved.' : '歡迎回來！妳的答案已自動保存。'}
+      <small>${isEN ? answeredCount + ' questions answered' : '已填寫 ' + answeredCount + ' 題'}</small></p>
+    </div>
+    <button class="btn-restore" onclick="goTo('builder')">${isEN ? 'Continue →' : '繼續填寫 →'}</button>
+    <button class="btn-restore-dismiss" onclick="document.getElementById('restoreBanner').remove()">×</button>
+  `;
+  document.body.appendChild(banner);
+  setTimeout(()=>{ const b = document.getElementById('restoreBanner'); if(b) b.remove(); }, 8000);
+}
+
 /* ===========================================================
    INIT
 =========================================================== */
