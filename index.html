@@ -448,6 +448,24 @@ a{color:inherit;}
   display:block;
 }
 
+/* ---------- Download Buttons ---------- */
+.download-btns{
+  display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;
+}
+.btn-download{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:inherit;font-size:13px;font-weight:700;
+  padding:11px 20px;border-radius:100px;border:none;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.btn-dl-png{background:var(--ocean);color:#fff;}
+.btn-dl-png:hover{background:var(--deep);}
+.btn-dl-pdf{background:var(--coral);color:#fff;}
+.btn-dl-pdf:hover{opacity:0.85;}
+.btn-dl-print{background:#fff;color:var(--deep);border:1.5px solid var(--line);}
+.btn-dl-print:hover{border-color:var(--ocean);}
+.dl-loading{font-size:12px;color:#7A9A9C;margin-top:8px;min-height:18px;}
+
 /* ---------- Restore Banner ---------- */
 .restore-banner{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
@@ -573,6 +591,8 @@ footer a{text-decoration:underline;}
   .stage{padding:60px 0 80px;}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -732,6 +752,12 @@ footer a{text-decoration:underline;}
           <button class="btn-unlock-submit" id="unlockBtn">解鎖</button>
         </div>
         <div class="unlock-msg" id="unlockMsg"></div>
+      <div class="download-btns" id="downloadBtns" style="display:none;">
+        <button class="btn-download btn-dl-png" onclick="downloadPNG()">📥 下載 PNG 圖檔</button>
+        <button class="btn-download btn-dl-pdf" onclick="downloadPDFFile()">📄 下載 PDF 檔案</button>
+        <button class="btn-download btn-dl-print" onclick="window.print()">🖨 列印</button>
+      </div>
+      <div class="dl-loading" id="dlLoading"></div>
       </div>
     </div>
 
@@ -2624,6 +2650,10 @@ function submitUnlock(){
   state.unlocked = tier;
   saveState();
 
+  // Show download buttons
+  const dlBtns = document.getElementById('downloadBtns');
+  if(dlBtns) dlBtns.style.display = 'flex';
+
   const vs = document.querySelector('.visual-section');
   if(vs) vs.scrollIntoView({behavior:'smooth', block:'start'});
 
@@ -2660,6 +2690,86 @@ function showRestoreBanner(){
   `;
   document.body.appendChild(banner);
   setTimeout(()=>{ const b = document.getElementById('restoreBanner'); if(b) b.remove(); }, 8000);
+}
+
+/* ===========================================================
+   DOWNLOAD FUNCTIONS
+=========================================================== */
+async function downloadPNG(){
+  const loading = document.getElementById('dlLoading');
+  const container = document.getElementById('visualPlanContainer');
+  if(!container){ alert('請先解鎖視覺計畫書'); return; }
+
+  if(loading) loading.textContent = '⏳ 正在生成圖檔，請稍候…';
+
+  try {
+    const pages = container.querySelectorAll('.plan-page svg');
+    if(!pages.length){ if(loading) loading.textContent = ''; alert('找不到計畫書內容'); return; }
+
+    for(let i = 0; i < pages.length; i++){
+      const svg = pages[i];
+      const canvas = await html2canvas(svg.parentElement, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#F7FAFA',
+        width: 1123,
+        height: 794,
+        logging: false
+      });
+      const link = document.createElement('a');
+      link.download = pages.length > 1
+        ? `WAVE_生產計畫書_第${i+1}頁.png`
+        : 'WAVE_生產計畫書.png';
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+
+      // Small delay between pages
+      if(i < pages.length - 1) await new Promise(r => setTimeout(r, 500));
+    }
+    if(loading) loading.textContent = '✅ 下載完成！';
+    setTimeout(()=>{ if(loading) loading.textContent = ''; }, 3000);
+  } catch(e) {
+    console.error('PNG download error:', e);
+    if(loading) loading.textContent = '下載失敗，請用列印功能另存 PDF。';
+  }
+}
+
+async function downloadPDFFile(){
+  const loading = document.getElementById('dlLoading');
+  const container = document.getElementById('visualPlanContainer');
+  if(!container){ alert('請先解鎖視覺計畫書'); return; }
+
+  if(loading) loading.textContent = '⏳ 正在生成 PDF，請稍候…';
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+    const pages = container.querySelectorAll('.plan-page svg');
+    if(!pages.length){ if(loading) loading.textContent = ''; alert('找不到計畫書內容'); return; }
+
+    for(let i = 0; i < pages.length; i++){
+      if(i > 0) pdf.addPage('a4', 'landscape');
+      const svg = pages[i];
+      const canvas = await html2canvas(svg.parentElement, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#F7FAFA',
+        width: 1123,
+        height: 794,
+        logging: false
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      // A4 landscape: 297mm x 210mm
+      pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+    }
+
+    pdf.save('WAVE_生產計畫書.pdf');
+    if(loading) loading.textContent = '✅ PDF 下載完成！';
+    setTimeout(()=>{ if(loading) loading.textContent = ''; }, 3000);
+  } catch(e) {
+    console.error('PDF download error:', e);
+    if(loading) loading.textContent = '下載失敗，請用列印功能另存 PDF。';
+  }
 }
 
 /* ===========================================================
