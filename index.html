@@ -846,75 +846,6 @@ const LANG = {
 
 let currentLang = 'zh';
 
-function setLang(lang) {
-  currentLang = lang;
-  const L = LANG[lang];
-  
-  // Toggle button styles
-  document.getElementById('langZh').classList.toggle('lang-active', lang === 'zh');
-  document.getElementById('langEn').classList.toggle('lang-active', lang === 'en');
-  
-  // Hero
-  document.querySelector('.hero-eyebrow').textContent = L.heroEyebrow;
-  document.querySelector('.hero h1').innerHTML = L.heroH1;
-  document.querySelector('.hero p.lede').textContent = L.heroLede;
-  document.querySelector('.btn-primary').childNodes[0].textContent = L.heroBtn;
-  document.querySelector('.hero-foot').textContent = L.heroFoot;
-  
-  // Philosophy
-  document.querySelector('#stage-philosophy .s-eyebrow').textContent = L.philEyebrow;
-  document.querySelector('#stage-philosophy h2').textContent = L.philH2;
-  document.querySelector('#stage-philosophy .sub').textContent = L.philSub;
-  document.getElementById('philosophyNext').textContent = L.philNext;
-  renderPhilosophy(); // re-render cards in correct language
-  
-  // Gate
-  document.querySelector('.gate-icon').textContent = L.gateIcon;
-  document.querySelector('.gate-card h3').textContent = L.gateH3;
-  document.querySelector('.gate-card p').textContent = L.gateP;
-  const benefits = document.querySelectorAll('.gate-benefits div');
-  if(benefits[0]) benefits[0].innerHTML = '<span class="check">✓</span> ' + L.gateBenefit1;
-  if(benefits[1]) benefits[1].innerHTML = '<span class="check">✓</span> ' + L.gateBenefit2;
-  if(benefits[2]) benefits[2].innerHTML = '<span class="check">✓</span> ' + L.gateBenefit3;
-  document.querySelector('label[for="userName"]').textContent = L.gateNameLabel;
-  document.getElementById('userName').placeholder = L.gateNamePlaceholder;
-  document.querySelector('.gate-submit').textContent = L.gateSubmit;
-  document.querySelector('.gate-privacy').textContent = L.gatePrivacy;
-  
-  // Builder
-  document.getElementById('builderEyebrow').textContent = L.builderEyebrow;
-  document.querySelector('#stage-builder .sub').textContent = L.builderSub;
-  document.getElementById('progTotal').textContent = L.progTotal;
-  document.getElementById('progCurrent').textContent = L.progCurrent(totalAnswered());
-  document.querySelector('.builder-nav .btn-ghost').textContent = L.builderBack;
-  document.querySelector('.builder-nav .btn-next').textContent = L.builderNext;
-  
-  // Finish
-  document.querySelector('.finish-wrap h2').textContent = L.finishH2;
-  document.querySelector('.lbl:first-of-type') && (document.querySelectorAll('.lbl')[0].textContent = L.statSelectedLbl);
-  document.querySelectorAll('.lbl')[1] && (document.querySelectorAll('.lbl')[1].textContent = L.statCatsLbl);
-  document.querySelector('.ai-section h3').textContent = L.aiH3;
-  document.querySelector('.ai-sub').textContent = L.aiSub;
-  document.querySelector('#aiLoading p').textContent = L.aiLoading;
-  document.querySelector('.btn-regenerate').textContent = L.aiRegenerate;
-  document.querySelector('.visual-section h3').textContent = L.visualH3;
-  document.querySelector('.vs-subhead').textContent = L.visualSub;
-  document.querySelector('.plan-lock-overlay h4').textContent = L.lockH4;
-  document.querySelector('.plan-lock-overlay p').textContent = L.lockP;
-  document.querySelector('.btn-unlock').textContent = L.lockBtn;
-  
-  // Step label
-  const stageId = document.querySelector('.stage.active')?.id?.replace('stage-','') || 'hero';
-  document.getElementById('stepLabel').textContent = L.stepLabel[stageId] || '';
-  
-  // Re-render builder if visible
-  if(document.getElementById('stage-builder').classList.contains('active')) {
-    renderBuilder();
-  }
-  
-  // Re-render philosophies
-  renderPhilosophy();
-}
 
 function t(key, ...args) {
   const val = LANG[currentLang][key];
@@ -1185,6 +1116,76 @@ function renderPhilosophy(){
       </div>
     </button>
   `).join('');
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  const L = LANG[lang];
+  
+  // Toggle button styles
+  document.getElementById('langZh').classList.toggle('lang-active', lang === 'zh');
+  document.getElementById('langEn').classList.toggle('lang-active', lang === 'en');
+  
+  // Hero
+  document.querySelector('.hero-eyebrow').textContent = L.heroEyebrow;
+  document.querySelector('.hero h1').innerHTML = L.heroH1;
+  document.querySelector('.hero p.lede').textContent = L.heroLede;
+  document.querySelector('.btn-primary').childNodes[0].textContent = L.heroBtn;
+  document.querySelector('.hero-foot').textContent = L.heroFoot;
+  
+  // Philosophy
+  document.querySelector('#stage-philosophy .s-eyebrow').textContent = L.philEyebrow;
+  document.querySelector('#stage-philosophy h2').textContent = L.philH2;
+  document.querySelector('#stage-philosophy .sub').textContent = L.philSub;
+  document.getElementById('philosophyNext').textContent = L.philNext;
+  renderPhilosophy(); // re-render cards in correct language
+  
+  // Gate
+  document.querySelector('.gate-icon').textContent = L.gateIcon;
+  document.querySelector('.gate-card h3').textContent = L.gateH3;
+  document.querySelector('.gate-card p').textContent = L.gateP;
+  const benefits = document.querySelectorAll('.gate-benefits div');
+  if(benefits[0]) benefits[0].innerHTML = '<span class="check">✓</span> ' + L.gateBenefit1;
+  if(benefits[1]) benefits[1].innerHTML = '<span class="check">✓</span> ' + L.gateBenefit2;
+  if(benefits[2]) benefits[2].innerHTML = '<span class="check">✓</span> ' + L.gateBenefit3;
+  document.querySelector('label[for="userName"]').textContent = L.gateNameLabel;
+  document.getElementById('userName').placeholder = L.gateNamePlaceholder;
+  document.querySelector('.gate-submit').textContent = L.gateSubmit;
+  document.querySelector('.gate-privacy').textContent = L.gatePrivacy;
+  
+  // Builder
+  document.getElementById('builderEyebrow').textContent = L.builderEyebrow;
+  document.querySelector('#stage-builder .sub').textContent = L.builderSub;
+  document.getElementById('progTotal').textContent = L.progTotal;
+  document.getElementById('progCurrent').textContent = L.progCurrent(totalAnswered());
+  document.querySelector('.builder-nav .btn-ghost').textContent = L.builderBack;
+  document.querySelector('.builder-nav .btn-next').textContent = L.builderNext;
+  
+  // Finish
+  document.querySelector('.finish-wrap h2').textContent = L.finishH2;
+  document.querySelector('.lbl:first-of-type') && (document.querySelectorAll('.lbl')[0].textContent = L.statSelectedLbl);
+  document.querySelectorAll('.lbl')[1] && (document.querySelectorAll('.lbl')[1].textContent = L.statCatsLbl);
+  document.querySelector('.ai-section h3').textContent = L.aiH3;
+  document.querySelector('.ai-sub').textContent = L.aiSub;
+  document.querySelector('#aiLoading p').textContent = L.aiLoading;
+  document.querySelector('.btn-regenerate').textContent = L.aiRegenerate;
+  document.querySelector('.visual-section h3').textContent = L.visualH3;
+  document.querySelector('.vs-subhead').textContent = L.visualSub;
+  document.querySelector('.plan-lock-overlay h4').textContent = L.lockH4;
+  document.querySelector('.plan-lock-overlay p').textContent = L.lockP;
+  document.querySelector('.btn-unlock').textContent = L.lockBtn;
+  
+  // Step label
+  const stageId = document.querySelector('.stage.active')?.id?.replace('stage-','') || 'hero';
+  document.getElementById('stepLabel').textContent = L.stepLabel[stageId] || '';
+  
+  // Re-render builder if visible
+  if(document.getElementById('stage-builder').classList.contains('active')) {
+    renderBuilder();
+  }
+  
+  // Re-render philosophies
+  renderPhilosophy();
 }
 function pickPhilosophy(id){
   state.philosophy = id;
