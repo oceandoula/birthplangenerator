@@ -1158,8 +1158,39 @@ const CATEGORIES = [
 let state = {
   philosophy: null,
   user: {name:'', email:''},
-  answers: {} // itemId -> string | array
+  answers: {},
+  customAnswers: {},
+  unlocked: null
 };
+
+// ── localStorage persistence ─────────────────────────────
+const STORAGE_KEY = 'wave_birth_plan_v1';
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      user: state.user,
+      philosophy: state.philosophy,
+      answers: state.answers,
+      customAnswers: state.customAnswers,
+      unlocked: state.unlocked
+    }));
+  } catch(e){ console.warn('Could not save:', e); }
+}
+
+function loadState(){
+  try{
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(!saved) return false;
+    const data = JSON.parse(saved);
+    if(data.user) state.user = data.user;
+    if(data.philosophy) state.philosophy = data.philosophy;
+    if(data.answers) state.answers = data.answers;
+    if(data.customAnswers) state.customAnswers = data.customAnswers;
+    if(data.unlocked) state.unlocked = data.unlocked;
+    return true;
+  } catch(e){ return false; }
+}
 
 const stageOrder = ['hero','philosophy','gate','builder','finish'];
 const tideMap = {hero:4, philosophy:22, gate:40, builder:75, finish:100};
@@ -2589,8 +2620,8 @@ function renderVisualPlan(){
 /* ===========================================================
    INIT
 =========================================================== */
-// Load saved state if available
-const hadSavedState = loadState();
+// Load saved state on init
+loadState();
 renderPhilosophy();
 </script>
 </body>
