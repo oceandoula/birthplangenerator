@@ -1794,9 +1794,33 @@ function renderVisualPlan(){
    UNLOCK CODE SYSTEM
 =========================================================== */
 const UNLOCK_CODES = {
-  'WAVE9':  'basic',   // $9 視覺計畫書
-  'WAVE97': 'pro',     // $97 視覺 + 諮詢
-  'WAVE2026': 'basic', // 備用通用碼
+  // ── Launch 通用碼（放在 Stripe email）──
+  'WAVE2026':   'basic',   // Launch 主碼，2026 Q3
+  'OCEAN0726':  'basic',   // 備用碼，2026 Q3
+  
+  // ── Q4 換碼（2026 年 10 月後啟用）──
+  'WAVE2027':   'basic',   // Q4 主碼
+  'OCEAN1026':  'basic',   // Q4 備用碼
+
+  // ── $97 專屬碼 ──
+  'WAVEPLUS':   'pro',     // $97 通用碼
+  'OCEAN97':    'pro',     // $97 備用碼
+
+  // ── 諮詢個人專屬碼（送給諮詢客戶）──
+  'NAPHY001':   'pro',
+  'NAPHY002':   'pro',
+  'NAPHY003':   'pro',
+  'NAPHY004':   'pro',
+  'NAPHY005':   'pro',
+  'NAPHY006':   'pro',
+  'NAPHY007':   'pro',
+  'NAPHY008':   'pro',
+  'NAPHY009':   'pro',
+  'NAPHY010':   'pro',
+
+  // ── 特殊用途 ──
+  'WAVEBETA':   'pro',     // 給測試用戶 / 早鳥
+  'OCEANTEAM':  'pro',     // 內部測試
 };
 
 function submitUnlock(){
