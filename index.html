@@ -420,6 +420,34 @@ a{color:inherit;}
 .plan-page{background:#F7FAFA;}
 
 
+/* ---------- Feedback Section ---------- */
+.feedback-section{
+  margin-top:32px;
+  background:#fff;
+  border-radius:20px;
+  border:1.5px solid var(--line);
+  overflow:hidden;
+}
+.feedback-section::before{
+  content:'';display:block;height:4px;
+  background:linear-gradient(90deg,var(--lagoon),var(--ocean),var(--coral));
+}
+.feedback-inner{padding:28px 28px 8px;}
+.feedback-inner h3{
+  font-size:18px;font-family:"Noto Serif TC",serif;
+  color:var(--deep);margin-bottom:6px;word-break:keep-all;
+}
+.feedback-inner p{
+  font-size:13px;color:#496A6D;margin-bottom:20px;
+  word-break:keep-all;line-height:1.7;
+}
+.feedback-iframe{
+  width:100%;border:none;
+  border-radius:0 0 18px 18px;
+  min-height:420px;
+  display:block;
+}
+
 /* ---------- Restore Banner ---------- */
 .restore-banner{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
@@ -732,6 +760,24 @@ footer a{text-decoration:underline;}
         <p>不確定哪個方案適合妳？先聊聊再決定。</p>
       </div>
       <button class="btn-free-cta" onclick="window.open('https://calendly.com/oceanmamadoula/15minfree','_blank')">免費預約 →</button>
+    </div>
+
+    <!-- Feedback Section -->
+    <div class="feedback-section" id="feedbackSection">
+      <div class="feedback-inner">
+        <h3>💬 填完了！留下妳的想法</h3>
+        <p>妳的回饋幫助 WAVE 變得更好，讓更多媽媽受益。匿名，只需 1 分鐘。</p>
+      </div>
+      <iframe
+        id="feedbackFrame"
+        class="feedback-iframe"
+        src="https://docs.google.com/forms/d/e/1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA/viewform?embedded=true"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+        scrolling="no"
+        onload="this.style.minHeight='380px'"
+      >載入中…</iframe>
     </div>
 
     <!-- Text plan download + back -->
@@ -1167,6 +1213,16 @@ function setLang(lang) {
   document.querySelector('#stage-philosophy .sub').textContent = L.philSub;
   document.getElementById('philosophyNext').textContent = L.philNext;
   renderPhilosophy(); // re-render cards in correct language
+
+  // Switch feedback form language
+  const frame = document.getElementById('feedbackFrame');
+  if(frame){
+    if(lang === 'en'){
+      frame.src = 'https://docs.google.com/forms/d/e/1FAIpQLSecFLWo4F89NUffi5nmer6nEYO65x16HBbtI8tP54MYiKfxVg/viewform?embedded=true';
+    } else {
+      frame.src = 'https://docs.google.com/forms/d/e/1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA/viewform?embedded=true';
+    }
+  }
   
   // Gate
   document.querySelector('.gate-icon').textContent = L.gateIcon;
