@@ -729,7 +729,7 @@ footer a{text-decoration:underline;}
         <p>購買完成後，妳的 email 裡會有一組解鎖碼。輸入後即可立刻查看並列印視覺計畫書。</p>
         <div class="unlock-input-row">
           <input type="text" class="unlock-input" id="unlockInput" placeholder="輸入解鎖碼，例如：WAVE9" maxlength="20"/>
-          <button class="btn-unlock-submit" onclick="submitUnlock()">解鎖</button>
+          <button class="btn-unlock-submit" id="unlockBtn">解鎖</button>
         </div>
         <div class="unlock-msg" id="unlockMsg"></div>
       </div>
@@ -2668,6 +2668,16 @@ function showRestoreBanner(){
 // Load saved state on init
 loadState();
 renderPhilosophy();
+// Unlock button event listener
+document.addEventListener('DOMContentLoaded', function(){
+  const unlockBtn = document.getElementById('unlockBtn');
+  if(unlockBtn) unlockBtn.addEventListener('click', submitUnlock);
+  
+  const unlockInput = document.getElementById('unlockInput');
+  if(unlockInput) unlockInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') submitUnlock();
+  });
+});
 </script>
 </body>
 </html>
