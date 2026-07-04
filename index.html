@@ -866,6 +866,7 @@ function setLang(lang) {
   document.querySelector('#stage-philosophy h2').textContent = L.philH2;
   document.querySelector('#stage-philosophy .sub').textContent = L.philSub;
   document.getElementById('philosophyNext').textContent = L.philNext;
+  renderPhilosophy(); // re-render cards in correct language
   
   // Gate
   document.querySelector('.gate-icon').textContent = L.gateIcon;
