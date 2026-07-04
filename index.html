@@ -1395,7 +1395,7 @@ function renderBuilder(){
       <div class="category-head" onclick="toggleCategory('${cat.id}')">
         <h4>${cat.icon} ${cat.name}</h4>
         <div style="display:flex; align-items:center; gap:10px;">
-          <span class="badge-count ${count>0?'has':''}">${count>0? count+' 項已填' : '未填寫'}</span>
+          <span class="badge-count ${count>0?'has':''}">${count>0? (currentLang==='en'? count+' answered' : count+' 項已填') : (currentLang==='en'? 'Not filled' : '未填寫')}</span>
           <span class="arrow">▾</span>
         </div>
       </div>
@@ -1404,7 +1404,7 @@ function renderBuilder(){
           <div class="item-row">
             <div class="item-name">${it.name}${isAnswered(it.id)?`<small>${summarize(it)}</small>`:''}</div>
             <button class="item-toggle ${isAnswered(it.id)?'added':''}" onclick="openItem('${cat.id}','${it.id}')">
-              ${isAnswered(it.id)?'已填寫':'+ 填寫'}
+              ${isAnswered(it.id)?(currentLang==='en'?'✓ Answered':'已填寫'):(currentLang==='en'?'+ Fill in':'+ 填寫')}
             </button>
           </div>
         `).join('')}
@@ -2601,6 +2601,7 @@ const UNLOCK_CODES = {
   'NAPHY010': 'pro',
   // Subscriber 測試碼
   'WAVEFREE':   'pro',     // Subscriber 限定免費碼
+  'WAVEFREE':   'pro',     // 通用測試碼
   'WAVEFREE01': 'pro', 'WAVEFREE02': 'pro', 'WAVEFREE03': 'pro',
   'WAVEFREE04': 'pro', 'WAVEFREE05': 'pro',
   // 特殊用途
