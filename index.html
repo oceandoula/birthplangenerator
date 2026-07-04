@@ -1355,19 +1355,7 @@ async function submitGate(){
   btn.textContent = currentLang==='en' ? 'Let WAVE Start Generating' : '讓 WAVE 開始生成';
   goTo('builder');
 
-  // Subscribe in background (non-blocking)
-  try {
-    fetch('https://api.convertkit.com/v3/forms/9634406/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      body: JSON.stringify({
-        api_key: 'P5k_H0hBkuVVe2S8J0P5rA',
-        email: email,
-        first_name: name,
-        fields: { birth_philosophy: state.philosophy || '' }
-      })
-    }).catch(()=>{});
-  } catch(e) {}
+  // ConvertKit subscription removed - add manually via Kit dashboard
 }
 
 /* ===========================================================
