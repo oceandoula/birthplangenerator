@@ -2597,10 +2597,13 @@ const UNLOCK_CODES = {
 
 function submitUnlock(){
   const input = document.getElementById('unlockInput');
-  if(!input) return;
+  if(!input){ console.error('unlockInput not found'); return; }
   const code = input.value.trim().toUpperCase();
+  console.log('Unlock attempt:', code);
   const msg = document.getElementById('unlockMsg');
   const tier = UNLOCK_CODES[code];
+  console.log('Tier found:', tier);
+  console.log('Available codes:', Object.keys(UNLOCK_CODES));
 
   if(!tier){
     if(msg){ msg.className = 'unlock-msg error'; msg.textContent = '找不到這組解鎖碼，請確認 email 裡的碼是否正確。'; }
@@ -2624,7 +2627,15 @@ function submitUnlock(){
   const vs = document.querySelector('.visual-section');
   if(vs) vs.scrollIntoView({behavior:'smooth', block:'start'});
 
-  renderVisualPlan();
+  try {
+    renderVisualPlan();
+  } catch(e) {
+    console.error('renderVisualPlan error:', e);
+    if(msg){
+      msg.className = 'unlock-msg success';
+      msg.textContent = '✓ 已解鎖！請使用瀏覽器列印功能（Ctrl+P）儲存 PDF。';
+    }
+  }
 }
 
 function openModal(catId, itemId){
