@@ -1583,8 +1583,9 @@ function renderBuilder(){
     </div>`;
   }).join('');
 
-  // Auto-enable wizard mode
-  if(!wizardMode){
+  // Auto-enable wizard mode only for first-time users
+  const hasAnswers = Object.keys(state.answers).length > 0;
+  if(!wizardMode && !hasAnswers){
     setWizardMode(true);
   }
 }
