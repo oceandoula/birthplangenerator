@@ -2582,8 +2582,7 @@ function renderVisualPlan(){
     emergency_baby:'寶寶伴侶隨行', emergency_partner:'伴侶親膚',
   };
 
-  // Build sections - show ALL options as icons
-  // Selected = full color, unselected = faded
+  // Build sections - show ONLY selected options as icons
   const SEC_ORDER = ['before','environment','pain','labor','pushing','csection_pref','postpartum','unexpected'];
   const activeSections = [];
 
@@ -2593,35 +2592,29 @@ function renderVisualPlan(){
     const addedLabels = new Set();
 
     cat.items.forEach(item => {
-      if(item.type === 'text') return; // skip text items, shown in header
+      if(item.type === 'text') return;
       const val = state.answers[item.id];
-      const selectedVals = Array.isArray(val) ? val : (val ? [val] : []);
+      if(!val) return;
+      const selectedVals = Array.isArray(val) ? val : [val];
 
-      if(item.options){
-        // For each option, find matching icon
-        item.options.forEach(opt => {
-          // Try exact match first, then partial
-          let iconLabel = Object.keys(ICON_MAP).find(k => k === opt);
-          if(!iconLabel) iconLabel = Object.keys(ICON_MAP).find(k => opt.includes(k) || k.includes(opt.slice(0,4)));
-          if(!iconLabel) iconLabel = ITEM_ICON[item.id]; // fallback to item icon
+      selectedVals.forEach(v => {
+        if(!v || !v.toString().trim()) return;
+        // Find matching icon
+        let iconLabel = Object.keys(ICON_MAP).find(k => k === v);
+        if(!iconLabel) iconLabel = Object.keys(ICON_MAP).find(k => v.includes(k) || k.includes(v.slice(0,4)));
+        if(!iconLabel) iconLabel = ITEM_ICON[item.id];
+        if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
+          addedLabels.add(iconLabel);
+          iconItems.push({label: iconLabel, note: v.slice(0,6), selected: true});
+        }
+      });
 
-          if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
-            addedLabels.add(iconLabel);
-            const isSelected = selectedVals.some(v => v === opt || opt.includes(v) || v.includes(opt.slice(0,3)));
-            iconItems.push({
-              label: iconLabel,
-              note: opt.slice(0,6),
-              selected: isSelected
-            });
-          }
-        });
-      } else {
-        // No options (choice/text with no options list) - use ITEM_ICON
+      // Also try item-level icon if nothing found from values
+      if(iconItems.length === 0 || !addedLabels.has(ITEM_ICON[item.id])){
         const iconLabel = ITEM_ICON[item.id];
         if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
           addedLabels.add(iconLabel);
-          const isSelected = val && val.toString().trim().length > 0;
-          iconItems.push({label: iconLabel, note: item.name.slice(0,6), selected: !!isSelected});
+          iconItems.push({label: iconLabel, note: item.name.slice(0,6), selected: true});
         }
       }
     });
@@ -2836,18 +2829,14 @@ function renderVisualPlan(){
       const cy_icon = rowY + 40;
       const r = 21;
 
-      const opacity = tok.selected ? 1 : 0.22;
-      const textOpacity = tok.selected ? 1 : 0.3;
-      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" opacity="${opacity}" filter="url(#sh${uid})"/>`);
-      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="${tok.selected ? 0.8 : 0.2}"/>`);
-      if(tok.selected){
-        parts.push(bubble(cx, cy_icon, r, sec.cfg.bub));
-        parts.push(getIcon(item.label, cx, cy_icon, 44));
-      }
+      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" filter="url(#sh${uid})"/>`);
+      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="0.8"/>`);
+      parts.push(bubble(cx, cy_icon, r, sec.cfg.bub));
+      parts.push(getIcon(item.label, cx, cy_icon, 44));
       const lbl = item.label.length>6 ? item.label.slice(0,5)+'…' : item.label;
       const nt = item.note.slice(0,8);
-      parts.push(`<text x="${cx}" y="${rowY+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" fill-opacity="${textOpacity}" text-anchor="middle" font-weight="${tok.selected?'600':'400'}">${lbl}</text>`);
-      parts.push(`<text x="${cx}" y="${rowY+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" fill-opacity="${textOpacity}" text-anchor="middle">${nt}</text>`);
+      parts.push(`<text x="${cx}" y="${rowY+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" text-anchor="middle" font-weight="600">${lbl}</text>`);
+      parts.push(`<text x="${cx}" y="${rowY+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${nt}</text>`);
 
       col++;
       col++;
