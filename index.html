@@ -1372,9 +1372,7 @@ function goTo(stage){
   window.scrollTo({top:0, behavior:'smooth'});
   if(stage==='builder'){
     renderBuilder();
-    setTimeout(()=>{
-      try { setWizardMode(true); } catch(e){ console.error('wizard err:', e); }
-    }, 150);
+
   }
   if(stage==='finish') renderFinish();
 }
@@ -1560,6 +1558,11 @@ function renderBuilder(){
       </div>
     </div>`;
   }).join('');
+
+  // Auto-enable wizard mode
+  if(!wizardMode){
+    setWizardMode(true);
+  }
 }
 
 function summarize(it){
