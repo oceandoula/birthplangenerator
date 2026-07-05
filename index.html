@@ -1364,11 +1364,18 @@ const labelMap = {hero:'開始', philosophy:'第 1 步・了解妳', gate:'第 2
 
 function goTo(stage){
   document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
-  document.getElementById('stage-'+stage).classList.add('active');
+  const el = document.getElementById('stage-'+stage);
+  if(!el){ console.error('Stage not found:', stage); return; }
+  el.classList.add('active');
   document.getElementById('tideFill').style.width = tideMap[stage]+'%';
   document.getElementById('stepLabel').textContent = labelMap[stage];
   window.scrollTo({top:0, behavior:'smooth'});
-  if(stage==='builder') renderBuilder();
+  if(stage==='builder'){
+    renderBuilder();
+    setTimeout(()=>{
+      try { setWizardMode(true); } catch(e){ console.error('wizard err:', e); }
+    }, 150);
+  }
   if(stage==='finish') renderFinish();
 }
 
