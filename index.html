@@ -2739,11 +2739,16 @@ function renderVisualPlan(){
     const FIXED_CW = Math.floor((usable_w - 7*CARD_GAP) / 8);
     const COLS = 8;
 
-    // Build a flat stream of "tokens": {type:'label'|'card', sec, item?}
+    // Build a flat stream of "tokens": {type:'label'|'card', sec, item, selected}
+    // ALL items shown - selected ones full color, unselected ones faded
     const tokens = [];
     secs.forEach(sec => {
       tokens.push({type:'label', sec});
-      sec.items.forEach(item => tokens.push({type:'card', sec, item}));
+      sec.items.forEach(item => {
+        const ans = state.answers[item.id];
+        const selected = ans && (Array.isArray(ans) ? ans.length > 0 : ans.toString().trim().length > 0);
+        tokens.push({type:'card', sec, item, selected});
+      });
     });
 
     let col = 0;
@@ -2792,15 +2797,18 @@ function renderVisualPlan(){
       const cy_icon = rowY + 40;
       const r = 21;
 
-      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" filter="url(#sh${uid})"/>`);
-      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="0.8"/>`);
-      parts.push(bubble(cx, cy_icon, r, sec.cfg.bub));
-      parts.push(getIcon(item.label, cx, cy_icon, 44));
-
+      const opacity = tok.selected ? 1 : 0.22;
+      const textOpacity = tok.selected ? 1 : 0.3;
+      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" opacity="${opacity}" filter="url(#sh${uid})"/>`);
+      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="${tok.selected ? 0.8 : 0.2}"/>`);
+      if(tok.selected){
+        parts.push(bubble(cx, cy_icon, r, sec.cfg.bub));
+        parts.push(getIcon(item.label, cx, cy_icon, 44));
+      }
       const lbl = item.label.length>6 ? item.label.slice(0,5)+'…' : item.label;
       const nt = item.note.slice(0,8);
-      parts.push(`<text x="${cx}" y="${rowY+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" text-anchor="middle" font-weight="600">${lbl}</text>`);
-      parts.push(`<text x="${cx}" y="${rowY+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${nt}</text>`);
+      parts.push(`<text x="${cx}" y="${rowY+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" fill-opacity="${textOpacity}" text-anchor="middle" font-weight="${tok.selected?'600':'400'}">${lbl}</text>`);
+      parts.push(`<text x="${cx}" y="${rowY+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" fill-opacity="${textOpacity}" text-anchor="middle">${nt}</text>`);
 
       col++;
       col++;
