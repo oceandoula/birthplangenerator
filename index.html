@@ -2796,13 +2796,18 @@ function setWizardMode(on){
   const container = document.getElementById('wizardContainer');
   const catList = document.getElementById('categoryList');
   const topNav = document.getElementById('builderTopNav');
-  const btnWiz = document.getElementById('btnWizMode');
   const btnList = document.getElementById('btnListMode');
+
+  if(!container || !catList){ 
+    console.warn('Wizard elements not found, retrying...');
+    setTimeout(()=>setWizardMode(on), 200);
+    return;
+  }
 
   if(on){
     container.style.display = 'block';
     catList.style.display = 'none';
-    topNav.style.display = 'none';
+    if(topNav) topNav.style.display = 'none';
     if(btnList) btnList.style.display = 'none';
     buildWizardSteps();
     wizardIndex = 0;
@@ -2810,7 +2815,7 @@ function setWizardMode(on){
   } else {
     container.style.display = 'none';
     catList.style.display = '';
-    topNav.style.display = '';
+    if(topNav) topNav.style.display = '';
     if(btnList) btnList.style.display = 'inline-flex';
     renderBuilder();
   }
