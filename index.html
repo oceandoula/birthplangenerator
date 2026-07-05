@@ -2772,95 +2772,71 @@ function renderVisualPlan(){
       }
     }
 
-    // ── Continuous flow layout ──────────────────────────────
-    // All items flow left-to-right across 8 columns
-    // Section labels occupy one full-width row when col=0 or at section start
+    // ── Simple flow layout ──────────────────────────────────
+    // Cards flow left-to-right, 8 per row
+    // Section label = full-width bar, always starts new row
+    // After all cards in a section, continue on same row (no forced break)
     const FIXED_CW = Math.floor((usable_w - 7*CARD_GAP) / 8);
     const COLS = 8;
-
-    // Build a flat stream of "tokens": {type:'label'|'card', sec, item, selected}
-    const tokens = [];
-    secs.forEach(sec => {
-      tokens.push({type:'label', sec});
-      sec.items.forEach(item => {
-        tokens.push({type:'card', sec, item, selected: item.selected !== false});
-      });
-    });
 
     let col = 0;
     let rowY = curY;
 
-    const flushRow = () => {
-      rowY += CARD_H + CARD_GAP;
-      col = 0;
-    };
-
-    let i = 0;
-    while(i < tokens.length){
-      const tok = tokens[i];
-
-      if(tok.type === 'label'){
-        // Fill remaining spots in current row before starting new section
-        if(col > 0){
-          const prevSec = tokens.slice(0, i).filter(t=>t.type==='card').slice(-1)[0]?.sec;
-          while(col < COLS){
-            const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
-            if(prevSec){
-              parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${prevSec.cfg.card}" opacity="0.25"/>`);
-              parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="none" stroke="${prevSec.cfg.bar}" stroke-width="1" opacity="0.3"/>`);
-              parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${prevSec.cfg.bar}" opacity="0.3"/>`);
-            }
-            col++;
-          }
-          rowY += CARD_H + CARD_GAP;
-          col = 0;
+    secs.forEach(sec => {
+      // Section bar always starts on a new row
+      if(col > 0){
+        // Fill rest of current row with placeholders before section bar
+        while(col < COLS){
+          const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
+          parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" opacity="0.2"/>`);
+          parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="0.25"/>`);
+          col++;
         }
-
-        // Draw full-width section bar
-        parts.push(`<rect x="${PAD}" y="${rowY}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="${tok.sec.cfg.bar}" opacity="0.88"/>`);
-        parts.push(`<rect x="${PAD}" y="${rowY}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="rgba(255,255,255,0.2)"/>`);
-        parts.push(`<text x="${PAD+14}" y="${rowY+16}" font-family="Noto Sans TC" font-size="11" fill="${tok.sec.cfg.tc}" font-weight="700">${tok.sec.cfg.e}  ${tok.sec.name}</text>`);
-        rowY += SEC_BAR_H + 4;
-        col = 0;
-        i++;
-        continue;
-      }
-
-      // It's a card
-      const sec = tok.sec;
-      const item = tok.item;
-      const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
-      const cx = cx_c + Math.floor(FIXED_CW/2);
-      const cy_icon = rowY + 40;
-      const r = 21;
-
-      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" filter="url(#sh${uid})"/>`);
-      parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="0.8"/>`);
-      parts.push(bubble(cx, cy_icon, r, sec.cfg.bub));
-      parts.push(getIcon(item.label, cx, cy_icon, 44));
-      const lbl = item.label.length>6 ? item.label.slice(0,5)+'…' : item.label;
-      const nt = item.note.slice(0,8);
-      parts.push(`<text x="${cx}" y="${rowY+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" text-anchor="middle" font-weight="600">${lbl}</text>`);
-      parts.push(`<text x="${cx}" y="${rowY+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${nt}</text>`);
-
-      col++;
-      if(col >= COLS){
         rowY += CARD_H + CARD_GAP;
         col = 0;
       }
-      i++;
-    }
 
-    // Fill remaining spots - complete current row with placeholders
-    const lastSec2 = tokens.filter(t=>t.type==='card').slice(-1)[0]?.sec;
-    if(col > 0 && col < COLS && lastSec2){
+      // Draw section bar
+      parts.push(`<rect x="${PAD}" y="${rowY}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="${sec.cfg.bar}" opacity="0.88"/>`);
+      parts.push(`<rect x="${PAD}" y="${rowY}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="rgba(255,255,255,0.2)"/>`);
+      parts.push(`<text x="${PAD+14}" y="${rowY+16}" font-family="Noto Sans TC" font-size="11" fill="${sec.cfg.tc}" font-weight="700">${sec.cfg.e}  ${sec.name}</text>`);
+      rowY += SEC_BAR_H + 4;
+      col = 0;
+
+      // Draw cards - flow continuously
+      sec.items.forEach(item => {
+        const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
+        const cx = cx_c + Math.floor(FIXED_CW/2);
+        const cy_icon = rowY + 40;
+        const r = 21;
+
+        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" filter="url(#sh${uid})"/>`);
+        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="0.8"/>`);
+        parts.push(bubble(cx, cy_icon, r, sec.cfg.bub));
+        parts.push(getIcon(item.label, cx, cy_icon, 44));
+        const lbl = item.label.length>6 ? item.label.slice(0,5)+'…' : item.label;
+        const nt = item.note.slice(0,8);
+        parts.push(`<text x="${cx}" y="${rowY+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" text-anchor="middle" font-weight="600">${lbl}</text>`);
+        parts.push(`<text x="${cx}" y="${rowY+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${nt}</text>`);
+
+        col++;
+        if(col >= COLS){
+          rowY += CARD_H + CARD_GAP;
+          col = 0;
+        }
+      });
+    });
+
+    // Fill last row with placeholders
+    if(col > 0){
+      const lastSec = secs[secs.length-1];
       while(col < COLS){
         const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
-        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${lastSec2.cfg.card}" opacity="0.25"/>`);
-        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="none" stroke="${lastSec2.cfg.bar}" stroke-width="1" opacity="0.25"/>`);
-        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${lastSec2.cfg.bar}" opacity="0.3"/>`);
+        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${lastSec.cfg.card}" opacity="0.2"/>`);
+        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${lastSec.cfg.bar}" opacity="0.25"/>`);
         col++;
       }
+      rowY += CARD_H + CARD_GAP;
     }
     curY = rowY;
 
