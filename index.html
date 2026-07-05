@@ -2662,7 +2662,11 @@ function renderVisualPlan(){
     const textRowsH = textItemCount > 0 ? (textItemCount * 22 + 22) : 0;
     const avail_p1 = PH - HEADER_H - PHIL_H - FOOTER_H - 24 - textRowsH;
     const avail_pn = PH - HEADER_H - FOOTER_H - 16;
-    const secH = sec => SEC_BAR_H + 6 + CARD_H + SEC_GAP;
+    const COLS_COUNT = 8;
+    const secH = sec => {
+      const rows = Math.ceil(sec.items.length / COLS_COUNT);
+      return SEC_BAR_H + 6 + rows * (CARD_H + CARD_GAP) + SEC_GAP;
+    };
 
     const pages = [];
     let cur = [], avail = avail_p1, isFirst = true;
