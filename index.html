@@ -2753,10 +2753,17 @@ function renderVisualPlan(){
       const tok = tokens[i];
 
       if(tok.type === 'label'){
-        // Check if label fits in remaining columns on this row
-        // We always put labels at col=0 (start of new row)
+        // Fill remaining spots in current row before starting new section
         if(col > 0){
-          // finish current row first
+          const prevSec = tokens.slice(0, i).filter(t=>t.type==='card').slice(-1)[0]?.sec;
+          while(col < COLS){
+            const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
+            if(prevSec){
+              parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${prevSec.cfg.card}" opacity="0.2"/>`);
+              parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${prevSec.cfg.bar}" opacity="0.25"/>`);
+            }
+            col++;
+          }
           rowY += CARD_H + CARD_GAP;
           col = 0;
         }
