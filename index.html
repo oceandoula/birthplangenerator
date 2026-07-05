@@ -3414,6 +3414,68 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><style>
+  .wave-faq { max-width: 760px; margin: 56px auto; padding: 0 22px; font-family: 'Noto Sans TC', sans-serif; color: #2C3A3F; }
+  .wave-faq h2 { font-family: 'Noto Serif TC', serif; font-weight: 500; font-size: 1.5rem; color: #1D5A6C; text-align: center; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .wave-faq .faq-sub { text-align: center; font-size: 0.85rem; color: #4A6470; margin-bottom: 32px; }
+  .wave-faq details { border-bottom: 1px solid #D4EEF0; padding: 4px 0; }
+  .wave-faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 4px; font-family: 'Noto Serif TC', serif; font-weight: 500; font-size: 1.02rem; color: #1D5A6C; }
+  .wave-faq summary::-webkit-details-marker { display: none; }
+  .wave-faq summary::after { content: '+'; font-size: 1.3rem; color: #3A8A9E; transition: transform 0.2s; flex-shrink: 0; }
+  .wave-faq details[open] summary::after { content: '–'; }
+  .wave-faq .faq-a { padding: 0 4px 22px; font-size: 0.92rem; line-height: 1.9; color: #3E5560; }
+</style>
+
+<section class="wave-faq">
+  <h2>關於生產計畫書，常見問題</h2>
+  <p class="faq-sub">Frequently Asked Questions</p>
+
+  <details>
+    <summary>什麼是生產計畫書？</summary>
+    <div class="faq-a">生產計畫書是一份記錄妳生產偏好的文件，內容涵蓋產前、產中到產後，例如減痛分娩的選擇、待產時的活動與姿勢、會陰照護、斷臍時機、產後肌膚接觸與哺乳等。它的用途是在產程中幫助妳與醫療團隊溝通，也讓陪產者清楚妳的想法。生產計畫書不是硬性規定，而是一個表達期待、同時保留彈性的溝通工具。</div>
+  </details>
+
+  <details>
+    <summary>生產計畫書要怎麼寫？包含哪些項目？</summary>
+    <div class="faq-a">一份完整的生產計畫書通常包含幾個區塊：待產環境與陪產者、疼痛因應方式（如產球、水中減痛、減痛分娩）、產程中的活動與姿勢、生產方式偏好、會陰與斷臍處理、產後立即的肌膚接觸與哺乳、以及新生兒照護。書寫時建議以「偏好」而非「要求」的語氣呈現，並保留「若情況改變時」的彈性，較容易獲得醫療團隊配合。</div>
+  </details>
+
+  <details>
+    <summary>WAVE 生產計畫書工具是什麼？要付費嗎？</summary>
+    <div class="faq-a">WAVE 是一個 AI 生產計畫書工具，由 Ocean Doula 的陪產員 Naphy 製作。妳回答幾個關於生產偏好的問題後，AI 會為妳整理成一份文字版生產計畫書，可下載 PDF 並帶去產檢。Beta 上線期間，文字版限時免費；若需要一頁式的視覺圖卡版本，採隨心定價。</div>
+  </details>
+
+  <details>
+    <summary>生產計畫書可以帶去醫院給醫師看嗎？</summary>
+    <div class="faq-a">可以。生產計畫書的主要用途，就是帶去產檢與待產時，作為與醫師、助產師溝通的依據。建議在產前門診時先與醫療團隊討論內容，了解該院所的常規與可配合的範圍，並準備一份簡潔的一頁式版本放進待產包，方便產程中快速參考。</div>
+  </details>
+
+  <details>
+    <summary>減痛分娩需要事先寫進生產計畫書嗎？</summary>
+    <div class="faq-a">建議事先寫入。在生產計畫書中註明妳對減痛分娩的態度（例如「希望盡早使用」「想先嘗試其他方式」或「保持彈性視情況決定」），能讓醫療團隊提早了解妳的偏好。台灣多數提供減痛分娩的院所需要麻醉評估，先在計畫書中表達意向，有助於待產時更順暢的溝通。</div>
+  </details>
+
+  <details>
+    <summary>陪產員（doula）和助產師、月嫂有什麼不同？</summary>
+    <div class="faq-a">陪產員（doula）提供的是孕期、產程與產後的情緒支持、資訊陪伴與生理舒適協助，不執行醫療處置。助產師是受過專業訓練、可提供產檢與接生等醫療照護的醫事人員。月嫂則主要負責產後媽媽與新生兒的生活照顧。三者角色不同，可以互相搭配。</div>
+  </details>
+</section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://oceandoula.github.io/birthplangenerator/#faq",
+  "inLanguage": "zh-Hant",
+  "mainEntity": [
+    { "@type": "Question", "name": "什麼是生產計畫書？", "acceptedAnswer": { "@type": "Answer", "text": "生產計畫書是一份記錄妳生產偏好的文件，內容涵蓋產前、產中到產後，例如減痛分娩的選擇、待產時的活動與姿勢、會陰照護、斷臍時機、產後肌膚接觸與哺乳等。它的用途是在產程中幫助妳與醫療團隊溝通，也讓陪產者清楚妳的想法。生產計畫書不是硬性規定，而是一個表達期待、同時保留彈性的溝通工具。" } },
+    { "@type": "Question", "name": "生產計畫書要怎麼寫？包含哪些項目？", "acceptedAnswer": { "@type": "Answer", "text": "一份完整的生產計畫書通常包含幾個區塊：待產環境與陪產者、疼痛因應方式（如產球、水中減痛、減痛分娩）、產程中的活動與姿勢、生產方式偏好、會陰與斷臍處理、產後立即的肌膚接觸與哺乳、以及新生兒照護。書寫時建議以「偏好」而非「要求」的語氣呈現，並保留「若情況改變時」的彈性，較容易獲得醫療團隊配合。" } },
+    { "@type": "Question", "name": "WAVE 生產計畫書工具是什麼？要付費嗎？", "acceptedAnswer": { "@type": "Answer", "text": "WAVE 是一個 AI 生產計畫書工具，由 Ocean Doula 的陪產員 Naphy 製作。妳回答幾個關於生產偏好的問題後，AI 會為妳整理成一份文字版生產計畫書，可下載 PDF 並帶去產檢。Beta 上線期間，文字版限時免費；若需要一頁式的視覺圖卡版本，採隨心定價。" } },
+    { "@type": "Question", "name": "生產計畫書可以帶去醫院給醫師看嗎？", "acceptedAnswer": { "@type": "Answer", "text": "可以。生產計畫書的主要用途，就是帶去產檢與待產時，作為與醫師、助產師溝通的依據。建議在產前門診時先與醫療團隊討論內容，了解該院所的常規與可配合的範圍，並準備一份簡潔的一頁式版本放進待產包，方便產程中快速參考。" } },
+    { "@type": "Question", "name": "減痛分娩需要事先寫進生產計畫書嗎？", "acceptedAnswer": { "@type": "Answer", "text": "建議事先寫入。在生產計畫書中註明妳對減痛分娩的態度（例如希望盡早使用、想先嘗試其他方式，或保持彈性視情況決定），能讓醫療團隊提早了解妳的偏好。台灣多數提供減痛分娩的院所需要麻醉評估，先在計畫書中表達意向，有助於待產時更順暢的溝通。" } },
+    { "@type": "Question", "name": "陪產員（doula）和助產師、月嫂有什麼不同？", "acceptedAnswer": { "@type": "Answer", "text": "陪產員（doula）提供的是孕期、產程與產後的情緒支持、資訊陪伴與生理舒適協助，不執行醫療處置。助產師是受過專業訓練、可提供產檢與接生等醫療照護的醫事人員。月嫂則主要負責產後媽媽與新生兒的生活照顧。三者角色不同，可以互相搭配。" } }
+  ]
+}
+</script>
 </body>
 </html>
