@@ -2701,6 +2701,30 @@ function renderVisualPlan(){
       const pt = philText.length > 40 ? philText.slice(0,39)+'…' : philText;
       parts.push(`<text x="${PAD+14}" y="${curY+30}" font-family="Noto Sans TC" font-size="12" fill="#2A4A5C" font-weight="600">🌊  ${pt}</text>`);
       curY += PHIL_H + 10;
+
+      // Short answer items - show as header rows below philosophy
+      const textItems = [];
+      getCats().forEach(cat => {
+        cat.items.forEach(item => {
+          if(item.type === 'text' && state.answers[item.id]){
+            textItems.push({name: item.name, val: state.answers[item.id]});
+          }
+        });
+      });
+
+      if(textItems.length > 0){
+        const rowH = 22;
+        const totalH = textItems.length * rowH + 8;
+        parts.push(`<rect x="${PAD}" y="${curY}" width="${usable_w}" height="${totalH}" rx="8" fill="rgba(255,255,255,0.6)"/>`);
+        textItems.forEach((ti, idx) => {
+          const y = curY + 16 + idx * rowH;
+          const nameStr = ti.name.length > 10 ? ti.name.slice(0,9)+'…' : ti.name;
+          const valStr = ti.val.length > 60 ? ti.val.slice(0,58)+'…' : ti.val;
+          parts.push(`<text x="${PAD+12}" y="${y}" font-family="Noto Sans TC" font-size="9" fill="#5A8898" font-weight="600">${nameStr}：</text>`);
+          parts.push(`<text x="${PAD+12+nameStr.length*6+4}" y="${y}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C">${valStr}</text>`);
+        });
+        curY += totalH + 8;
+      }
     }
 
     // ── Continuous flow layout ──────────────────────────────
