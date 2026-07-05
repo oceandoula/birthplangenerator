@@ -2772,13 +2772,29 @@ function renderVisualPlan(){
       }
     }
 
-    // ── Simple flow layout ──────────────────────────────────
+    // ── Continuous flow layout ──────────────────────────────
+    // All cards flow left-to-right 8 per row, no forced breaks at sections
+    // Section label appears as a full-width bar ONLY when starting a new row
     const FIXED_CW = Math.floor((usable_w - 7*CARD_GAP) / 8);
     const COLS = 8;
     var flowCol = 0;
     var flowRow = curY;
+    var currentSecBar = null; // pending section bar to draw when col=0
+
+    function nextRow(){
+      flowRow += CARD_H + CARD_GAP;
+      flowCol = 0;
+    }
 
     function placeCard(item, sec){
+      // If we're at start of row and there's a pending section bar, draw it first
+      if(flowCol === 0 && currentSecBar){
+        parts.push(`<rect x="${PAD}" y="${flowRow}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="${currentSecBar.cfg.bar}" opacity="0.88"/>`);
+        parts.push(`<rect x="${PAD}" y="${flowRow}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="rgba(255,255,255,0.2)"/>`);
+        parts.push(`<text x="${PAD+14}" y="${flowRow+16}" font-family="Noto Sans TC" font-size="11" fill="${currentSecBar.cfg.tc}" font-weight="700">${currentSecBar.cfg.e}  ${currentSecBar.name}</text>`);
+        flowRow += SEC_BAR_H + 4;
+        currentSecBar = null;
+      }
       var cx_c = PAD + flowCol*(FIXED_CW+CARD_GAP);
       var cx = cx_c + Math.floor(FIXED_CW/2);
       var cy_icon = flowRow + 40;
@@ -2791,27 +2807,43 @@ function renderVisualPlan(){
       parts.push(`<text x="${cx}" y="${flowRow+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" text-anchor="middle" font-weight="600">${lbl}</text>`);
       parts.push(`<text x="${cx}" y="${flowRow+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${nt}</text>`);
       flowCol++;
-      if(flowCol >= COLS){ flowRow += CARD_H+CARD_GAP; flowCol = 0; }
+      if(flowCol >= COLS){ nextRow(); }
     }
 
     function placeFill(sec){
+      if(flowCol === 0 && currentSecBar){
+        parts.push(`<rect x="${PAD}" y="${flowRow}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="${currentSecBar.cfg.bar}" opacity="0.88"/>`);
+        parts.push(`<rect x="${PAD}" y="${flowRow}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="rgba(255,255,255,0.2)"/>`);
+        parts.push(`<text x="${PAD+14}" y="${flowRow+16}" font-family="Noto Sans TC" font-size="11" fill="${currentSecBar.cfg.tc}" font-weight="700">${currentSecBar.cfg.e}  ${currentSecBar.name}</text>`);
+        flowRow += SEC_BAR_H + 4;
+        currentSecBar = null;
+      }
       var cx_c = PAD + flowCol*(FIXED_CW+CARD_GAP);
       parts.push(`<rect x="${cx_c}" y="${flowRow}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" opacity="0.2"/>`);
       parts.push(`<rect x="${cx_c}" y="${flowRow}" width="${FIXED_CW}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="0.25"/>`);
       flowCol++;
-      if(flowCol >= COLS){ flowRow += CARD_H+CARD_GAP; flowCol = 0; }
+      if(flowCol >= COLS){ nextRow(); }
     }
 
     secs.forEach(function(sec){
-      if(flowCol > 0){ while(flowCol < COLS) placeFill(sec); }
-      parts.push(`<rect x="${PAD}" y="${flowRow}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="${sec.cfg.bar}" opacity="0.88"/>`);
-      parts.push(`<rect x="${PAD}" y="${flowRow}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="rgba(255,255,255,0.2)"/>`);
-      parts.push(`<text x="${PAD+14}" y="${flowRow+16}" font-family="Noto Sans TC" font-size="11" fill="${sec.cfg.tc}" font-weight="700">${sec.cfg.e}  ${sec.name}</text>`);
-      flowRow += SEC_BAR_H + 4;
+      // Queue the section bar - it will draw when col reaches 0
+      // If already at col=0, it will draw immediately before first card
+      if(flowCol === 0){
+        currentSecBar = sec;
+      } else {
+        // Mid-row: finish current row with fills, then queue bar for next row
+        while(flowCol < COLS) placeFill(sec);
+        currentSecBar = sec;
+      }
       sec.items.forEach(function(item){ placeCard(item, sec); });
     });
 
-    if(flowCol > 0){ var ls = secs[secs.length-1]; while(flowCol < COLS) placeFill(ls); }
+    // Fill last incomplete row
+    if(flowCol > 0){
+      var ls = secs[secs.length-1];
+      while(flowCol < COLS) placeFill(ls);
+    }
+
     curY = flowRow;
 
     // Note box on last page
