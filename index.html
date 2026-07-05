@@ -2800,7 +2800,12 @@ function renderVisualPlan(){
         if(col > 0){
           const prevSec = tokens.slice(0, i).filter(t=>t.type==='card').slice(-1)[0]?.sec;
           while(col < COLS){
-            col++; // invisible placeholder - just advance column
+            const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
+            if(prevSec){
+              parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${prevSec.cfg.card}" opacity="0.15"/>`);
+              parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${prevSec.cfg.bar}" opacity="0.2"/>`);
+            }
+            col++;
           }
           rowY += CARD_H + CARD_GAP;
           col = 0;
