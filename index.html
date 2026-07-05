@@ -955,15 +955,22 @@ footer a{text-decoration:underline;}
     <!-- Feedback Section -->
     <div class="feedback-section" id="feedbackSection">
       <div class="feedback-inner">
-        <h3>💬 填完了！留下妳的想法</h3>
-        <p>妳的回饋幫助 WAVE 變得更好，讓更多媽媽受益。匿名，只需 1 分鐘。</p>
+        <h3>💬 這個工具對妳有幫助嗎？</h3>
+        <p>點星星就完成！匿名，1 秒鐘。</p>
+        <div id="starRating" style="display:flex;gap:8px;margin-top:16px;margin-bottom:12px;">
+          <button onclick="submitStar(1)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="1 星">⭐</button>
+          <button onclick="submitStar(2)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="2 星">⭐</button>
+          <button onclick="submitStar(3)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="3 星">⭐</button>
+          <button onclick="submitStar(4)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="4 星">⭐</button>
+          <button onclick="submitStar(5)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="5 星">⭐</button>
+        </div>
+        <div id="starThanks" style="display:none;font-size:14px;color:var(--ocean);font-weight:700;">謝謝妳的回饋！🌊</div>
         <a id="feedbackLink"
           href="https://docs.google.com/forms/d/e/1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA/viewform"
           target="_blank"
-          style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:var(--ocean);color:#fff;font-family:inherit;font-size:14px;font-weight:700;padding:13px 24px;border-radius:100px;text-decoration:none;transition:background .2s;">
-          填寫回饋問卷 →
+          style="display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--mist);text-decoration:underline;">
+          填寫完整回饋問卷 →
         </a>
-        <div style="font-size:11px;color:#9AB8BC;margin-top:8px;">點擊後在新視窗開啟 · 匿名 · 1 分鐘</div>
       </div>
     </div>
 
@@ -1442,10 +1449,10 @@ function setLang(lang) {
   if(feedbackLink){
     if(lang === 'en'){
       feedbackLink.href = 'https://docs.google.com/forms/d/e/1FAIpQLSecFLWo4F89NUffi5nmer6nEYO65x16HBbtI8tP54MYiKfxVg/viewform';
-      feedbackLink.textContent = 'Fill in feedback form →';
+      feedbackLink.textContent = 'Full feedback form →';
     } else {
       feedbackLink.href = 'https://docs.google.com/forms/d/e/1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA/viewform';
-      feedbackLink.textContent = '填寫回饋問卷 →';
+      feedbackLink.textContent = '填寫完整回饋問卷 →';
     }
   }
   
@@ -3118,6 +3125,24 @@ const UNLOCK_CODES = {
   'WAVEBETA':   'pro',
   'OCEANTEAM':  'pro',
 };
+
+function submitStar(n){
+  // Submit to Google Forms via image ping (no CORS issue)
+  var isEN = currentLang === 'en';
+  var formId = isEN ? '1FAIpQLSecFLWo4F89NUffi5nmer6nEYO65x16HBbtI8tP54MYiKfxVg' : '1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA';
+  var url = 'https://docs.google.com/forms/d/e/' + formId + '/formResponse?entry.785284528=' + n + '&submit=Submit';
+  var img = new Image();
+  img.src = url;
+
+  // Show thanks
+  var stars = document.getElementById('starRating');
+  var thanks = document.getElementById('starThanks');
+  if(stars) stars.style.display = 'none';
+  if(thanks){
+    thanks.style.display = 'block';
+    thanks.textContent = isEN ? 'Thank you! 🌊' : '謝謝妳的回饋！🌊';
+  }
+}
 
 function submitUnlock(){
   const input = document.getElementById('unlockInput');
