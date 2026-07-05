@@ -2621,7 +2621,11 @@ function renderVisualPlan(){
     const userName = state.user ? state.user.name : '';
 
     // Split into pages
-    const avail_p1 = PH - HEADER_H - PHIL_H - FOOTER_H - 24;
+    // Count short answer items to adjust available height on page 1
+    const textItemCount = getCats().reduce((acc, cat) => 
+      acc + cat.items.filter(item => item.type==='text' && state.answers[item.id]).length, 0);
+    const textRowsH = textItemCount > 0 ? (textItemCount * 22 + 22) : 0;
+    const avail_p1 = PH - HEADER_H - PHIL_H - FOOTER_H - 24 - textRowsH;
     const avail_pn = PH - HEADER_H - FOOTER_H - 16;
     const secH = sec => SEC_BAR_H + 6 + CARD_H + SEC_GAP;
 
@@ -2714,16 +2718,18 @@ function renderVisualPlan(){
 
       if(textItems.length > 0){
         const rowH = 22;
-        const totalH = textItems.length * rowH + 8;
+        const totalH = textItems.length * rowH + 12;
         parts.push(`<rect x="${PAD}" y="${curY}" width="${usable_w}" height="${totalH}" rx="8" fill="rgba(255,255,255,0.6)"/>`);
         textItems.forEach((ti, idx) => {
-          const y = curY + 16 + idx * rowH;
+          const y = curY + 18 + idx * rowH;
           const nameStr = ti.name.length > 10 ? ti.name.slice(0,9)+'…' : ti.name;
           const valStr = ti.val.length > 60 ? ti.val.slice(0,58)+'…' : ti.val;
           parts.push(`<text x="${PAD+12}" y="${y}" font-family="Noto Sans TC" font-size="9" fill="#5A8898" font-weight="600">${nameStr}：</text>`);
           parts.push(`<text x="${PAD+12+nameStr.length*6+4}" y="${y}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C">${valStr}</text>`);
         });
-        curY += totalH + 8;
+        curY += totalH + 10;
+      } else {
+        curY += 4;
       }
     }
 
