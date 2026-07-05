@@ -2827,16 +2827,19 @@ function renderVisualPlan(){
       });
     });
 
-    // Fill last row with placeholders
-    if(col > 0){
+    console.log('col after forEach:', col, 'rowY:', rowY);
+    // Fill last row with placeholders - ALWAYS run this
+    {
       const lastSec = secs[secs.length-1];
-      while(col < COLS){
-        const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
-        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${lastSec.cfg.card}" opacity="0.2"/>`);
-        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${lastSec.cfg.bar}" opacity="0.25"/>`);
-        col++;
+      if(col > 0 && lastSec){
+        while(col < COLS){
+          const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
+          parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${lastSec.cfg.card}" opacity="0.2"/>`);
+          parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${lastSec.cfg.bar}" opacity="0.25"/>`);
+          col++;
+        }
+        rowY += CARD_H + CARD_GAP;
       }
-      rowY += CARD_H + CARD_GAP;
     }
     curY = rowY;
 
