@@ -957,17 +957,14 @@ footer a{text-decoration:underline;}
       <div class="feedback-inner">
         <h3>💬 填完了！留下妳的想法</h3>
         <p>妳的回饋幫助 WAVE 變得更好，讓更多媽媽受益。匿名，只需 1 分鐘。</p>
+        <a id="feedbackLink"
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA/viewform"
+          target="_blank"
+          style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:var(--ocean);color:#fff;font-family:inherit;font-size:14px;font-weight:700;padding:13px 24px;border-radius:100px;text-decoration:none;transition:background .2s;">
+          填寫回饋問卷 →
+        </a>
+        <div style="font-size:11px;color:#9AB8BC;margin-top:8px;">點擊後在新視窗開啟 · 匿名 · 1 分鐘</div>
       </div>
-      <iframe
-        id="feedbackFrame"
-        class="feedback-iframe"
-        src="https://docs.google.com/forms/d/e/1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA/viewform?embedded=true"
-        frameborder="0"
-        marginheight="0"
-        marginwidth="0"
-        scrolling="no"
-        onload="this.style.minHeight='380px'"
-      >載入中…</iframe>
     </div>
 
     <!-- Text plan download + back -->
@@ -1441,12 +1438,14 @@ function setLang(lang) {
   renderPhilosophy(); // re-render cards in correct language
 
   // Switch feedback form language
-  const frame = document.getElementById('feedbackFrame');
-  if(frame){
+  const feedbackLink = document.getElementById('feedbackLink');
+  if(feedbackLink){
     if(lang === 'en'){
-      frame.src = 'https://docs.google.com/forms/d/e/1FAIpQLSecFLWo4F89NUffi5nmer6nEYO65x16HBbtI8tP54MYiKfxVg/viewform?embedded=true';
+      feedbackLink.href = 'https://docs.google.com/forms/d/e/1FAIpQLSecFLWo4F89NUffi5nmer6nEYO65x16HBbtI8tP54MYiKfxVg/viewform';
+      feedbackLink.textContent = 'Fill in feedback form →';
     } else {
-      frame.src = 'https://docs.google.com/forms/d/e/1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA/viewform?embedded=true';
+      feedbackLink.href = 'https://docs.google.com/forms/d/e/1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA/viewform';
+      feedbackLink.textContent = '填寫回饋問卷 →';
     }
   }
   
