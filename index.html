@@ -2555,7 +2555,8 @@ function renderVisualPlan(){
     emergency_baby:'寶寶伴侶隨行', emergency_partner:'伴侶親膚',
   };
 
-  // Build sections with ALL icons - selected ones highlighted, unselected faded
+  // Build sections - show ALL options as icons
+  // Selected = full color, unselected = faded
   const SEC_ORDER = ['before','environment','pain','labor','pushing','csection_pref','postpartum','unexpected'];
   const activeSections = [];
 
@@ -2565,25 +2566,36 @@ function renderVisualPlan(){
     const addedLabels = new Set();
 
     cat.items.forEach(item => {
+      if(item.type === 'text') return; // skip text items, shown in header
       const val = state.answers[item.id];
-      const iconLabel = ITEM_ICON[item.id];
-      const isSelected = val && (Array.isArray(val) ? val.length > 0 : val.toString().trim().length > 0);
+      const selectedVals = Array.isArray(val) ? val : (val ? [val] : []);
 
-      // Add icon for this item if it has one
-      if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
-        addedLabels.add(iconLabel);
-        iconItems.push({label: iconLabel, note: item.name.slice(0,6), selected: !!isSelected});
-      }
+      if(item.options){
+        // For each option, find matching icon
+        item.options.forEach(opt => {
+          // Try exact match first, then partial
+          let iconLabel = Object.keys(ICON_MAP).find(k => k === opt);
+          if(!iconLabel) iconLabel = Object.keys(ICON_MAP).find(k => opt.includes(k) || k.includes(opt.slice(0,4)));
+          if(!iconLabel) iconLabel = ITEM_ICON[item.id]; // fallback to item icon
 
-      // For multi-select, also add icons for each selected value
-      if(Array.isArray(val)){
-        val.forEach(v => {
-          const matchLabel = Object.keys(ICON_MAP).find(k => v.includes(k) || k.includes(v.slice(0,3)));
-          if(matchLabel && !addedLabels.has(matchLabel)){
-            addedLabels.add(matchLabel);
-            iconItems.push({label: matchLabel, note: v.slice(0,6), selected: true});
+          if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
+            addedLabels.add(iconLabel);
+            const isSelected = selectedVals.some(v => v === opt || opt.includes(v) || v.includes(opt.slice(0,3)));
+            iconItems.push({
+              label: iconLabel,
+              note: opt.slice(0,6),
+              selected: isSelected
+            });
           }
         });
+      } else {
+        // No options (choice/text with no options list) - use ITEM_ICON
+        const iconLabel = ITEM_ICON[item.id];
+        if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
+          addedLabels.add(iconLabel);
+          const isSelected = val && val.toString().trim().length > 0;
+          iconItems.push({label: iconLabel, note: item.name.slice(0,6), selected: !!isSelected});
+        }
       }
     });
 
