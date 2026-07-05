@@ -2755,8 +2755,7 @@ function setWizardMode(on){
     container.style.display = 'block';
     catList.style.display = 'none';
     topNav.style.display = 'none';
-    if(btnWiz) btnWiz.style.display = 'none';
-    if(btnList) btnList.style.display = 'inline-flex';
+    if(btnList) btnList.style.display = 'none';
     buildWizardSteps();
     wizardIndex = 0;
     renderWizardStep();
@@ -2764,8 +2763,7 @@ function setWizardMode(on){
     container.style.display = 'none';
     catList.style.display = '';
     topNav.style.display = '';
-    if(btnWiz) btnWiz.style.display = 'inline-flex';
-    if(btnList) btnList.style.display = 'none';
+    if(btnList) btnList.style.display = 'inline-flex';
     renderBuilder();
   }
 }
