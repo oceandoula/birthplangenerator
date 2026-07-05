@@ -2704,11 +2704,12 @@ function renderVisualPlan(){
     }
 
     // Sections
+    // Fixed card width - 8 per row max, left-aligned
+    const FIXED_CW = Math.floor((usable_w - 7*CARD_GAP) / 8); // fits 8 cards exactly
+    const CARDS_PER_ROW = 8;
+
     secs.forEach(sec => {
       const items = sec.items;
-      const n = items.length;
-      const totalGap = (n-1)*CARD_GAP;
-      const cw = Math.floor((usable_w - totalGap) / n);
 
       // Section bar
       parts.push(`<rect x="${PAD}" y="${curY}" width="${usable_w}" height="${SEC_BAR_H}" rx="8" fill="${sec.cfg.bar}" opacity="0.88"/>`);
@@ -2716,21 +2717,34 @@ function renderVisualPlan(){
       parts.push(`<text x="${PAD+14}" y="${curY+16}" font-family="Noto Sans TC" font-size="11" fill="${sec.cfg.tc}" font-weight="700">${sec.cfg.e}  ${sec.name}</text>`);
       curY += SEC_BAR_H + 6;
 
-      items.forEach((item, i) => {
-        const cx_c = PAD + i*(cw+CARD_GAP);
-        const cx = cx_c + Math.floor(cw/2);
-        const cy_icon = curY + 40;
-        const r = 21;
+      // Split items into rows of CARDS_PER_ROW
+      const rows = [];
+      for(let i = 0; i < items.length; i += CARDS_PER_ROW){
+        rows.push(items.slice(i, i + CARDS_PER_ROW));
+      }
 
-        parts.push(`<rect x="${cx_c}" y="${curY}" width="${cw}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" filter="url(#sh${uid})"/>`);
-        parts.push(`<rect x="${cx_c}" y="${curY}" width="${cw}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="0.8"/>`);
-        parts.push(bubble(cx, cy_icon, r, sec.cfg.bub));
-        parts.push(getIcon(item.label, cx, cy_icon, 44));
+      rows.forEach((rowItems, rowIdx) => {
+        rowItems.forEach((item, i) => {
+          const cx_c = PAD + i*(FIXED_CW+CARD_GAP);
+          const cx = cx_c + Math.floor(FIXED_CW/2);
+          const cy_icon = curY + 40;
+          const r = 21;
 
-        const lbl = item.label.length>6 ? item.label.slice(0,5)+'…' : item.label;
-        const nt = item.note.slice(0,8);
-        parts.push(`<text x="${cx}" y="${curY+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" text-anchor="middle" font-weight="600">${lbl}</text>`);
-        parts.push(`<text x="${cx}" y="${curY+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${nt}</text>`);
+          parts.push(`<rect x="${cx_c}" y="${curY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${sec.cfg.card}" filter="url(#sh${uid})"/>`);
+          parts.push(`<rect x="${cx_c}" y="${curY}" width="${FIXED_CW}" height="4" rx="12" fill="${sec.cfg.bar}" opacity="0.8"/>`);
+          parts.push(bubble(cx, cy_icon, r, sec.cfg.bub));
+          parts.push(getIcon(item.label, cx, cy_icon, 44));
+
+          const lbl = item.label.length>6 ? item.label.slice(0,5)+'…' : item.label;
+          const nt = item.note.slice(0,8);
+          parts.push(`<text x="${cx}" y="${curY+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" text-anchor="middle" font-weight="600">${lbl}</text>`);
+          parts.push(`<text x="${cx}" y="${curY+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${nt}</text>`);
+        });
+
+        // Move down for next row (except after last row of section)
+        if(rowIdx < rows.length - 1){
+          curY += CARD_H + CARD_GAP;
+        }
       });
 
       curY += CARD_H + SEC_GAP;
