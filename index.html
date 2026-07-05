@@ -2851,19 +2851,16 @@ function renderVisualPlan(){
       i++;
     }
 
-    // Fill remaining spots in last row with subtle placeholder cards
-    if(col > 0){
-      const lastSec = tokens.filter(t=>t.type==='card').slice(-1)[0]?.sec;
+    // Fill remaining spots - complete current row with placeholders
+    const lastSec2 = tokens.filter(t=>t.type==='card').slice(-1)[0]?.sec;
+    if(col > 0 && col < COLS && lastSec2){
       while(col < COLS){
         const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
-        if(lastSec){
-          parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${lastSec.cfg.card}" opacity="0.25"/>`);
-          parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="none" stroke="${lastSec.cfg.bar}" stroke-width="1" opacity="0.3"/>`);
-          parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${lastSec.cfg.bar}" opacity="0.3"/>`);
-        }
+        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${lastSec2.cfg.card}" opacity="0.25"/>`);
+        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="none" stroke="${lastSec2.cfg.bar}" stroke-width="1" opacity="0.25"/>`);
+        parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="4" rx="12" fill="${lastSec2.cfg.bar}" opacity="0.3"/>`);
         col++;
       }
-      rowY += CARD_H + CARD_GAP;
     }
     curY = rowY;
 
