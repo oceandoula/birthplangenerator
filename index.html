@@ -3134,18 +3134,21 @@ document.addEventListener('DOMContentLoaded', function(){
     if(e.key === 'Enter') submitUnlock();
   });
 
-  // Enter key in wizard - advance to next question
+  // Keyboard navigation in wizard
   document.addEventListener('keydown', function(e){
-    if(e.key !== 'Enter') return;
-    // Only if wizard is active
     const wizContainer = document.getElementById('wizardContainer');
     if(!wizContainer || wizContainer.style.display === 'none') return;
-    // Don't trigger if typing in textarea
+    // Don't trigger if typing in textarea or text input
     if(e.target.tagName === 'TEXTAREA') return;
-    // Don't trigger if typing in text input (unless it's the custom "other" field)
-    if(e.target.tagName === 'INPUT' && e.target.type === 'text') return;
-    e.preventDefault();
-    wizNext();
+    if(e.target.tagName === 'INPUT') return;
+
+    if(e.key === 'Enter' || e.key === 'ArrowRight'){
+      e.preventDefault();
+      wizNext();
+    } else if(e.key === 'ArrowLeft'){
+      e.preventDefault();
+      wizBack();
+    }
   });
 });
 </script>
