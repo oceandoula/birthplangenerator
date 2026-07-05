@@ -483,6 +483,148 @@ a{color:inherit;}
 .btn-restore{background:#fff;color:#0B3D45;font-size:12px;font-weight:700;padding:8px 16px;border-radius:100px;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .btn-restore-dismiss{background:transparent;color:rgba(255,255,255,0.6);font-size:18px;border:none;cursor:pointer;padding:0;line-height:1;}
 
+/* ---------- Wizard Mode ---------- */
+#stage-builder.wizard-mode .category-list{ display:none; }
+
+.wizard-wrap{
+  max-width:640px;margin:0 auto;
+  display:flex;flex-direction:column;
+  gap:0;
+}
+
+/* Progress bar */
+.wiz-progress{
+  margin-bottom:32px;
+}
+.wiz-progress-top{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:10px;
+}
+.wiz-progress-label{
+  font-size:12px;color:var(--lagoon);font-weight:700;letter-spacing:1px;
+}
+.wiz-progress-count{
+  font-size:12px;color:var(--mist);
+}
+.wiz-progress-bar{
+  height:4px;background:#EAF0F0;border-radius:100px;overflow:hidden;
+}
+.wiz-progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--ocean),var(--coral));
+  border-radius:100px;transition:width .4s ease;
+}
+
+/* Category intro card */
+.wiz-cat-intro{
+  background:linear-gradient(135deg,var(--ocean),#5A4A90);
+  border-radius:20px;padding:36px 32px;text-align:center;
+  margin-bottom:0;
+  animation:wiz-fade-in .3s ease;
+}
+.wiz-cat-icon{font-size:40px;margin-bottom:12px;}
+.wiz-cat-name{
+  font-family:"Noto Serif TC",serif;
+  font-size:22px;font-weight:700;color:#fff;
+  margin-bottom:8px;word-break:keep-all;
+}
+.wiz-cat-desc{font-size:14px;color:rgba(255,255,255,0.72);line-height:1.7;word-break:keep-all;}
+.wiz-cat-start{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.15);color:#fff;
+  font-family:inherit;font-size:14px;font-weight:700;
+  padding:12px 24px;border-radius:100px;border:1.5px solid rgba(255,255,255,0.3);
+  cursor:pointer;margin-top:20px;transition:background .2s;
+}
+.wiz-cat-start:hover{background:rgba(255,255,255,0.25);}
+
+/* Question card */
+.wiz-question{
+  animation:wiz-fade-in .3s ease;
+}
+@keyframes wiz-fade-in{
+  from{opacity:0;transform:translateY(8px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.wiz-q-label{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--lagoon);font-weight:700;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.wiz-q-name{
+  font-family:"Noto Serif TC",serif;
+  font-size:clamp(18px,3vw,24px);font-weight:700;
+  color:var(--deep);line-height:1.45;margin-bottom:8px;word-break:keep-all;
+}
+.wiz-q-desc{font-size:14px;color:var(--mist);line-height:1.7;margin-bottom:24px;word-break:keep-all;}
+
+/* Options in wizard */
+.wiz-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+.wiz-opt{
+  display:flex;align-items:center;gap:14px;
+  background:#FDFCFB;border:1.5px solid var(--line);
+  border-radius:14px;padding:14px 18px;
+  cursor:pointer;transition:all .15s;text-align:left;
+  font-family:inherit;font-size:14px;color:var(--deep);
+  word-break:keep-all;
+}
+.wiz-opt:hover{border-color:var(--lagoon);background:#F4FAFA;}
+.wiz-opt.selected{
+  border-color:var(--ocean);background:#EEF8F9;
+  color:var(--ocean);font-weight:600;
+}
+.wiz-opt.multi-sel{
+  border-color:var(--coral);background:#FDF5F8;
+}
+.wiz-opt-check{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--line);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:11px;transition:all .15s;
+}
+.wiz-opt.selected .wiz-opt-check,
+.wiz-opt.multi-sel .wiz-opt-check{
+  background:var(--ocean);border-color:var(--ocean);color:#fff;
+}
+
+/* Custom input in wizard */
+.wiz-custom{margin-bottom:24px;}
+.wiz-custom input{
+  width:100%;padding:13px 16px;
+  border:1.5px solid var(--line);border-radius:12px;
+  font-family:inherit;font-size:14px;color:var(--deep);
+  background:#FAFCFC;transition:border-color .2s;
+}
+.wiz-custom input:focus{outline:none;border-color:var(--ocean);}
+.wiz-custom input::placeholder{color:#9AB8BC;}
+
+/* Nav buttons */
+.wiz-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-top:8px;
+}
+.wiz-btn-back{
+  display:flex;align-items:center;gap:6px;
+  background:transparent;border:1.5px solid var(--line);
+  border-radius:100px;padding:11px 20px;
+  font-family:inherit;font-size:13px;font-weight:600;
+  color:var(--mist);cursor:pointer;transition:all .2s;
+}
+.wiz-btn-back:hover{border-color:var(--ocean);color:var(--ocean);}
+.wiz-btn-next{
+  display:flex;align-items:center;gap:8px;
+  background:var(--ocean);color:#fff;
+  border:none;border-radius:100px;padding:13px 28px;
+  font-family:inherit;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .2s;flex:1;justify-content:center;
+}
+.wiz-btn-next:hover{background:var(--deep);}
+.wiz-btn-next:disabled{opacity:.4;cursor:not-allowed;}
+.wiz-btn-skip{
+  background:transparent;border:none;
+  font-family:inherit;font-size:12px;color:var(--mist);
+  cursor:pointer;padding:8px;text-decoration:underline;
+  text-align:center;width:100%;
+}
+
 /* ---------- Custom Input ---------- */
 .custom-input-wrap{margin-top:12px;}
 .custom-input{
@@ -2581,6 +2723,205 @@ function renderVisualPlan(){
 }
 
 
+
+
+/* ===========================================================
+   WIZARD MODE
+=========================================================== */
+let wizardMode = false;
+let wizardSteps = []; // flat list: {type:'cat', cat} or {type:'item', cat, item}
+let wizardIndex = 0;
+
+function buildWizardSteps(){
+  wizardSteps = [];
+  const cats = getCats();
+  cats.forEach(cat => {
+    wizardSteps.push({type:'cat', cat});
+    cat.items.forEach(item => {
+      wizardSteps.push({type:'item', cat, item});
+    });
+  });
+}
+
+function setWizardMode(on){
+  wizardMode = on;
+  const container = document.getElementById('wizardContainer');
+  const catList = document.getElementById('categoryList');
+  const topNav = document.getElementById('builderTopNav');
+  const btnWiz = document.getElementById('btnWizMode');
+  const btnList = document.getElementById('btnListMode');
+
+  if(on){
+    container.style.display = 'block';
+    catList.style.display = 'none';
+    topNav.style.display = 'none';
+    if(btnWiz) btnWiz.style.display = 'none';
+    if(btnList) btnList.style.display = 'inline-flex';
+    buildWizardSteps();
+    wizardIndex = 0;
+    renderWizardStep();
+  } else {
+    container.style.display = 'none';
+    catList.style.display = '';
+    topNav.style.display = '';
+    if(btnWiz) btnWiz.style.display = 'inline-flex';
+    if(btnList) btnList.style.display = 'none';
+    renderBuilder();
+  }
+}
+
+function renderWizardStep(){
+  const step = wizardSteps[wizardIndex];
+  if(!step) return;
+  const isEN = currentLang === 'en';
+
+  // Update progress
+  const itemSteps = wizardSteps.filter(s => s.type === 'item');
+  const itemIndex = wizardSteps.slice(0, wizardIndex + 1).filter(s => s.type === 'item').length;
+  const totalItems = itemSteps.length;
+  const pct = Math.round((itemIndex / totalItems) * 100);
+
+  document.getElementById('wizProgressFill').style.width = pct + '%';
+  document.getElementById('wizCount').textContent = isEN
+    ? `Question ${itemIndex} / ${totalItems}`
+    : `第 ${itemIndex} 題 / 共 ${totalItems} 題`;
+  document.getElementById('wizCatLabel').textContent = step.cat ? (step.cat.icon + ' ' + step.cat.name) : '';
+
+  const card = document.getElementById('wizCard');
+
+  if(step.type === 'cat'){
+    // Category intro
+    card.innerHTML = `
+      <div class="wiz-cat-intro">
+        <div class="wiz-cat-icon">${step.cat.icon}</div>
+        <div class="wiz-cat-name">${step.cat.name}</div>
+        <div class="wiz-cat-desc">${step.cat.desc || (isEN ? 'The following questions are about this topic.' : '接下來的問題關於這個主題。')}</div>
+        <button class="wiz-cat-start" onclick="wizNext()">
+          ${isEN ? 'Start this section →' : '開始填寫 →'}
+        </button>
+      </div>
+      <div class="wiz-nav" style="margin-top:16px;">
+        ${wizardIndex > 0 ? `<button class="wiz-btn-back" onclick="wizBack()">← ${isEN ? 'Back' : '上一步'}</button>` : '<div></div>'}
+      </div>`;
+  } else {
+    // Question
+    const item = step.item;
+    const answered = isAnswered(item.id);
+    let optsHtml = '';
+
+    if(item.type === 'choice'){
+      const cur = state.answers[item.id] || '';
+      optsHtml = `<div class="wiz-opts">` +
+        item.options.map(opt => `
+          <button class="wiz-opt ${cur===opt?'selected':''}"
+            onclick="wizSelectChoice('${item.id}','${escapeAttr(opt)}')">
+            <span class="wiz-opt-check">${cur===opt?'✓':''}</span>
+            <span>${opt}</span>
+          </button>`).join('') +
+        `</div>`;
+    } else if(item.type === 'multi'){
+      const cur = state.answers[item.id] || [];
+      optsHtml = `<div class="wiz-opts">` +
+        item.options.map(opt => `
+          <button class="wiz-opt ${cur.includes(opt)?'multi-sel':''}"
+            onclick="wizToggleMulti('${item.id}','${escapeAttr(opt)}')">
+            <span class="wiz-opt-check">${cur.includes(opt)?'✓':''}</span>
+            <span>${opt}</span>
+          </button>`).join('') +
+        `</div>`;
+    } else if(item.type === 'text'){
+      const cur = state.answers[item.id] || '';
+      optsHtml = `<div class="wiz-custom">
+        <textarea style="width:100%;padding:13px 16px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:14px;color:var(--deep);background:#FAFCFC;resize:vertical;min-height:100px;transition:border-color .2s;"
+          placeholder="${isEN ? 'Write your thoughts here…' : '在這裡寫下妳的想法…'}"
+          oninput="wizTextInput('${item.id}',this.value)"
+          onfocus="this.style.borderColor='var(--ocean)'"
+          onblur="this.style.borderColor='var(--line)'"
+        >${cur}</textarea>
+      </div>`;
+    }
+
+    // Custom other input
+    const customVal = (state.customAnswers && state.customAnswers[item.id]) || '';
+    const customInput = (item.type === 'choice' || item.type === 'multi') ? `
+      <div class="wiz-custom">
+        <input type="text" placeholder="${isEN ? 'Other / add your own…' : '其他 / 自行填寫…'}"
+          value="${customVal}"
+          oninput="handleCustomInput('${item.id}',this.value)"
+          style="width:100%;padding:13px 16px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;font-size:14px;color:var(--deep);background:#FAFCFC;"/>
+      </div>` : '';
+
+    const isLast = wizardIndex === wizardSteps.length - 1;
+    const nextLabel = isEN
+      ? (isLast ? 'Finish & Generate →' : 'Next →')
+      : (isLast ? '完成並生成計畫書 →' : '下一題 →');
+
+    card.innerHTML = `
+      <div class="wiz-question">
+        <div class="wiz-q-label">${step.cat.icon} ${step.cat.name}</div>
+        <div class="wiz-q-name">${item.name}</div>
+        ${item.desc ? `<div class="wiz-q-desc">${item.desc}</div>` : ''}
+        ${optsHtml}
+        ${customInput}
+        <div class="wiz-nav">
+          <button class="wiz-btn-back" onclick="wizBack()">← ${isEN ? 'Back' : '上一步'}</button>
+          <button class="wiz-btn-next" onclick="${isLast ? 'wizFinish()' : 'wizNext()'}"
+            ${item.type!=='text' && !answered && !customVal ? '' : ''}>
+            ${nextLabel}
+          </button>
+        </div>
+        <button class="wiz-btn-skip" onclick="wizNext()">
+          ${isEN ? 'Skip this question' : '略過這題'}
+        </button>
+      </div>`;
+  }
+}
+
+function wizSelectChoice(id, opt){
+  state.answers[id] = opt;
+  saveState();
+  renderWizardStep();
+  // Auto-advance after short delay
+  setTimeout(() => wizNext(), 400);
+}
+
+function wizToggleMulti(id, opt){
+  if(!state.answers[id]) state.answers[id] = [];
+  const idx = state.answers[id].indexOf(opt);
+  if(idx >= 0) state.answers[id].splice(idx, 1);
+  else state.answers[id].push(opt);
+  saveState();
+  renderWizardStep();
+}
+
+function wizTextInput(id, val){
+  state.answers[id] = val;
+  saveState();
+}
+
+function wizNext(){
+  if(wizardIndex < wizardSteps.length - 1){
+    wizardIndex++;
+    renderWizardStep();
+    // Scroll to top of wizard
+    document.getElementById('wizardContainer').scrollIntoView({behavior:'smooth', block:'start'});
+  } else {
+    wizFinish();
+  }
+}
+
+function wizBack(){
+  if(wizardIndex > 0){
+    wizardIndex--;
+    renderWizardStep();
+    document.getElementById('wizardContainer').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+function wizFinish(){
+  setWizardMode(false);
+  goTo('finish');
+}
 
 /* ===========================================================
    UNLOCK CODE SYSTEM
