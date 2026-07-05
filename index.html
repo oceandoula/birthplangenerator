@@ -2655,35 +2655,56 @@ function renderVisualPlan(){
     const philText = phil ? phil.title : '';
     const userName = state.user ? state.user.name : '';
 
-    // Split into pages
-    // Count short answer items to adjust available height on page 1
-    const textItemCount = getCats().reduce((acc, cat) => 
+    // Build all cards flat
+    const allCards = [];
+    sections.forEach(sec => {
+      sec.items.forEach(item => allCards.push({item, sec}));
+    });
+
+    // Calculate rows needed (8 per row)
+    const COLS_N = 8;
+    const FIXED_CW_N = Math.floor((1123 - 2*28 - 7*8) / 8);
+    const ROW_H = CARD_H + SEC_BAR_H + 4 + CARD_GAP; // each row = bar + cards
+
+    // Count short answer items
+    const textItemCount = getCats().reduce((acc, cat) =>
       acc + cat.items.filter(item => item.type==='text' && state.answers[item.id]).length, 0);
     const textRowsH = textItemCount > 0 ? (textItemCount * 22 + 22) : 0;
     const avail_p1 = PH - HEADER_H - PHIL_H - FOOTER_H - 24 - textRowsH;
     const avail_pn = PH - HEADER_H - FOOTER_H - 16;
-    const COLS_COUNT = 8;
-    const secH = sec => {
-      const rows = Math.ceil(sec.items.length / COLS_COUNT);
-      return SEC_BAR_H + 6 + rows * (CARD_H + CARD_GAP) + SEC_GAP;
-    };
 
+    // Split allCards into pages based on available height
     const pages = [];
-    let cur = [], avail = avail_p1, isFirst = true;
-    sections.forEach(sec => {
-      const needed = secH(sec);
-      if(avail - needed < 0 && cur.length){
-        pages.push({secs: cur, isFirst});
-        cur = []; avail = avail_pn; isFirst = false;
+    let pageCards = [], avail = avail_p1, isFirst = true;
+
+    // Process row by row
+    for(let ri = 0; ri < allCards.length; ri += COLS_N){
+      const rowCards = allCards.slice(ri, ri + COLS_N);
+      if(avail - ROW_H < 0 && pageCards.length > 0){
+        pages.push({cards: pageCards, isFirst});
+        pageCards = []; avail = avail_pn; isFirst = false;
       }
-      cur.push(sec); avail -= needed;
+      pageCards = pageCards.concat(rowCards);
+      avail -= ROW_H;
+    }
+    if(pageCards.length) pages.push({cards: pageCards, isFirst});
+
+    // Convert back to secs format for buildPage
+    const pageSVGs = pages.map((page, pi) => {
+      // Reconstruct secs from cards for this page
+      const pageSecs = [];
+      page.cards.forEach(c => {
+        let s = pageSecs.find(s => s.id === c.sec.id);
+        if(!s){ s = {id: c.sec.id, name: c.sec.name, cfg: c.sec.cfg, items: []}; pageSecs.push(s); }
+        s.items.push(c.item);
+      });
+      return buildPage(pageSecs, page.isFirst, pi+1, pages.length, philText, userName);
     });
-    if(cur.length) pages.push({secs: cur, isFirst});
 
     const totalPages = pages.length;
 
     // Build SVG for each page
-    const pageSVGs = pages.map((page, pi) => buildPage(page.secs, page.isFirst, pi+1, totalPages, philText, userName));
+    // pageSVGs built above
 
     // Update the container
     const container = document.getElementById('visualPlanContainer');
