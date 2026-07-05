@@ -2847,6 +2847,7 @@ function renderVisualPlan(){
     }
 
     // Fill remaining spots in last row with subtle placeholder cards
+    console.log('buildPage end: col='+col+', rowY='+rowY);
     if(col > 0){
       const lastSec = tokens.filter(t=>t.type==='card').slice(-1)[0]?.sec;
       while(col < COLS){
