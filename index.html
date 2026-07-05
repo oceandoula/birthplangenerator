@@ -2766,6 +2766,7 @@ function renderVisualPlan(){
       parts.push(`<text x="${cx}" y="${rowY+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${nt}</text>`);
 
       col++;
+      col++;
       if(col >= COLS){
         rowY += CARD_H + CARD_GAP;
         col = 0;
@@ -2773,8 +2774,19 @@ function renderVisualPlan(){
       i++;
     }
 
-    // Final row
-    if(col > 0) rowY += CARD_H + CARD_GAP;
+    // Fill remaining spots in last row with empty placeholder cards
+    if(col > 0){
+      // Find the current section color for placeholders
+      const lastSec = tokens.filter(t=>t.type==='card').slice(-1)[0]?.sec;
+      while(col < COLS){
+        const cx_c = PAD + col*(FIXED_CW+CARD_GAP);
+        if(lastSec){
+          parts.push(`<rect x="${cx_c}" y="${rowY}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${lastSec.cfg.card}" opacity="0.25" filter="url(#sh${uid})"/>`);
+        }
+        col++;
+      }
+      rowY += CARD_H + CARD_GAP;
+    }
     curY = rowY;
 
     // Note box on last page
