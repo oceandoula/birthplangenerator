@@ -2555,42 +2555,45 @@ function renderVisualPlan(){
     emergency_baby:'寶寶伴侶隨行', emergency_partner:'伴侶親膚',
   };
 
-  // Build sections with selected icons
+  // Build sections with ALL icons - selected ones highlighted, unselected faded
   const SEC_ORDER = ['before','environment','pain','labor','pushing','csection_pref','postpartum','unexpected'];
   const activeSections = [];
 
   cats.forEach(cat => {
     const secId = cat.id;
     const iconItems = [];
+    const addedLabels = new Set();
+
     cat.items.forEach(item => {
       const val = state.answers[item.id];
-      if(!val) return;
       const iconLabel = ITEM_ICON[item.id];
-      if(!iconLabel) return;
-      // Only add if icon exists
-      if(ICON_MAP[iconLabel]){
-        if(!iconItems.find(x=>x.label===iconLabel)){
-          iconItems.push({label: iconLabel, note: item.name.slice(0,6)});
-        }
+      const isSelected = val && (Array.isArray(val) ? val.length > 0 : val.toString().trim().length > 0);
+
+      // Add icon for this item if it has one
+      if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
+        addedLabels.add(iconLabel);
+        iconItems.push({label: iconLabel, note: item.name.slice(0,6), selected: !!isSelected});
       }
-      // Also add from array values
+
+      // For multi-select, also add icons for each selected value
       if(Array.isArray(val)){
         val.forEach(v => {
-          // Try to find matching icon from value text
           const matchLabel = Object.keys(ICON_MAP).find(k => v.includes(k) || k.includes(v.slice(0,3)));
-          if(matchLabel && !iconItems.find(x=>x.label===matchLabel)){
-            iconItems.push({label: matchLabel, note: v.slice(0,6)});
+          if(matchLabel && !addedLabels.has(matchLabel)){
+            addedLabels.add(matchLabel);
+            iconItems.push({label: matchLabel, note: v.slice(0,6), selected: true});
           }
         });
       }
     });
+
     if(iconItems.length > 0){
       const cfg = SEC_CFG[secId] || SEC_CFG.unexpected;
       activeSections.push({
         id: secId,
         name: SEC_NAMES[secId] || secId,
         cfg,
-        items: iconItems.slice(0, 10),
+        items: iconItems,
       });
     }
   });
@@ -2740,14 +2743,11 @@ function renderVisualPlan(){
     const COLS = 8;
 
     // Build a flat stream of "tokens": {type:'label'|'card', sec, item, selected}
-    // ALL items shown - selected ones full color, unselected ones faded
     const tokens = [];
     secs.forEach(sec => {
       tokens.push({type:'label', sec});
       sec.items.forEach(item => {
-        const ans = state.answers[item.id];
-        const selected = ans && (Array.isArray(ans) ? ans.length > 0 : ans.toString().trim().length > 0);
-        tokens.push({type:'card', sec, item, selected});
+        tokens.push({type:'card', sec, item, selected: item.selected !== false});
       });
     });
 
