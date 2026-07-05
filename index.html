@@ -820,8 +820,32 @@ footer a{text-decoration:underline;}
       <div class="s-eyebrow" id="builderEyebrow">WAVE · AI 生產計畫</div>
       <h2 id="builderGreeting">為妳客製化的生產計畫</h2>
       <p class="sub">告訴 WAVE 妳的偏好，完成後 AI 會幫妳整理成一份完整的計畫書。點開每個區塊，選擇符合妳的選項。</p>
+      <div style="margin-top:8px;">
+        <button onclick="setWizardMode(false)" id="btnListMode"
+          style="display:none;align-items:center;gap:6px;background:transparent;color:var(--mist);border:1.5px solid var(--line);border-radius:100px;padding:8px 16px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;">
+          📋 切換全覽模式
+        </button>
+      </div>
     </div>
-    <div class="builder-progress">
+
+    <!-- Wizard container -->
+    <div id="wizardContainer" style="display:none;">
+      <div class="wizard-wrap">
+        <div class="wiz-progress">
+          <div class="wiz-progress-top">
+            <span class="wiz-progress-label" id="wizCatLabel"></span>
+            <span class="wiz-progress-count" id="wizCount"></span>
+          </div>
+          <div class="wiz-progress-bar">
+            <div class="wiz-progress-fill" id="wizProgressFill" style="width:0%"></div>
+          </div>
+        </div>
+        <div id="wizCard"></div>
+      </div>
+    </div>
+
+    <!-- List mode -->
+    <div id="builderTopNav" class="builder-progress">
       <span id="progCurrent" class="current">已選擇 0 項</span>
       <span id="progTotal">共 9 大類別</span>
     </div>
