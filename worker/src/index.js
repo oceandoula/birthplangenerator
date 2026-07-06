@@ -66,6 +66,12 @@ export default {
     };
     if (env.REPLY_TO) payload.reply_to = { email: env.REPLY_TO };
 
+    // A. 每封計畫書密件副本給自己（BCC_EMAIL 設在 wrangler.toml）
+    // SendGrid 不允許 to 和 bcc 同一個地址，所以自己測試時要跳過
+    if (env.BCC_EMAIL && env.BCC_EMAIL.toLowerCase() !== email.toLowerCase()) {
+      payload.personalizations[0].bcc = [{ email: env.BCC_EMAIL }];
+    }
+
     const cleanAttachments = attachments
       .filter((a) => a && a.content && a.filename)
       .map((a) => ({
@@ -90,6 +96,19 @@ export default {
       const detail = await res.text();
       return json({ error: 'Send failed', detail }, 502, cors);
     }
+
+    // B. 寫入 D1 資料庫（誰、何時、語言、內容）。
+    // 用 try/catch 包住：記錄失敗絕不影響寄信成功的回應。
+    if (env.DB) {
+      try {
+        await env.DB.prepare(
+          'INSERT INTO plans (name, email, lang, plan_html, attachments) VALUES (?1, ?2, ?3, ?4, ?5)'
+        ).bind(name, email, isEN ? 'en' : 'zh', planHtml, cleanAttachments.length).run();
+      } catch (e) {
+        console.log('D1 insert failed:', e.message);
+      }
+    }
+
     return json({ ok: true }, 200, cors);
   },
 };
@@ -123,7 +142,7 @@ function buildEmail({ name, planHtml, isEN }) {
   ).join('');
   const rateTitle = isEN ? 'How was your WAVE experience?' : '喜歡妳的 WAVE 計畫書嗎？';
   const rateSub = isEN
-    ? 'Tap a star — then tell us what you loved most and who you’d recommend WAVE to. Takes 30 seconds 💛'
+    ? 'Tap a star — then tell us what you loved most and who you would recommend WAVE to. Takes 30 seconds 💛'
     : '點顆星，順便告訴我：妳最喜歡哪個部分？會推薦給誰？只要 30 秒 💛';
 
   return `<!doctype html>

@@ -6,8 +6,17 @@ compatibility_date = "2024-11-01"
 [vars]
 FROM_EMAIL = "plans@oceandoula.com"
 FROM_NAME = "WAVE Support"
-REPLY_TO = "hello@oceandoula.com"
+REPLY_TO = "naphy@oceandoula.com"
 ALLOWED_ORIGIN = "https://oceandoula.github.io"
+# 每封計畫書 BCC 一份到這個信箱
+# （repo 是公開的，別放私人信箱；要改收件地址就改這裡再 deploy）
+BCC_EMAIL = "naphy@oceandoula.com"
+
+# ── D1 資料庫（計畫書記錄）──
+[[d1_databases]]
+binding = "DB"
+database_name = "wave-plans"
+database_id = "ef0055e5-c92c-45f7-ab23-d65437a64f10"
 
 # SENDGRID_API_KEY 是機密，用指令設定，不要寫在這個檔案：
 #   npx wrangler secret put SENDGRID_API_KEY
