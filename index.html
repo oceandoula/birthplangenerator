@@ -1360,7 +1360,8 @@ let state = {
   user: {name:'', email:''},
   answers: {},
   customAnswers: {},
-  unlocked: null
+  unlocked: null,
+  autoEmailSent: false
 };
 
 // ── localStorage persistence ─────────────────────────────
@@ -1373,7 +1374,8 @@ function saveState(){
       philosophy: state.philosophy,
       answers: state.answers,
       customAnswers: state.customAnswers,
-      unlocked: state.unlocked
+      unlocked: state.unlocked,
+      autoEmailSent: state.autoEmailSent
     }));
   } catch(e){ console.warn('Could not save:', e); }
 }
@@ -1388,6 +1390,7 @@ function loadState(){
     if(data.answers) state.answers = data.answers;
     if(data.customAnswers) state.customAnswers = data.customAnswers;
     if(data.unlocked) state.unlocked = data.unlocked;
+    if(data.autoEmailSent) state.autoEmailSent = data.autoEmailSent;
     return true;
   } catch(e){ return false; }
 }
@@ -1917,6 +1920,9 @@ async function generateAIPlan(){
     document.getElementById('aiLoading').style.display = 'none';
     document.getElementById('aiPlanContent').style.display = 'block';
 
+    // 生成後自動寄一次到信箱（含評論邀請），每人只寄一次
+    autoEmailPlan();
+
   } catch(e) {
     console.error(e);
     document.getElementById('aiLoading').style.display = 'none';
@@ -1960,6 +1966,47 @@ function svgText(txt, x, y, opts={}){
   return `<text x="${x}" y="${y}" font-family="Noto Sans TC, sans-serif" font-size="${size}" fill="${color}" text-anchor="${anchor}" font-weight="${weight}">${display}</text>`;
 }
 
+// 把要放進 SVG <text> 的字串跳脫，避免 & < > 破壞 SVG（note 可能含使用者輸入）
+function escSvg(s){
+  return (s==null?'':s.toString()).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+// 估算字串寬度（CJK 約等於字級，拉丁字母約 0.56 倍）
+function estTextW(str, fs){
+  let w = 0;
+  for(let i=0;i<str.length;i++){ w += (str.charCodeAt(i) > 0x2E80 ? fs : fs*0.56); }
+  return w;
+}
+
+// 卡片標籤：完整顯示、絕不砍字。能一行就一行；太長就折成兩行、必要時微縮字級。
+// 回傳 { lines:[...], fs }
+function wrapCardLabel(label, maxW){
+  label = (label==null?'':label.toString()).trim();
+  if(estTextW(label, 9) <= maxW) return { lines:[label], fs:9 };
+
+  let l1, l2;
+  if(label.indexOf(' ') >= 0){
+    // 拉丁字：盡量在空格處斷行
+    const words = label.split(/\s+/);
+    l1 = '';
+    let i = 0;
+    for(; i < words.length; i++){
+      const t = l1 ? l1 + ' ' + words[i] : words[i];
+      if(l1 && estTextW(t, 8.5) > maxW) break;
+      l1 = t;
+    }
+    l2 = words.slice(i).join(' ');
+  } else {
+    // 中日文：從中間斷
+    const mid = Math.ceil(label.length / 2);
+    l1 = label.slice(0, mid);
+    l2 = label.slice(mid);
+  }
+  let fs = 8.5;
+  while(fs > 6.5 && (estTextW(l1, fs) > maxW || estTextW(l2, fs) > maxW)) fs -= 0.5;
+  return { lines:[l1, l2], fs };
+}
+
 function renderVisualPlan(){
   const PW = 1123, PH = 794, PAD = 28;
   const HEADER_H = 70, PHIL_H = 38, FOOTER_H = 52;
@@ -1967,582 +2014,401 @@ function renderVisualPlan(){
 
   // ── Icon map (from review page) ─────────────────────────────
   const ICON_MAP = {
-    '陪產者': `<circle cx="28" cy="22" r="7" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <path d="M14 42 C14 36 20 32 28 32 C36 32 42 36 42 42" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>`,
-    '入院時機': `<circle cx="28" cy="28" r="10" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <path d="M28 21 L28 28 L33 33" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>`,
-    '生產地點': `<rect x="18" y="18" width="20" height="20" rx="2" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <path d="M28 21 L28 35 M21 28 L35 28" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>`,
-    '燈光': `<!-- 燈泡 -->
-  <path d="M28 14 C22 14 18 18 18 23 C18 27 20 30 24 32 L24 38 L32 38 L32 32 C36 30 38 27 38 23 C38 18 34 14 28 14Z" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linejoin="round"/>
-  <path d="M24 38 L32 38 M25 41 L31 41" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 光線 -->
-  <path d="M28 10 L28 8 M18 14 L16 12 M38 14 L40 12 M14 23 L12 23 M42 23 L44 23" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/>`,
-    '音樂': `<!-- 音符 -->
-  <ellipse cx="20" cy="38" rx="4" ry="3" transform="rotate(-20,20,38)" fill="#1A6B72"/>
-  <line x1="24" y1="37" x2="24" y2="20" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <ellipse cx="32" cy="34" rx="4" ry="3" transform="rotate(-20,32,34)" fill="#1A6B72"/>
-  <line x1="36" y1="33" x2="36" y2="16" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M24 20 L36 16" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>`,
-    '室溫': `<!-- 溫度計 -->
-  <rect x="24" y="14" width="8" height="26" rx="4" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <circle cx="28" cy="42" r="5" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <path d="M28 38 L28 28" stroke="#1A6B72" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <!-- 刻度 -->
-  <path d="M32 22 L34 22 M32 26 L34 26 M32 30 L34 30" stroke="#1A6B72" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>`,
-    '隱私': `<!-- 門+鎖：隱私 -->
-  <rect x="16" y="14" width="24" height="32" rx="3" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <!-- 門把 -->
-  <circle cx="36" cy="30" r="2.5" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <!-- 鎖 -->
-  <rect x="22" y="26" width="8" height="7" rx="1.5" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <path d="M24 26 C24 22 32 22 32 26" fill="none" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>
-  <circle cx="26" cy="29.5" r="1" fill="#1A6B72"/>`,
-    '香氛': `<!-- 香氛擴香瓶 -->
-  <path d="M20 34 C20 28 22 24 28 24 C34 24 36 28 36 34 L36 40 C36 42 34 44 28 44 C22 44 20 42 20 40 Z" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linejoin="round"/>
-  <rect x="24" y="20" width="8" height="5" rx="2" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <!-- 香氛煙霧 -->
-  <path d="M24 18 C24 15 26 13 24 11" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/>
-  <path d="M28 17 C28 14 30 12 28 10" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round" opacity="0.4"/>
-  <path d="M32 18 C32 15 34 13 32 11" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round" opacity="0.3"/>`,
-    '自帶物品': `<!-- 行李袋/包包 -->
-  <path d="M16 26 C16 22 18 20 20 20 L36 20 C38 20 40 22 40 26 L40 40 C40 42 38 44 36 44 L20 44 C18 44 16 42 16 40 Z" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linejoin="round"/>
-  <!-- 提把 -->
-  <path d="M22 20 C22 16 34 16 34 20" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 拉鍊線 -->
-  <path d="M16 28 L40 28" stroke="#1A6B72" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2,2" opacity="0.4"/>
-  <!-- 愛心貼紙 -->
-  <path d="M25 36 C25 34 27 33 28 34 C29 33 31 34 31 36 C31 38 28 40 28 40 C28 40 25 38 25 36Z" fill="none" stroke="#1A6B72" stroke-width="1.3"/>`,
-    '陪產人數': `<!-- 三個人：陪產人數 -->
-  <circle cx="18" cy="20" r="4" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <path d="M11 34 C11 29 14 27 18 27 C22 27 25 29 25 34" fill="none" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>
-  <circle cx="38" cy="20" r="4" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <path d="M31 34 C31 29 34 27 38 27 C42 27 45 29 45 34" fill="none" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>
-  <circle cx="28" cy="18" r="5" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <path d="M19 36 C19 30 23 28 28 28 C33 28 37 30 37 36" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>`,
-    '拍照錄影': `<!-- 相機（同捕捉畫面但用海洋色） -->
-  <rect x="12" y="22" width="32" height="22" rx="4" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <circle cx="28" cy="33" r="7" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <circle cx="28" cy="33" r="3.5" fill="none" stroke="#1A6B72" stroke-width="1.2"/>
-  <rect x="20" y="17" width="10" height="6" rx="2" fill="none" stroke="#1A6B72" stroke-width="1.4"/>
-  <circle cx="36" cy="25" r="2" fill="none" stroke="#1A6B72" stroke-width="1.3"/>
-  <rect x="14" y="25" width="4" height="3" rx="1" fill="none" stroke="#1A6B72" stroke-width="1.2"/>`,
-    '保持安靜': `<!-- 嘴唇+手指噓聲 -->
-  <!-- 手指 -->
-  <rect x="26" y="14" width="5" height="14" rx="2.5" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <!-- 手掌 -->
-  <path d="M22 26 C22 24 24 23 26 24 L31 24 C33 23 35 24 35 26 L35 30 C35 34 32 36 28 36 C24 36 22 34 22 30Z" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linejoin="round"/>
-  <!-- 嘴唇 -->
-  <path d="M20 40 C22 37 25 36 28 36 C31 36 34 37 36 40" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M20 40 C22 43 25 44 28 44 C31 44 34 43 36 40" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round"/>
-  <!-- 中間唇線 -->
-  <path d="M22 40 C24 39 26 39 28 40 C30 39 32 39 34 40" fill="none" stroke="#1A6B72" stroke-width="1" stroke-linecap="round" opacity="0.5"/>`,
-    '減痛告知': `<path d="M22 22 C22 18 25 16 28 16 C31 16 34 18 34 22 C34 26 31 30 28 32 L28 36" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linecap="round"/>
-  <circle cx="28" cy="40" r="2" fill="#D98E5C"/>`,
-    '按摩舒緩': `<path d="M20 26 C20 22 24 20 28 22 C32 20 36 22 36 26 C36 32 28 38 28 38 C28 38 20 32 20 26Z" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linejoin="round"/>`,
-    '音樂舒緩': `<!-- 音符 -->
-  <ellipse cx="22" cy="36" rx="4" ry="3" transform="rotate(-20,22,36)" fill="#D98E5C"/>
-  <line x1="26" y1="35" x2="26" y2="19" stroke="#D98E5C" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M26 19 C30 17 34 18 34 22 C34 26 30 26 26 25" fill="#D98E5C"/>`,
-    '自由飲食': `<!-- 吸管杯 -->
-  <path d="M20 21 L22 39 C22 41 24 43 28 43 C32 43 34 41 34 39 L36 21 Z" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linejoin="round"/>
-  <rect x="18" y="18" width="20" height="4" rx="2" fill="none" stroke="#D98E5C" stroke-width="1.6"/>
-  <line x1="32" y1="18" x2="37" y2="11" stroke="#D98E5C" stroke-width="2" stroke-linecap="round"/>
-  <path d="M23 31 C25 29 31 29 33 31" fill="none" stroke="#D98E5C" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>`,
-    '水中減痛': `<!-- 水中減痛：浴缸 -->
-  <path d="M16 30 L18 40 C18 42 20 44 28 44 C36 44 38 42 38 40 L40 30 Z" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linejoin="round"/>
-  <path d="M14 30 L42 30" stroke="#D98E5C" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- 水波 -->
-  <path d="M20 35 C22 33 26 33 28 35 C30 37 34 37 36 35" fill="none" stroke="#D98E5C" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
-  <!-- 蓮蓬頭 -->
-  <path d="M34 22 L34 28 M31 19 C31 17 37 17 37 19 L37 22 L31 22 Z" fill="none" stroke="#D98E5C" stroke-width="1.5" stroke-linejoin="round"/>`,
-    '催眠生產': `<!-- 蠟燭身體 -->
-  <rect x="23" y="30" width="10" height="16" rx="2" fill="none" stroke="#D98E5C" stroke-width="1.8"/>
-  <!-- 燭芯 -->
-  <line x1="28" y1="30" x2="28" y2="26" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- 火焰 -->
-  <path d="M28 26 C26 23 25 20 28 17 C31 20 30 23 28 26Z" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linejoin="round"/>
-  <!-- 火焰內芯 -->
-  <path d="M28 24 C27 22 27 20 28 19 C29 20 29 22 28 24Z" fill="#D98E5C" opacity="0.3"/>
-  <!-- 呼吸氣息波紋 -->
-  <path d="M34 20 C36 18 38 19 38 21" fill="none" stroke="#D98E5C" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-  <path d="M35 24 C38 22 40 23 40 26" fill="none" stroke="#D98E5C" stroke-width="1" stroke-linecap="round" opacity="0.3"/>`,
-    '按摩': `<!-- 左手 -->
-  <path d="M13 32 C13 30 14 29 16 29 L16 22 C16 21 17 20 18 20 C19 20 20 21 20 22 L20 27 C20 26 21 25 22 25 C23 25 24 26 24 27 L24 26 C24 25 25 24 26 24 C27 24 28 25 28 26 L28 28 C28 27 29 26 30 27 C31 28 31 29 31 30 L31 34 C31 38 28 41 24 41 L22 41 C18 41 13 38 13 34 Z" fill="none" stroke="#D98E5C" stroke-width="1.6" stroke-linejoin="round"/>
-  <!-- 右手（從右邊疊上去按摩） -->
-  <path d="M31 24 C32 22 34 22 35 23 C36 22 38 22 38 24 L38 30 C38 33 36 35 33 35" fill="none" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- 按摩動感弧線 -->
-  <path d="M33 20 C36 19 39 20 40 22" fill="none" stroke="#D98E5C" stroke-width="1.1" stroke-linecap="round" opacity="0.4"/>`,
-    'TENS 電療': `<!-- TENS 電療器主機 -->
-  <rect x="18" y="22" width="20" height="14" rx="3" fill="none" stroke="#D98E5C" stroke-width="1.8"/>
-  <!-- 按鈕 -->
-  <circle cx="24" cy="28" r="2.5" fill="none" stroke="#D98E5C" stroke-width="1.4"/>
-  <circle cx="32" cy="28" r="2.5" fill="none" stroke="#D98E5C" stroke-width="1.4"/>
-  <!-- 導線 -->
-  <path d="M20 36 C20 40 16 40 16 44" fill="none" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M36 36 C36 40 40 40 40 44" fill="none" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- 電極貼片 -->
-  <rect x="12" y="43" width="8" height="5" rx="2" fill="none" stroke="#D98E5C" stroke-width="1.4"/>
-  <rect x="36" y="43" width="8" height="5" rx="2" fill="none" stroke="#D98E5C" stroke-width="1.4"/>
-  <!-- 閃電符號 -->
-  <path d="M27 18 L25 22 L29 22 L27 26" fill="none" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
-    '笑氣': `<!-- 面罩主體 -->
-  <path d="M18 24 C18 20 22 17 28 17 C34 17 38 20 38 24 L38 32 C38 36 34 39 28 39 C22 39 18 36 18 32 Z" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linejoin="round"/>
-  <!-- 鼻樑突起 -->
-  <path d="M24 24 C24 22 26 21 28 21 C30 21 32 22 32 24" fill="none" stroke="#D98E5C" stroke-width="1.4" stroke-linecap="round"/>
-  <!-- 左右鬆緊帶 -->
-  <path d="M18 26 L12 25 M18 31 L12 32" stroke="#D98E5C" stroke-width="1.4" stroke-linecap="round"/>
-  <path d="M38 26 L44 25 M38 31 L44 32" stroke="#D98E5C" stroke-width="1.4" stroke-linecap="round"/>
-  <!-- 呼吸氣孔（底部圓形） -->
-  <ellipse cx="28" cy="37" rx="5" ry="3" fill="none" stroke="#D98E5C" stroke-width="1.3"/>
-  <!-- 細節線條 -->
-  <path d="M22 29 C24 28 32 28 34 29" fill="none" stroke="#D98E5C" stroke-width="1" stroke-linecap="round" opacity="0.4"/>`,
-    '減痛分娩': `<!-- 針筒打入背部：硬脊膜外 -->
-  <path d="M20 44 L38 16" stroke="#D98E5C" stroke-width="5" stroke-linecap="round" opacity="0.12"/>
-  <path d="M20 44 L38 16" stroke="#D98E5C" stroke-width="2" stroke-linecap="round"/>
-  <path d="M38 16 L42 11" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M17 47 L20 44" stroke="#D98E5C" stroke-width="3" stroke-linecap="round"/>
-  <path d="M24 38 L27 35 M29 32 L32 29 M34 26 L37 23" stroke="#D98E5C" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-  <circle cx="31" cy="30" r="3" fill="#5FB3B8" opacity="0.5"/>
-  <!-- 脊椎弧線 -->
-  <path d="M12 18 C14 22 13 28 14 34 C15 38 14 42 12 44" fill="none" stroke="#D98E5C" stroke-width="1.3" stroke-linecap="round" opacity="0.4"/>`,
-    '針劑止痛': `<!-- IV 針劑：手臂+點滴管 -->
-  <!-- 手臂輪廓 -->
-  <path d="M18 44 C18 38 20 34 24 32 L32 30 C36 29 38 26 38 22" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- 針頭插入 -->
-  <path d="M30 31 L36 24" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M36 24 L40 20" stroke="#D98E5C" stroke-width="1.2" stroke-linecap="round"/>
-  <!-- 膠布 -->
-  <rect x="27" y="28" width="8" height="5" rx="1" fill="none" stroke="#D98E5C" stroke-width="1.3" transform="rotate(-30,31,30)"/>
-  <!-- 點滴袋 -->
-  <path d="M38 12 C36 10 34 10 34 12 L34 20 C34 21 36 22 38 22 C40 22 42 21 42 20 L42 12 C42 10 40 10 38 12Z" fill="none" stroke="#D98E5C" stroke-width="1.5"/>`,
-    '胎兒監測': `<!-- 心跳波形 -->
-  <path d="M12 28 L18 28 L21 20 L25 36 L29 22 L33 28 L36 28 L44 28" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`,
-    '自由活動': `<!-- 人A：頭 -->
-  <circle cx="21" cy="18" r="4" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <!-- 人A：身體+手伸出 -->
-  <path d="M21 22 L21 32" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M21 32 L18 40 M21 32 L24 40" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 人A：手臂牽著B -->
-  <path d="M21 26 L32 24" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 人B：頭 -->
-  <circle cx="36" cy="20" r="4" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <!-- 人B：身體 -->
-  <path d="M36 24 L36 34" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M36 34 L33 42 M36 34 L39 42" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 人B：手臂回牽 -->
-  <path d="M36 26 L25 28" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 共舞弧線 -->
-  <path d="M18 30 C20 26 30 24 38 28" fill="none" stroke="#1A6B72" stroke-width="1" stroke-linecap="round" stroke-dasharray="2,2" opacity="0.4"/>`,
-    '內診': `<!-- 內診：最小化符號 -->
-  <path d="M18 24 C20 20 24 18 28 18 C32 18 36 20 38 24" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M18 32 C20 36 24 38 28 38 C32 38 36 36 38 32" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M16 28 L40 28" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3,3"/>
-  <!-- X 減少符號 -->
-  <circle cx="28" cy="28" r="5" fill="#FAF8F3" stroke="#1A6B72" stroke-width="1.4"/>
-  <path d="M25 28 L31 28" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>`,
-    '引產偏好': `<!-- 引產：藥水點滴 -->
-  <path d="M28 12 L28 20" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M22 20 C22 20 20 26 22 30 C24 34 32 34 34 30 C36 26 34 20 34 20 Z" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linejoin="round"/>
-  <path d="M28 34 L28 40" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="2,2"/>
-  <circle cx="28" cy="42" r="2" fill="#1A6B72" opacity="0.5"/>`,
-    '無線監測': `<!-- 無線監測：wifi 形狀 -->
-  <path d="M16 28 C18 22 22 18 28 16 C34 18 38 22 40 28" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M20 32 C22 27 24 25 28 24 C32 25 34 27 36 32" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M24 36 C25 33 26 32 28 32 C30 32 31 33 32 36" fill="none" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>
-  <circle cx="28" cy="40" r="2.5" fill="#1A6B72"/>`,
-    '補水方式': `<!-- 補水：水杯+冰塊 -->
-  <path d="M20 20 L22 40 C22 42 24 44 28 44 C32 44 34 42 34 40 L36 20 Z" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linejoin="round"/>
-  <path d="M18 20 L38 20" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 冰塊 -->
-  <rect x="24" y="27" width="5" height="5" rx="1" fill="none" stroke="#1A6B72" stroke-width="1.3" transform="rotate(15,26,30)"/>
-  <rect x="29" y="30" width="4" height="4" rx="1" fill="none" stroke="#1A6B72" stroke-width="1.3" transform="rotate(-10,31,32)"/>`,
-    '骨盆活動': `<!-- 前後搖擺：人+弧形箭頭 -->
-  <circle cx="28" cy="18" r="4" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <path d="M28 22 L28 32" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M22 26 L28 22 L34 26" fill="none" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M28 32 L24 40 M28 32 L32 40" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 前後弧形箭頭 -->
-  <path d="M18 30 C16 28 16 26 18 24" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round"/>
-  <path d="M18 24 L16 23 M18 24 L19 22" stroke="#1A6B72" stroke-width="1.2" stroke-linecap="round"/>
-  <path d="M38 24 C40 26 40 28 38 30" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round"/>
-  <path d="M38 30 L40 31 M38 30 L37 32" stroke="#1A6B72" stroke-width="1.2" stroke-linecap="round"/>`,
-    '靠生產球': `<!-- 靠在生產球上：球+人趴著 -->
-  <circle cx="28" cy="36" r="12" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <!-- 人趴在球上：頭 -->
-  <circle cx="22" cy="22" r="4" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <!-- 身體趴著 -->
-  <path d="M22 26 C22 28 24 29 28 28 C32 27 34 26 36 26" fill="none" stroke="#1A6B72" stroke-width="1.7" stroke-linecap="round"/>
-  <!-- 手臂往前搭 -->
-  <path d="M22 26 C20 27 18 28 17 30" fill="none" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>`,
-    '花生球': `<!-- 花生球：花生形狀 -->
-  <path d="M14 28 C14 22 18 18 22 18 C24 18 26 20 28 20 C30 20 32 18 34 18 C38 18 42 22 42 28 C42 34 38 38 34 38 C32 38 30 36 28 36 C26 36 24 38 22 38 C18 38 14 34 14 28Z" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <!-- 中間縮腰 -->
-  <path d="M24 22 C26 24 26 32 24 34" fill="none" stroke="#1A6B72" stroke-width="1" opacity="0.3"/>
-  <path d="M32 22 C30 24 30 32 32 34" fill="none" stroke="#1A6B72" stroke-width="1" opacity="0.3"/>`,
-    '生產椅': `<!-- 椅背 -->
-  <path d="M18 14 L18 36" stroke="#1A6B72" stroke-width="2.2" stroke-linecap="round"/>
-  <!-- 椅背橫桿 -->
-  <path d="M18 18 L30 18" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M18 24 L30 24" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 椅座 -->
-  <path d="M14 36 L42 36" stroke="#1A6B72" stroke-width="2.2" stroke-linecap="round"/>
-  <!-- 前椅腳 -->
-  <path d="M38 36 L38 46" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- 後椅腳 -->
-  <path d="M18 36 L18 46" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- 中間開口（生產椅特色） -->
-  <path d="M24 36 C24 40 32 40 32 36" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/>`,
-    '額外枕頭': `<!-- 枕頭：圓角長方形 -->
-  <rect x="12" y="22" width="32" height="20" rx="10" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <!-- 枕頭中間縫線 -->
-  <path d="M28 22 L28 42" stroke="#1A6B72" stroke-width="1" stroke-linecap="round" opacity="0.3" stroke-dasharray="2,2"/>
-  <!-- 枕頭蓬鬆感 -->
-  <path d="M16 28 C18 26 22 26 24 28" fill="none" stroke="#1A6B72" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
-  <path d="M32 28 C34 26 38 26 40 28" fill="none" stroke="#1A6B72" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
-  <!-- 多一個枕頭疊在後面 -->
-  <rect x="16" y="18" width="32" height="18" rx="9" fill="none" stroke="#1A6B72" stroke-width="1.3" opacity="0.35"/>`,
-    '水中生產': `<!-- 浴缸 -->
-  <path d="M10 36 L12 44 C12 45 14 46 28 46 C42 46 44 45 44 44 L46 36Z" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linejoin="round"/>
-  <path d="M8 36 L48 36" stroke="#D98E5C" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M14 40 C17 38 21 38 24 40 C27 42 31 42 34 40 C37 38 41 38 44 40" fill="none" stroke="#D98E5C" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-  <circle cx="28" cy="30" r="5" fill="none" stroke="#D98E5C" stroke-width="1.6"/>
-  <path d="M22 35 C22 33 24 32 28 32 C32 32 34 33 34 35" fill="none" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M14 36 C16 35 18 34 20 34" fill="none" stroke="#D98E5C" stroke-width="1.3" stroke-linecap="round"/>
-  <path d="M42 36 C40 35 38 34 36 34" fill="none" stroke="#D98E5C" stroke-width="1.3" stroke-linecap="round"/>`,
-    '自然破水': `<!-- 水滴（自然破水）-->
-  <path d="M28 14 C28 14 18 24 18 31 C18 38 22 42 28 42 C34 42 38 38 38 31 C38 24 28 14 28 14Z" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linejoin="round"/>
-  <!-- 打叉（避免人工）-->
-  <path d="M22 26 L26 30 M26 26 L22 30" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-  <!-- 自然漣漪 -->
-  <path d="M20 44 C22 42 26 42 28 44 C30 42 34 42 36 44" fill="none" stroke="#1A6B72" stroke-width="1.3" stroke-linecap="round" opacity="0.4"/>`,
-    '避免 Oxytocin': `<!-- 針劑（Oxytocin）打叉 -->
-  <!-- 針筒淡化 -->
-  <path d="M18 40 L36 18" stroke="#1A6B72" stroke-width="4" stroke-linecap="round" opacity="0.12"/>
-  <path d="M18 40 L36 18" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round" opacity="0.35"/>
-  <path d="M36 18 L40 14" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round" opacity="0.35"/>
-  <!-- No 圈 -->
-  <circle cx="28" cy="28" r="14" fill="none" stroke="#1A6B72" stroke-width="2"/>
-  <path d="M18 18 L38 38" stroke="#1A6B72" stroke-width="2.2" stroke-linecap="round"/>`,
-    '避免子宮按壓': `<!-- 子宮輪廓 -->
-  <path d="M18 30 C18 22 22 18 28 18 C34 18 38 22 38 30 C38 36 34 40 28 40 C22 40 18 36 18 30Z" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <!-- 手從上按壓（打叉）-->
-  <path d="M22 14 C24 16 28 16 32 14" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/>
-  <path d="M28 14 L28 19" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round" opacity="0.4"/>
-  <!-- No 圈覆蓋 -->
-  <circle cx="28" cy="28" r="14" fill="none" stroke="#1A6B72" stroke-width="2"/>
-  <path d="M18 18 L38 38" stroke="#1A6B72" stroke-width="2.2" stroke-linecap="round"/>`,
-    '延遲斷臍': `<!-- 胎盤+臍帶未剪 -->
-  <circle cx="22" cy="34" r="8" fill="none" stroke="#D98E5C" stroke-width="1.6"/>
-  <path d="M24 28 C24 26 24 24 26 26 C26 22 28 22 28 24" fill="none" stroke="#D98E5C" stroke-width="1" opacity="0.5"/>
-  <path d="M30 28 C34 25 37 21 34 18 C31 15 29 18 32 20" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linecap="round"/>
-  <circle cx="32" cy="20" r="2.5" fill="#D98E5C" opacity="0.7"/>`,
-    '順應宮縮': `<!-- 海浪三層 -->
-  <path d="M12 22 C15 19 18 17 21 19 C24 21 27 19 30 17 C33 15 36 17 39 19 C42 21 44 19 46 22" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M12 29 C15 26 18 24 21 26 C24 28 27 26 30 24 C33 22 36 24 39 26 C42 28 44 26 46 29" fill="none" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round" opacity="0.65"/>
-  <path d="M12 36 C15 33 18 31 21 33 C24 35 27 33 30 31 C33 29 36 31 39 33 C42 35 44 33 46 36" fill="none" stroke="#D98E5C" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>`,
-    '使用把桿': `<!-- 蹲式把桿 -->
-  <path d="M14 20 L42 20" stroke="#D98E5C" stroke-width="2.5" stroke-linecap="round"/>
-  <path d="M18 20 L18 26" stroke="#D98E5C" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M38 20 L38 26" stroke="#D98E5C" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 蹲著的人 -->
-  <circle cx="28" cy="26" r="4" fill="none" stroke="#D98E5C" stroke-width="1.6"/>
-  <path d="M28 30 L28 34 M28 34 C24 36 22 40 22 42 M28 34 C32 36 34 40 34 42" fill="none" stroke="#D98E5C" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M22 34 L18 32 M34 34 L38 32" fill="none" stroke="#D98E5C" stroke-width="1.4" stroke-linecap="round"/>`,
-    '使用鏡子': `<!-- 鏡子 -->
-  <rect x="19" y="16" width="18" height="22" rx="9" fill="none" stroke="#D98E5C" stroke-width="1.8"/>
-  <path d="M24 38 L28 44 L32 38" fill="none" stroke="#D98E5C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- 反光線 -->
-  <path d="M23 23 C24 21 26 20 28 21" fill="none" stroke="#D98E5C" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>`,
-    '捕捉畫面': `<!-- 相機主體 -->
-  <rect x="10" y="23" width="36" height="22" rx="4" fill="none" stroke="#D98E5C" stroke-width="1.8"/>
-  <!-- 觀景窗突起 -->
-  <rect x="19" y="18" width="12" height="6" rx="3" fill="none" stroke="#D98E5C" stroke-width="1.5"/>
-  <!-- 主鏡頭 -->
-  <circle cx="28" cy="34" r="8" fill="none" stroke="#D98E5C" stroke-width="1.6"/>
-  <circle cx="28" cy="34" r="4.5" fill="none" stroke="#D98E5C" stroke-width="1.2"/>
-  <circle cx="28" cy="34" r="1.8" fill="#D98E5C" opacity="0.3"/>
-  <!-- 快門按鈕 -->
-  <circle cx="40" cy="27" r="2.5" fill="none" stroke="#D98E5C" stroke-width="1.3"/>
-  <!-- 閃光燈 -->
-  <rect x="12" y="26" width="5" height="3" rx="1.5" fill="none" stroke="#D98E5C" stroke-width="1.2"/>
-  <circle cx="25" cy="31" r="1" fill="rgba(255,255,255,0.6)"/>`,
-    '會陰保護': `<path d="M16 30 C16 26 20 22 28 22 C36 22 40 26 40 30 C40 36 36 40 28 40 C20 40 16 36 16 30Z" fill="none" stroke="#D98E5C" stroke-width="1.8"/>
-  <path d="M20 26 C22 24 26 23 28 24" fill="none" stroke="#D98E5C" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-  <path d="M18 34 C18 32 20 31 22 31 L26 31" fill="none" stroke="#D98E5C" stroke-width="1.4" stroke-linecap="round"/>
-  <path d="M38 34 C38 32 36 31 34 31 L30 31" fill="none" stroke="#D98E5C" stroke-width="1.4" stroke-linecap="round"/>`,
-    '避免側切': `<circle cx="28" cy="28" r="14" fill="none" stroke="#D98E5C" stroke-width="2"/>
-  <path d="M21 21 L35 35 M35 21 L21 35" stroke="#D98E5C" stroke-width="2.5" stroke-linecap="round"/>`,
-    '避免產鉗': `<circle cx="28" cy="28" r="14" fill="none" stroke="#D98E5C" stroke-width="2"/>
-  <path d="M20 20 L36 36 M36 20 L20 36" stroke="#D98E5C" stroke-width="2.2" stroke-linecap="round"/>`,
-    '支持者剪臍': `<path d="M22 20 C24 16 30 16 32 20 C34 24 32 30 28 32" fill="none" stroke="#D98E5C" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M28 30 C30 28 34 28 36 30" fill="none" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M28 30 C26 28 22 28 20 30" fill="none" stroke="#D98E5C" stroke-width="1.5" stroke-linecap="round"/>
-  <circle cx="19" cy="31" r="3" fill="none" stroke="#D98E5C" stroke-width="1.3"/>
-  <circle cx="37" cy="31" r="3" fill="none" stroke="#D98E5C" stroke-width="1.3"/>`,
-    '延後沐浴': `<!-- 延後沐浴：澡盆+X -->
-  <path d="M16 30 L18 42 C18 43 20 44 28 44 C36 44 38 43 38 42 L40 30 Z" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linejoin="round"/>
-  <path d="M14 30 L42 30" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 時鐘小符號 -->
-  <circle cx="28" cy="20" r="6" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <path d="M28 16 L28 20 L31 22" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round"/>`,
-    '維生素K': `<!-- 針筒斜45度 -->
-  <path d="M16 44 L38 22" stroke="#1A6B72" stroke-width="6" stroke-linecap="round" opacity="0.12"/>
-  <path d="M16 44 L38 22" stroke="#1A6B72" stroke-width="2" stroke-linecap="round"/>
-  <path d="M38 22 L43 17" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M13 47 L16 44" stroke="#1A6B72" stroke-width="3" stroke-linecap="round"/>
-  <path d="M21 39 L24 36 M26 34 L29 31 M31 29 L34 26" stroke="#1A6B72" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-  <circle cx="30" cy="30" r="3" fill="#5FB3B8" opacity="0.55"/>`,
-    '新生兒篩檢': `<!-- 磅秤底座 -->
-  <ellipse cx="28" cy="42" rx="14" ry="3" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <path d="M14 42 L16 30 C16 28 18 27 28 27 C38 27 40 28 40 30 L42 42" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linejoin="round"/>
-  <!-- 磅秤面板 -->
-  <rect x="18" y="27" width="20" height="10" rx="2" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <!-- 指針 -->
-  <path d="M28 37 L28 30 M28 32 L32 31" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round"/>
-  <!-- 寶寶小圓 -->
-  <circle cx="28" cy="22" r="5" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <path d="M24 25 C24 27 26 27 28 27 C30 27 32 27 32 25" fill="none" stroke="#1A6B72" stroke-width="1.3" stroke-linecap="round"/>`,
-    '胎盤處理': `<!-- 胎盤處理：盤子+葉 -->
-  <ellipse cx="28" cy="36" rx="14" ry="5" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <path d="M28 36 C28 30 22 22 20 18 C24 18 30 22 32 28 C34 22 38 18 42 18 C40 22 34 30 28 36Z" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linejoin="round"/>`,
-    '立即親膚': `<!-- 媽媽輪廓：頭在左 -->
-  <circle cx="17" cy="20" r="5" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <!-- 媽媽身體胸口線 -->
-  <path d="M22 22 C24 23 26 24 28 24 C30 24 34 23 36 22 C38 23 40 26 40 30" fill="none" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- 媽媽手臂環抱托住寶寶 -->
-  <path d="M22 23 C20 26 19 30 20 34 C21 37 24 39 28 39 C32 39 36 37 37 34" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 寶寶小圓頭貼在媽媽胸口 -->
-  <circle cx="30" cy="28" r="5" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <!-- 寶寶小身體蜷縮 -->
-  <path d="M34 30 C35 33 34 36 32 37" fill="none" stroke="#1A6B72" stroke-width="1.3" stroke-linecap="round"/>
-  <!-- 溫暖光暈 -->
-  <circle cx="27" cy="30" r="12" fill="none" stroke="#1A6B72" stroke-width="0.8" opacity="0.18"/>`,
-    '延後新生兒篩檢': `<!-- 時鐘 -->
-  <circle cx="28" cy="26" r="10" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <path d="M28 20 L28 26 L33 29" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- 延後箭頭 -->
-  <path d="M18 38 C20 36 24 35 28 35 C32 35 36 36 38 38" fill="none" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M36 36 L38 38 L36 40" fill="none" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- 小嬰兒符號 -->
-  <circle cx="28" cy="44" r="3" fill="none" stroke="#1A6B72" stroke-width="1.4"/>`,
-    '同室照護': `<rect x="12" y="30" width="32" height="14" rx="3" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <path d="M12 34 L44 34" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round" opacity="0.4"/>
-  <rect x="15" y="26" width="10" height="6" rx="3" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <circle cx="34" cy="29" r="5" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <path d="M28 32 C30 30 32 29 34 29" fill="none" stroke="#1A6B72" stroke-width="1.4" stroke-linecap="round"/>
-  <path d="M24 20 C24 18 26 17 27 18 C28 17 30 18 30 20 C30 22 27 24 27 24 C27 24 24 22 24 20Z" fill="none" stroke="#1A6B72" stroke-width="1.2" opacity="0.5"/>`,
-    '眼藥水偏好': `<path d="M14 28 C18 22 22 20 28 20 C34 20 38 22 42 28 C38 34 34 36 28 36 C22 36 18 34 14 28Z" fill="none" stroke="#1A6B72" stroke-width="1.8"/>
-  <circle cx="28" cy="28" r="5" fill="none" stroke="#1A6B72" stroke-width="1.5"/>
-  <circle cx="28" cy="28" r="2" fill="#1A6B72" opacity="0.3"/>
-  <path d="M38 16 C38 14 40 13 40 15 L40 20 C40 22 38 22 38 20Z" fill="none" stroke="#1A6B72" stroke-width="1.4"/>
-  <path d="M39 20 L36 24" stroke="#1A6B72" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>`,
-    '臍帶血': `<path d="M20 18 C20 14 36 14 36 18 L36 34 C36 38 20 38 20 34Z" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linejoin="round"/>
-  <path d="M28 38 L28 44" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M23 26 C23 24 25 23 26 24 C27 23 29 24 29 26 C29 28 26 30 26 30 C26 30 23 28 23 26Z" fill="#1A6B72" opacity="0.25"/>
-  <path d="M22 33 L34 33 M22 36 L30 36" stroke="#1A6B72" stroke-width="1" stroke-linecap="round" opacity="0.3"/>`,
-    '伴侶在場': `<!-- 兩個人並排 -->
-  <circle cx="22" cy="20" r="4" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <path d="M14 36 C14 30 17 27 22 27 C27 27 30 30 30 36" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <circle cx="34" cy="20" r="4" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <path d="M28 36 C28 30 31 27 36 27 C41 27 44 30 44 36" fill="none" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>`,
-    '降下手術簾': `<!-- 透明簾：虛線隔板 -->
-  <path d="M28 14 L28 44" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="3,3"/>
-  <!-- 左邊媽媽頭 -->
-  <circle cx="18" cy="24" r="4" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <path d="M18 28 L18 34" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 右邊看見寶寶 -->
-  <circle cx="38" cy="32" r="4" fill="none" stroke="#5FB3B8" stroke-width="1.6"/>
-  <path d="M30 28 C32 26 36 26 38 28" fill="none" stroke="#1A6B72" stroke-width="1.3" stroke-linecap="round" opacity="0.5"/>`,
-    '手術台接觸': `<!-- 手術台肌膚接觸：躺著+心 -->
-  <path d="M10 34 L46 34" stroke="#1A6B72" stroke-width="1.6" stroke-linecap="round"/>
-  <circle cx="18" cy="28" r="4" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <path d="M22 32 L38 32" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M28 26 C28 24 30 23 32 24 C34 23 36 24 36 26 C36 28 32 31 32 31 C32 31 28 28 28 26Z" fill="none" stroke="#D98E5C" stroke-width="1.5"/>`,
-    '剖腹延遲斷臍': `<!-- 胎盤圓形 -->
-  <circle cx="20" cy="34" r="8" fill="none" stroke="#1A6B72" stroke-width="1.6"/>
-  <path d="M16 34 C18 31 20 30 22 31 C24 32 25 34 24 36" fill="none" stroke="#1A6B72" stroke-width="1" opacity="0.4"/>
-  <!-- 臍帶彎曲延伸未剪 -->
-  <path d="M28 30 C32 27 36 23 33 20 C30 17 28 20 31 22" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- 寶寶肚臍端小圓點 -->
-  <circle cx="31" cy="22" r="2.5" fill="#1A6B72" opacity="0.6"/>
-  <!-- 剪刀（打叉表示不剪）-->
-  <path d="M36 16 L42 22 M42 16 L36 22" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>`,
-    '哺乳偏好': `<!-- 媽媽哺乳輪廓 -->
-  <circle cx="20" cy="22" r="5" fill="none" stroke="#7B5EA0" stroke-width="1.6"/>
-  <path d="M15 28 C15 24 17 22 20 22" fill="none" stroke="#7B5EA0" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M25 24 C28 24 32 26 34 30 C36 34 34 38 30 40 C26 42 20 40 18 36 C16 32 18 28 22 27" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 寶寶小頭 -->
-  <circle cx="32" cy="34" r="4" fill="none" stroke="#7B5EA0" stroke-width="1.4"/>
-  <!-- 愛心 -->
-  <path d="M26 18 C26 16 28 15 29 16 C30 15 32 16 32 18 C32 20 29 22 29 22 C29 22 26 20 26 18Z" fill="none" stroke="#7B5EA0" stroke-width="1.3" opacity="0.6"/>`,
-    '生產梳': `<!-- 梳子主體 -->
-  <rect x="16" y="20" width="24" height="8" rx="3" fill="none" stroke="#7B5EA0" stroke-width="1.8"/>
-  <!-- 梳齒 -->
-  <line x1="20" y1="28" x2="20" y2="38" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="24" y1="28" x2="24" y2="38" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="28" y1="28" x2="28" y2="38" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="32" y1="28" x2="32" y2="38" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="36" y1="28" x2="36" y2="38" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 放鬆波紋 -->
-  <path d="M18 16 C20 14 22 15 24 14 C26 13 28 14 30 13" fill="none" stroke="#7B5EA0" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>`,
-    '愛撫': `<!-- 兩隻手輕觸 -->
-  <path d="M18 30 C18 26 20 24 23 24 C24 24 25 25 26 26 C27 25 28 24 30 24 C33 24 34 26 34 28" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M18 30 C18 34 20 38 24 40 C28 42 32 40 34 36 C36 32 34 28 34 28" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 溫柔波紋 -->
-  <path d="M20 22 C22 20 25 20 27 22" fill="none" stroke="#7B5EA0" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
-  <path d="M29 21 C31 19 34 19 36 21" fill="none" stroke="#7B5EA0" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
-  <!-- 愛心 -->
-  <path d="M25 18 C25 16 27 15 28 16 C29 15 31 16 31 18 C31 20 28 22 28 22 C28 22 25 20 25 18Z" fill="#7B5EA0" opacity="0.25"/>`,
-    '按摩棒': `<!-- 按摩棒主體（橢圓頭+握柄）-->
-  <ellipse cx="28" cy="20" rx="7" ry="8" fill="none" stroke="#7B5EA0" stroke-width="1.8"/>
-  <path d="M21 20 L21 36 C21 38 24 40 28 40 C32 40 35 38 35 36 L35 20" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linejoin="round"/>
-  <!-- 震動波紋 -->
-  <path d="M38 16 C40 18 40 22 38 24" fill="none" stroke="#7B5EA0" stroke-width="1.3" stroke-linecap="round" opacity="0.5"/>
-  <path d="M40 14 C43 17 43 23 40 26" fill="none" stroke="#7B5EA0" stroke-width="1.1" stroke-linecap="round" opacity="0.3"/>
-  <!-- 按鈕 -->
-  <circle cx="28" cy="34" r="2" fill="none" stroke="#7B5EA0" stroke-width="1.2"/>`,
-    '與伴侶親密': `<!-- 兩顆心靠在一起 -->
-  <path d="M18 26 C18 22 21 20 24 22 C26 20 30 20 30 24 C30 28 24 33 24 33 C24 33 18 28 18 26Z" fill="none" stroke="#7B5EA0" stroke-width="1.7" stroke-linejoin="round"/>
-  <path d="M26 28 C26 24 29 22 32 24 C34 22 38 22 38 26 C38 30 32 35 32 35 C32 35 26 30 26 28Z" fill="none" stroke="#7B5EA0" stroke-width="1.5" stroke-linejoin="round" opacity="0.7"/>
-  <!-- 光暈 -->
-  <circle cx="28" cy="28" r="14" fill="none" stroke="#7B5EA0" stroke-width="0.8" opacity="0.15"/>`,
-    '唱歌': `<!-- 麥克風 -->
-  <rect x="23" y="14" width="10" height="16" rx="5" fill="none" stroke="#7B5EA0" stroke-width="1.8"/>
-  <!-- 麥克風支架 -->
-  <path d="M18 28 C18 34 22 38 28 38 C34 38 38 34 38 28" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="28" y1="38" x2="28" y2="44" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="22" y1="44" x2="34" y2="44" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 音符 -->
-  <path d="M40 18 C42 17 44 18 44 20" fill="none" stroke="#7B5EA0" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
-  <path d="M40 22 C43 21 45 22 45 24" fill="none" stroke="#7B5EA0" stroke-width="1" stroke-linecap="round" opacity="0.35"/>`,
-    '冥想': `<!-- 打坐姿勢 -->
-  <circle cx="28" cy="18" r="5" fill="none" stroke="#7B5EA0" stroke-width="1.6"/>
-  <!-- 身體 -->
-  <path d="M28 23 L28 30" stroke="#7B5EA0" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- 盤腿 -->
-  <path d="M28 32 C24 32 20 34 18 38 L38 38 C36 34 32 32 28 32Z" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linejoin="round"/>
-  <!-- 雙手禪定 -->
-  <path d="M22 30 C20 30 18 31 18 33" fill="none" stroke="#7B5EA0" stroke-width="1.4" stroke-linecap="round"/>
-  <path d="M34 30 C36 30 38 31 38 33" fill="none" stroke="#7B5EA0" stroke-width="1.4" stroke-linecap="round"/>
-  <!-- 氣場光暈 -->
-  <circle cx="28" cy="22" r="12" fill="none" stroke="#7B5EA0" stroke-width="0.8" stroke-dasharray="2,3" opacity="0.3"/>`,
-    '肯定語句': `<!-- 對話泡泡 -->
-  <path d="M14 18 C14 16 16 14 18 14 L38 14 C40 14 42 16 42 18 L42 30 C42 32 40 34 38 34 L22 34 L16 40 L18 34 C16 34 14 32 14 30Z" fill="none" stroke="#7B5EA0" stroke-width="1.8" stroke-linejoin="round"/>
-  <!-- 愛心在泡泡裡 -->
-  <path d="M22 23 C22 21 24 20 25 21 C26 20 28 21 28 23 C28 25 25 27 25 27 C25 27 22 25 22 23Z" fill="#7B5EA0" opacity="0.3"/>
-  <!-- 星星 -->
-  <path d="M32 20 L33 23 L36 23 L34 25 L35 28 L32 26 L29 28 L30 25 L28 23 L31 23Z" fill="none" stroke="#7B5EA0" stroke-width="1.2" opacity="0.6"/>`,
-    '使用密語': `<!-- 鑰匙 -->
-  <circle cx="22" cy="24" r="7" fill="none" stroke="#7B5EA0" stroke-width="1.8"/>
-  <circle cx="22" cy="24" r="3" fill="none" stroke="#7B5EA0" stroke-width="1.4"/>
-  <path d="M27 28 L40 38" stroke="#7B5EA0" stroke-width="2" stroke-linecap="round"/>
-  <path d="M34 34 L34 38 M38 36 L38 40" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 暗示波紋 -->
-  <path d="M28 16 C31 14 34 15 36 18" fill="none" stroke="#7B5EA0" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>`,
-    '菌群移植': `<!-- 試管/棉籤 -->
-  <rect x="25" y="12" width="6" height="22" rx="3" fill="none" stroke="#7B5EA0" stroke-width="1.8"/>
-  <!-- 試管底部圓弧 -->
-  <path d="M25 32 C25 36 31 36 31 32" fill="none" stroke="#7B5EA0" stroke-width="1.5"/>
-  <!-- 微生物小圓點 -->
-  <circle cx="22" cy="36" r="2.5" fill="none" stroke="#7B5EA0" stroke-width="1.3"/>
-  <circle cx="34" cy="34" r="2" fill="none" stroke="#7B5EA0" stroke-width="1.2"/>
-  <circle cx="20" cy="28" r="1.8" fill="none" stroke="#7B5EA0" stroke-width="1.2"/>
-  <circle cx="36" cy="28" r="1.5" fill="none" stroke="#7B5EA0" stroke-width="1.2"/>
-  <!-- 箭頭（移植方向）-->
-  <path d="M28 38 L28 44 M25 42 L28 44 L31 42" stroke="#7B5EA0" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>`,
-    '媽媽親手引導': `<!-- 媽媽雙手 -->
-  <path d="M14 32 C14 28 16 26 20 26 L24 26 C26 26 28 28 28 30" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M42 32 C42 28 40 26 36 26 L32 26 C30 26 28 28 28 30" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- 手指 -->
-  <path d="M15 26 L14 22 M18 26 L18 22 M21 26 L21 22 M24 26 L25 22" stroke="#7B5EA0" stroke-width="1.3" stroke-linecap="round"/>
-  <path d="M41 26 L42 22 M38 26 L38 22 M35 26 L35 22 M32 26 L31 22" stroke="#7B5EA0" stroke-width="1.3" stroke-linecap="round"/>
-  <!-- 寶寶小頭被媽媽雙手捧著 -->
-  <circle cx="28" cy="26" r="6" fill="none" stroke="#7B5EA0" stroke-width="1.5"/>
-  <path d="M25 29 C26 31 30 31 31 29" fill="none" stroke="#7B5EA0" stroke-width="1.2" stroke-linecap="round"/>`,
-    '不給安撫奶嘴': `<circle cx="28" cy="22" r="8" fill="none" stroke="#7B5EA0" stroke-width="1.8"/>
-  <circle cx="32" cy="30" r="4" fill="none" stroke="#7B5EA0" stroke-width="1.4"/>
-  <path d="M29 28 C30 26 31 26 32 26" fill="none" stroke="#7B5EA0" stroke-width="1.3" stroke-linecap="round"/>
-  <circle cx="28" cy="22" r="2" fill="#7B5EA0" opacity="0.2"/>
-  <circle cx="18" cy="38" r="5" fill="none" stroke="#7B5EA0" stroke-width="1.4" opacity="0.5"/>
-  <path d="M14 34 L22 42" stroke="#7B5EA0" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>`,
-    '不補充配方奶': `<path d="M22 16 L22 14 L34 14 L34 16 C36 16 38 18 38 20 L38 36 C38 40 34 42 28 42 C22 42 18 40 18 36 L18 20 C18 18 20 16 22 16Z" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linejoin="round" opacity="0.3"/>
-  <circle cx="28" cy="28" r="14" fill="none" stroke="#7B5EA0" stroke-width="2"/>
-  <path d="M20 20 L36 36 M36 20 L20 36" stroke="#7B5EA0" stroke-width="2.2" stroke-linecap="round"/>`,
-    '蓮花生產': `<path d="M28 36 C28 28 22 22 20 18 C24 18 28 24 28 24 C28 24 32 18 36 18 C34 22 28 28 28 36Z" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linejoin="round"/>
-  <path d="M28 36 C20 34 14 28 14 24 C18 24 24 28 28 36Z" fill="none" stroke="#7B5EA0" stroke-width="1.3" opacity="0.6"/>
-  <path d="M28 36 C36 34 42 28 42 24 C38 24 32 28 28 36Z" fill="none" stroke="#7B5EA0" stroke-width="1.3" opacity="0.6"/>
-  <path d="M28 36 C28 38 26 40 24 42" fill="none" stroke="#7B5EA0" stroke-width="1.5" stroke-linecap="round"/>
-  <circle cx="23" cy="43" r="2" fill="#7B5EA0" opacity="0.5"/>`,
-    '胎盤膠囊化': `<circle cx="22" cy="24" r="8" fill="none" stroke="#7B5EA0" stroke-width="1.6"/>
-  <path d="M18 24 C20 21 22 20 24 21" fill="none" stroke="#7B5EA0" stroke-width="1" opacity="0.4"/>
-  <path d="M30 24 L36 24 M34 22 L36 24 L34 26" stroke="#7B5EA0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="36" y="20" width="8" height="14" rx="4" fill="none" stroke="#7B5EA0" stroke-width="1.6"/>
-  <path d="M36 27 L44 27" stroke="#7B5EA0" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>`,
-    'VBAC': `<path d="M18 28 C18 20 22 16 28 16 C34 16 38 20 38 28 C38 34 34 38 28 40 C24 40 20 38 18 34Z" fill="none" stroke="#7B5EA0" stroke-width="1.8"/>
-  <path d="M20 30 L36 30" stroke="#7B5EA0" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2,2" opacity="0.4"/>
-  <path d="M28 32 L28 44 M24 41 L28 44 L32 41" stroke="#7B5EA0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`,
-    '會陰按摩': `<path d="M20 22 C20 18 24 16 26 18 L28 24" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M28 24 C30 16 34 16 34 20 L32 26" fill="none" stroke="#7B5EA0" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M22 30 C24 34 28 36 32 34 C36 32 38 28 36 24" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M42 18 C42 16 44 15 44 17 C44 19 42 20 42 18Z" fill="#7B5EA0" opacity="0.4"/>
-  <path d="M42 20 L40 24" stroke="#7B5EA0" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>`,
-    '知情同意': `<!-- 對話泡泡：知情同意 -->
-  <path d="M14 18 C14 16 16 14 18 14 L38 14 C40 14 42 16 42 18 L42 30 C42 32 40 34 38 34 L22 34 L16 40 L18 34 C16 34 14 32 14 30 Z" fill="none" stroke="#1A6B72" stroke-width="1.8" stroke-linejoin="round"/>
-  <path d="M20 22 L36 22 M20 27 L30 27" stroke="#1A6B72" stroke-width="1.5" stroke-linecap="round"/>`,
-    '冷熱敷': `
-  <!-- 冰袋/熱袋 -->
-  <rect x="18" y="20" width="20" height="16" rx="4" fill="none" stroke="#4A8EA0" stroke-width="1.8"/>
-  <path d="M18 26 L38 26" stroke="#4A8EA0" stroke-width="1.2" stroke-dasharray="2,2" opacity="0.5"/>
-  <!-- 雪花 -->
-  <line x1="28" y1="22" x2="28" y2="24" stroke="#4A8EA0" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="25" y1="23" x2="31" y2="23" stroke="#4A8EA0" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- 波浪表示溫度 -->
-  <path d="M20 31 C22 30 24 32 26 31 C28 30 30 32 32 31 C34 30 36 32 36 31" fill="none" stroke="#4A8EA0" stroke-width="1.3" stroke-linecap="round"/>`,
+    '陪產者': `<!-- AAC 實心版：陪產者 -->
+  <circle cx="28" cy="20" r="8" fill="#1A6B72"/>
+  <path d="M12 44 C12 34 19 30 28 30 C37 30 44 34 44 44 Z" fill="#1A6B72"/>`,
+    '入院時機': `<!-- AAC 實心版：入院時機（時鐘） -->
+  <circle cx="28" cy="28" r="14" fill="#1A6B72"/>
+  <path d="M28 19 L28 28 L34 32" fill="none" stroke="#FAF8F3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '生產地點': `<!-- AAC 實心版：生產地點（定位+十字） -->
+  <path d="M28 12 C20 12 15 18 15 25 C15 34 28 46 28 46 C28 46 41 34 41 25 C41 18 36 12 28 12Z" fill="#1A6B72"/>
+  <path d="M28 20 L28 30 M23 25 L33 25" stroke="#FAF8F3" stroke-width="2.6" stroke-linecap="round"/>`,
+    '燈光': `<!-- AAC 實心版：燈光（燈泡） -->
+  <path d="M28 13 C21 13 16 18 16 24 C16 29 19 32 22 34 L22 38 L34 38 L34 34 C37 32 40 29 40 24 C40 18 35 13 28 13Z" fill="#1A6B72"/>
+  <rect x="23" y="39" width="10" height="3.4" rx="1.7" fill="#1A6B72"/>
+  <rect x="24.5" y="43.5" width="7" height="3" rx="1.5" fill="#1A6B72"/>`,
+    '音樂': `<!-- AAC 實心版：音樂（雙音符） -->
+  <ellipse cx="21" cy="38" rx="5" ry="4" transform="rotate(-18,21,38)" fill="#1A6B72"/>
+  <ellipse cx="34" cy="34" rx="5" ry="4" transform="rotate(-18,34,34)" fill="#1A6B72"/>
+  <path d="M25 38 L25 19 L38 15 L38 34" fill="none" stroke="#1A6B72" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '室溫': `<!-- AAC 實心版：室溫（溫度計） -->
+  <rect x="24" y="13" width="8" height="26" rx="4" fill="none" stroke="#1A6B72" stroke-width="2.6"/>
+  <circle cx="28" cy="41" r="6" fill="#1A6B72"/>
+  <rect x="26.4" y="22" width="3.2" height="19" rx="1.6" fill="#1A6B72"/>`,
+    '隱私': `<!-- AAC 實心版：隱私（掛鎖） -->
+  <rect x="18" y="26" width="20" height="16" rx="3" fill="#1A6B72"/>
+  <path d="M22 26 L22 22 C22 17 34 17 34 22 L34 26" fill="none" stroke="#1A6B72" stroke-width="3"/>
+  <circle cx="28" cy="32.5" r="2.6" fill="#FAF8F3"/>
+  <rect x="26.7" y="32.5" width="2.6" height="6" rx="1.3" fill="#FAF8F3"/>`,
+    '香氛': `<!-- AAC 實心版：香氛（擴香瓶） -->
+  <path d="M20 34 C20 28 22 24 28 24 C34 24 36 28 36 34 L36 40 C36 43 33 45 28 45 C23 45 20 43 20 40 Z" fill="#1A6B72"/>
+  <rect x="24" y="19" width="8" height="6" rx="2" fill="#1A6B72"/>
+  <path d="M25 16 C25 13 27 13 27 10" fill="none" stroke="#1A6B72" stroke-width="2" stroke-linecap="round"/>
+  <path d="M31 16 C31 13 33 13 33 10" fill="none" stroke="#1A6B72" stroke-width="2" stroke-linecap="round"/>`,
+    '自帶物品': `<!-- AAC 實心版：自帶物品（包包+愛心） -->
+  <path d="M16 26 C16 22 18 20 20 20 L36 20 C38 20 40 22 40 26 L40 40 C40 43 38 44 36 44 L20 44 C18 44 16 43 16 40 Z" fill="#1A6B72"/>
+  <path d="M22 22 C22 16 34 16 34 22" fill="none" stroke="#1A6B72" stroke-width="2.4"/>
+  <path d="M25 34 C25 32 27 31 28 32.6 C29 31 31 32 31 34 C31 36.4 28 38.4 28 38.4 C28 38.4 25 36.4 25 34Z" fill="#FAF8F3"/>`,
+    '陪產人數': `<!-- AAC 實心版：陪產人數（三人） -->
+  <circle cx="17" cy="22" r="5" fill="#1A6B72"/>
+  <path d="M8 37 C8 31 12 28 17 28 C22 28 26 31 26 37 Z" fill="#1A6B72"/>
+  <circle cx="39" cy="22" r="5" fill="#1A6B72"/>
+  <path d="M30 37 C30 31 34 28 39 28 C44 28 48 31 48 37 Z" fill="#1A6B72"/>
+  <circle cx="28" cy="19" r="6.5" fill="#1A6B72" stroke="#FAF8F3" stroke-width="1.6"/>
+  <path d="M17 38 C17 30 22 27 28 27 C34 27 39 30 39 38 Z" fill="#1A6B72" stroke="#FAF8F3" stroke-width="1.6"/>`,
+    '拍照錄影': `<!-- AAC 實心版：拍照錄影（相機） -->
+  <rect x="12" y="23" width="32" height="21" rx="4" fill="#1A6B72"/>
+  <rect x="20" y="18" width="11" height="6" rx="2" fill="#1A6B72"/>
+  <circle cx="28" cy="33" r="7" fill="#FAF8F3"/>
+  <circle cx="28" cy="33" r="3.4" fill="#1A6B72"/>
+  <circle cx="38" cy="27.5" r="1.8" fill="#FAF8F3"/>`,
+    '保持安靜': `<!-- AAC 實心版：保持安靜（噓） -->
+  <circle cx="28" cy="28" r="14" fill="#1A6B72"/>
+  <path d="M22 33 C24 31 32 31 34 33" fill="none" stroke="#FAF8F3" stroke-width="2" stroke-linecap="round"/>
+  <rect x="26.5" y="16" width="3" height="15" rx="1.5" fill="#FAF8F3"/>`,
+    '減痛告知': `<!-- AAC 實心版：減痛告知（詢問徽章） -->
+  <circle cx="28" cy="28" r="14" fill="#D98E5C"/>
+  <path d="M23 23 C23 19 26 17.5 28.5 17.5 C31.5 17.5 34 19.5 34 22.5 C34 26 31 27.5 29 29 L29 32" fill="none" stroke="#FAF8F3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="28.5" cy="37" r="2" fill="#FAF8F3"/>`,
+    '按摩舒緩': `<!-- AAC 實心版：按摩舒緩（實心愛心） -->
+  <path d="M20 25 C20 21 24 19 28 22 C32 19 36 21 36 25 C36 31 28 38 28 38 C28 38 20 31 20 25Z" fill="#D98E5C"/>`,
+    '音樂舒緩': `<!-- AAC 實心版：音樂舒緩（單音符） -->
+  <ellipse cx="23" cy="37" rx="5" ry="4" transform="rotate(-18,23,37)" fill="#D98E5C"/>
+  <path d="M27 37 L27 17" stroke="#D98E5C" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M27 17 C31 16 36 18 35 24 C34 20 30 20 27 22 Z" fill="#D98E5C"/>`,
+    '自由飲食': `<!-- AAC 實心版：自由飲食（吸管杯） -->
+  <path d="M20 22 L22 39 C22 41 24 43 28 43 C32 43 34 41 34 39 L36 22 Z" fill="#D98E5C"/>
+  <rect x="18" y="18" width="20" height="4.5" rx="2.2" fill="#D98E5C"/>
+  <line x1="32" y1="18" x2="37" y2="11" stroke="#D98E5C" stroke-width="2.4" stroke-linecap="round"/>`,
+    '水中減痛': `<!-- AAC 實心版：水中減痛（浴缸） -->
+  <path d="M15 30 L17 40 C17 42.5 20 44 28 44 C36 44 39 42.5 39 40 L41 30 Z" fill="#D98E5C"/>
+  <rect x="13" y="28" width="30" height="3" rx="1.5" fill="#D98E5C"/>
+  <path d="M20 37 C22 35 26 35 28 37 C30 39 34 39 36 37" fill="none" stroke="#FAF8F3" stroke-width="1.8" stroke-linecap="round"/>`,
+    '催眠生產': `<!-- AAC 實心版：催眠生產（蠟燭） -->
+  <rect x="23" y="28" width="10" height="18" rx="2" fill="#D98E5C"/>
+  <line x1="28" y1="28" x2="28" y2="24" stroke="#D98E5C" stroke-width="2" stroke-linecap="round"/>
+  <path d="M28 24 C25.5 21 25 17.5 28 14 C31 17.5 30.5 21 28 24Z" fill="#D98E5C"/>`,
+    '按摩': `<!-- AAC 實心版：按摩（兩隻手按肩） -->
+  <path d="M10 41 C18 35 38 35 46 41" fill="none" stroke="#D98E5C" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M13 22 C13 19.5 15 18 17.5 18 C20 18 22 19.5 22 22 L22 30 C22 33 20 35 17 35 C15.5 35 14.2 34.4 13.3 33.4 C11.8 33.9 10 33.1 10 31.3 C10 29.9 11.1 29.1 12.4 29.4 L13 29.6 Z" fill="#D98E5C"/>
+  <g transform="translate(56,0) scale(-1,1)"><path d="M13 22 C13 19.5 15 18 17.5 18 C20 18 22 19.5 22 22 L22 30 C22 33 20 35 17 35 C15.5 35 14.2 34.4 13.3 33.4 C11.8 33.9 10 33.1 10 31.3 C10 29.9 11.1 29.1 12.4 29.4 L13 29.6 Z" fill="#D98E5C"/></g>`,
+    'TENS 電療': `<!-- AAC 實心版：TENS 電療（電極貼片+閃電） -->
+  <rect x="16" y="18" width="24" height="20" rx="5" fill="#D98E5C"/>
+  <path d="M30 20 L23 30 L28 30 L26 38 L34 27 L29 27 Z" fill="#FAF8F3"/>`,
+    '笑氣': `<!-- AAC 實心版：笑氣（面罩） -->
+  <path d="M18 24 C18 20 22 17 28 17 C34 17 38 20 38 24 L38 32 C38 36 34 39 28 39 C22 39 18 36 18 32 Z" fill="#D98E5C"/>
+  <ellipse cx="28" cy="36" rx="5" ry="3" fill="#FAF8F3"/>
+  <path d="M18 26 L12 25 M18 31 L12 32" stroke="#D98E5C" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M38 26 L44 25 M38 31 L44 32" stroke="#D98E5C" stroke-width="2.2" stroke-linecap="round"/>`,
+    '減痛分娩': `<!-- AAC 粗體版：硬脊膜外針筒（去除脊椎/漣漪雜訊） -->
+  <line x1="36" y1="16" x2="22" y2="30" stroke="#D98E5C" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="22" y1="30" x2="15" y2="37" stroke="#D98E5C" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="36" y1="16" x2="41" y2="11" stroke="#D98E5C" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="17" x2="34" y2="21" stroke="#D98E5C" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="15" cy="37" r="2.6" fill="#D98E5C"/>`,
+    '針劑止痛': `<!-- AAC 實心版：針劑止痛（直立針筒） -->
+  <rect x="24" y="14" width="8" height="22" rx="2" fill="#D98E5C"/>
+  <rect x="26" y="10" width="4" height="6" rx="1.5" fill="#D98E5C"/>
+  <line x1="22" y1="18" x2="34" y2="18" stroke="#FAF8F3" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M28 36 L28 44" stroke="#D98E5C" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="28" cy="46" r="2" fill="#D98E5C"/>`,
+    '胎兒監測': `<!-- AAC 粗體版：胎兒監測（心跳波形） -->
+  <path d="M10 28 L18 28 L21 19 L25 37 L29 21 L33 28 L46 28" fill="none" stroke="#1A6B72" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '自由活動': `<!-- AAC 實心版：自由活動（走動的人） -->
+  <circle cx="27" cy="14" r="5" fill="#1A6B72"/>
+  <path d="M27 19 L25 31" stroke="#1A6B72" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M25 31 L20 40 M25 31 L31 39" stroke="#1A6B72" stroke-width="3" stroke-linecap="round"/>
+  <path d="M27 23 L21 27 M27 23 L33 26" stroke="#1A6B72" stroke-width="3" stroke-linecap="round"/>`,
+    '內診': `<!-- AAC 實心版：內診（減量徽章） -->
+  <circle cx="28" cy="28" r="14" fill="#1A6B72"/>
+  <rect x="20" y="26.4" width="16" height="3.2" rx="1.6" fill="#FAF8F3"/>`,
+    '引產偏好': `<!-- AAC 實心版：引產偏好（點滴滴液） -->
+  <rect x="26" y="11" width="4" height="9" rx="2" fill="#1A6B72"/>
+  <path d="M22 20 C22 20 20 26 22 30 C24 34 32 34 34 30 C36 26 34 20 34 20 Z" fill="#1A6B72"/>
+  <path d="M28 34 L28 40" stroke="#1A6B72" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="28" cy="43" r="2" fill="#1A6B72"/>`,
+    '無線監測': `<!-- AAC 粗體版：無線監測（wifi） -->
+  <path d="M16 28 C18 22 22 18 28 16 C34 18 38 22 40 28" fill="none" stroke="#1A6B72" stroke-width="3" stroke-linecap="round"/>
+  <path d="M21 33 C23 29 25 27 28 26 C31 27 33 29 35 33" fill="none" stroke="#1A6B72" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="28" cy="39" r="3" fill="#1A6B72"/>`,
+    '補水方式': `<!-- AAC 實心版：補水（水杯+冰塊） -->
+  <path d="M20 20 L22 40 C22 42 24 44 28 44 C32 44 34 42 34 40 L36 20 Z" fill="#1A6B72"/>
+  <rect x="18" y="17" width="20" height="4" rx="2" fill="#1A6B72"/>
+  <rect x="24" y="27" width="5.5" height="5.5" rx="1.2" fill="#FAF8F3" transform="rotate(15,26.7,29.7)"/>`,
+    '骨盆活動': `<!-- AAC 實心版：骨盆活動（轉髖） -->
+  <circle cx="28" cy="13" r="4.5" fill="#1A6B72"/>
+  <path d="M28 17 L28 29" stroke="#1A6B72" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M28 21 L22 25 M28 21 L34 25" stroke="#1A6B72" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="28" cy="35" rx="11" ry="5.5" fill="none" stroke="#1A6B72" stroke-width="2.6"/>
+  <path d="M39 34 L38 31.6 M39 34 L36.4 34.6" fill="none" stroke="#1A6B72" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '靠生產球': `<!-- AAC 實心版：靠生產球（球+人趴著） -->
+  <circle cx="30" cy="36" r="12" fill="#1A6B72"/>
+  <circle cx="21" cy="21" r="4.5" fill="#1A6B72"/>
+  <path d="M21 25.5 C21 28 24 29 28 28 C32 27 35 27 38 28.5" fill="none" stroke="#1A6B72" stroke-width="3.2" stroke-linecap="round"/>`,
+    '花生球': `<!-- AAC 實心版：花生球 -->
+  <path d="M14 28 C14 22 18 18 22 18 C24 18 26 20 28 20 C30 20 32 18 34 18 C38 18 42 22 42 28 C42 34 38 38 34 38 C32 38 30 36 28 36 C26 36 24 38 22 38 C18 38 14 34 14 28Z" fill="#1A6B72"/>
+  <path d="M28 22 C26.5 24 26.5 32 28 34" fill="none" stroke="#FAF8F3" stroke-width="1.6" stroke-linecap="round"/>`,
+    '生產椅': `<!-- AAC 實心版：生產椅 -->
+  <rect x="17" y="14" width="5" height="24" rx="2" fill="#1A6B72"/>
+  <rect x="18" y="30" width="22" height="5" rx="2" fill="#1A6B72"/>
+  <rect x="18" y="35" width="4.5" height="10" rx="1.5" fill="#1A6B72"/>
+  <rect x="35" y="35" width="4.5" height="10" rx="1.5" fill="#1A6B72"/>`,
+    '額外枕頭': `<!-- AAC 實心版：額外枕頭（兩顆疊放） -->
+  <rect x="17" y="16" width="28" height="15" rx="7.5" fill="#1A6B72"/>
+  <rect x="12" y="24" width="30" height="16" rx="8" fill="#1A6B72" stroke="#FAF8F3" stroke-width="1.6"/>`,
+    '水中生產': `<!-- AAC 實心版：水中生產（人上半身露出水面） -->
+  <path d="M12 31 L14 45 C14 46.5 17 47.5 28 47.5 C39 47.5 42 46.5 42 45 L44 31 Z" fill="#D98E5C"/>
+  <path d="M19 31 C19 26 23 23 28 23 C33 23 37 26 37 31 Z" fill="#D98E5C"/>
+  <circle cx="28" cy="16" r="6" fill="#D98E5C"/>
+  <path d="M12 31 L44 31" stroke="#FAF8F3" stroke-width="2" stroke-linecap="round"/>
+  <path d="M15 35 C18 33.5 21 33.5 24 35 C27 36.5 30 36.5 33 35 C36 33.5 39 33.5 41 35" fill="none" stroke="#FAF8F3" stroke-width="1.6" stroke-linecap="round"/>`,
+    '自然破水': `<!-- AAC 實心版：自然破水（水滴） -->
+  <path d="M28 13 C28 13 17 25 17 32 C17 38.6 21.9 43 28 43 C34.1 43 39 38.6 39 32 C39 25 28 13 28 13Z" fill="#1A6B72"/>
+  <path d="M24 32 C24 28.5 26 27 28.5 27" fill="none" stroke="#FAF8F3" stroke-width="1.8" stroke-linecap="round"/>`,
+    '避免 Oxytocin': `<!-- AAC 統一否定語法：實心藥瓶 + 粗 coral 圈斜線 -->
+  <rect x="22" y="18" width="12" height="20" rx="3" fill="#1A6B72"/>
+  <rect x="24" y="12" width="8" height="7" rx="2" fill="#1A6B72"/>
+  <circle cx="28" cy="28" r="17" fill="none" stroke="#D98E5C" stroke-width="4"/>
+  <line x1="16" y1="16" x2="40" y2="40" stroke="#D98E5C" stroke-width="4" stroke-linecap="round"/>`,
+    '避免子宮按壓': `<!-- AAC 統一否定語法：實心子宮 + 粗 coral 圈斜線 -->
+  <path d="M18 30 C18 22 22 18 28 18 C34 18 38 22 38 30 C38 36 34 40 28 40 C22 40 18 36 18 30Z" fill="#1A6B72"/>
+  <circle cx="28" cy="28" r="17" fill="none" stroke="#D98E5C" stroke-width="4"/>
+  <line x1="16" y1="16" x2="40" y2="40" stroke="#D98E5C" stroke-width="4" stroke-linecap="round"/>`,
+    '延遲斷臍': `<!-- AAC 實心版：延遲斷臍（胎盤+臍帶） -->
+  <circle cx="22" cy="34" r="9" fill="#D98E5C"/>
+  <path d="M28 28 C33 24 37 20 34 17 C31.5 14.5 29 17 31.5 19.5" fill="none" stroke="#D98E5C" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="31.5" cy="19.5" r="2.6" fill="#D98E5C"/>`,
+    '順應宮縮': `<!-- AAC 粗體版：順應宮縮（三層海浪） -->
+  <path d="M12 22 C15 19 18 17 21 19 C24 21 27 19 30 17 C33 15 36 17 39 19 C42 21 44 19 46 22" fill="none" stroke="#D98E5C" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M12 30 C15 27 18 25 21 27 C24 29 27 27 30 25 C33 23 36 25 39 27 C42 29 44 27 46 30" fill="none" stroke="#D98E5C" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M12 38 C15 35 18 33 21 35 C24 37 27 35 30 33 C33 31 36 33 39 35 C42 37 44 35 46 38" fill="none" stroke="#D98E5C" stroke-width="2.6" stroke-linecap="round"/>`,
+    '使用把桿': `<!-- AAC 實心版：使用把桿（把桿+蹲姿） -->
+  <rect x="14" y="17" width="28" height="3.5" rx="1.75" fill="#D98E5C"/>
+  <circle cx="28" cy="27" r="4.5" fill="#D98E5C"/>
+  <path d="M28 31 L28 35" stroke="#D98E5C" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M28 35 C24 37 22 41 22 44 M28 35 C32 37 34 41 34 44" fill="none" stroke="#D98E5C" stroke-width="3" stroke-linecap="round"/>
+  <path d="M28 30 L20 22 M28 30 L36 22" stroke="#D98E5C" stroke-width="2.6" stroke-linecap="round"/>`,
+    '使用鏡子': `<!-- AAC 實心版：使用鏡子（手鏡） -->
+  <circle cx="28" cy="24" r="10" fill="#D98E5C"/>
+  <circle cx="28" cy="24" r="6" fill="#FAF8F3"/>
+  <rect x="26" y="33" width="4" height="12" rx="2" fill="#D98E5C"/>`,
+    '捕捉畫面': `<!-- AAC 實心版：捕捉畫面（相機） -->
+  <rect x="12" y="23" width="32" height="21" rx="4" fill="#D98E5C"/>
+  <rect x="20" y="18" width="11" height="6" rx="2" fill="#D98E5C"/>
+  <circle cx="28" cy="33" r="7" fill="#FAF8F3"/>
+  <circle cx="28" cy="33" r="3.4" fill="#D98E5C"/>
+  <circle cx="38" cy="27.5" r="1.8" fill="#FAF8F3"/>`,
+    '會陰保護': `<!-- AAC 實心版：會陰保護（盾牌） -->
+  <path d="M28 15 L40 19 C40 30 35 38 28 42 C21 38 16 30 16 19 Z" fill="#D98E5C"/>
+  <path d="M23 27 L27 31 L34 23" fill="none" stroke="#FAF8F3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '避免側切': `<!-- AAC 統一否定語法：剪刀 + 粗 coral 圈斜線 -->
+  <circle cx="21" cy="22" r="3.6" fill="none" stroke="#1A6B72" stroke-width="2.2"/>
+  <circle cx="21" cy="34" r="3.6" fill="none" stroke="#1A6B72" stroke-width="2.2"/>
+  <path d="M24 24 L37 32 M24 32 L37 24" stroke="#1A6B72" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="28" cy="28" r="17" fill="none" stroke="#D98E5C" stroke-width="4"/>
+  <line x1="16" y1="16" x2="40" y2="40" stroke="#D98E5C" stroke-width="4" stroke-linecap="round"/>`,
+    '避免產鉗': `<!-- AAC 統一否定語法：產鉗 + 粗 coral 圈斜線 -->
+  <ellipse cx="24" cy="16" rx="3" ry="5" fill="none" stroke="#1A6B72" stroke-width="2"/>
+  <ellipse cx="32" cy="16" rx="3" ry="5" fill="none" stroke="#1A6B72" stroke-width="2"/>
+  <path d="M20 42 C16 34 17 22 24 18" fill="none" stroke="#1A6B72" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M36 42 C40 34 39 22 32 18" fill="none" stroke="#1A6B72" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="28" cy="28" r="17" fill="none" stroke="#D98E5C" stroke-width="4"/>
+  <line x1="16" y1="16" x2="40" y2="40" stroke="#D98E5C" stroke-width="4" stroke-linecap="round"/>`,
+    '支持者剪臍': `<!-- AAC 實心版：支持者剪臍（剪刀+臍帶） -->
+  <circle cx="19" cy="22" r="3.6" fill="none" stroke="#D98E5C" stroke-width="2.2"/>
+  <circle cx="19" cy="32" r="3.6" fill="none" stroke="#D98E5C" stroke-width="2.2"/>
+  <path d="M22 24 L34 28 M22 30 L34 28" stroke="#D98E5C" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M34 28 C39 26 42 30 40 34" fill="none" stroke="#D98E5C" stroke-width="2.4" stroke-linecap="round"/>`,
+    '延後沐浴': `<!-- AAC 實心版：延後沐浴（浴盆+時鐘） -->
+  <path d="M15 30 L17 42 C17 43.5 20 45 28 45 C36 45 39 43.5 39 42 L41 30 Z" fill="#1A6B72"/>
+  <rect x="13" y="28" width="30" height="3" rx="1.5" fill="#1A6B72"/>
+  <circle cx="35" cy="18" r="7" fill="#1A6B72"/>
+  <path d="M35 14 L35 18 L38 20" fill="none" stroke="#FAF8F3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '維生素K': `<!-- AAC 粗體版：維生素K（針筒） -->
+  <line x1="36" y1="16" x2="22" y2="30" stroke="#1A6B72" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="22" y1="30" x2="15" y2="37" stroke="#1A6B72" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="36" y1="16" x2="41" y2="11" stroke="#1A6B72" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="17" x2="34" y2="21" stroke="#1A6B72" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="15" cy="37" r="2.6" fill="#1A6B72"/>`,
+    '新生兒篩檢': `<!-- AAC 實心版：新生兒篩檢（檢查表打勾） -->
+  <rect x="17" y="16" width="22" height="28" rx="3" fill="#1A6B72"/>
+  <rect x="23" y="13" width="10" height="6" rx="2" fill="#1A6B72"/>
+  <path d="M22 30 L26 34 L34 24" fill="none" stroke="#FAF8F3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '胎盤處理': `<!-- AAC 實心版：胎盤處理（盤子+生命樹血管） -->
+  <path d="M13 37 C13 42 20 45 28 45 C36 45 43 42 43 37 Z" fill="#1A6B72"/>
+  <rect x="11" y="35" width="34" height="3" rx="1.5" fill="#1A6B72"/>
+  <ellipse cx="28" cy="27" rx="12" ry="9" fill="#1A6B72"/>
+  <path d="M28 18 C28 14 31 14 31 10" fill="none" stroke="#1A6B72" stroke-width="2.2" stroke-linecap="round"/>
+  <g fill="none" stroke="#FAF8F3" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M28 20 L28 35"/>
+    <path d="M28 20 C25 24 22 26 20 34"/>
+    <path d="M28 20 C31 24 34 26 36 34"/>
+    <path d="M28 20 C24 22 20 24 17 29"/>
+    <path d="M28 20 C32 22 36 24 39 29"/>
+    <path d="M28 29 L24 34"/>
+    <path d="M28 29 L32 34"/>
+    <path d="M23 25 L19 31"/>
+    <path d="M33 25 L37 31"/>
+  </g>`,
+    '立即親膚': `<!-- AAC 實心版：立即親膚（媽媽懷中依偎寶寶） -->
+  <circle cx="21" cy="16" r="6" fill="#1A6B72"/>
+  <path d="M10 44 C10 33 14 27 22 27 C31 27 37 32 38 41 L38 44 Z" fill="#1A6B72"/>
+  <circle cx="31" cy="28" r="4.8" fill="#FAF8F3"/>
+  <path d="M26 34 C26 31 36 31 36 35 C36 39 27 39.5 25.5 35.5Z" fill="#FAF8F3"/>
+  <path d="M16 33 C16 31.4 18 30.7 19 32 C20 30.7 22 31.4 22 33 C22 35 19 37 19 37 C19 37 16 35 16 33Z" fill="#FAF8F3"/>`,
+    '延後新生兒篩檢': `<!-- AAC 實心版：延後新生兒篩檢（檢查表+時鐘） -->
+  <rect x="15" y="14" width="20" height="26" rx="3" fill="#1A6B72"/>
+  <rect x="21" y="11" width="8" height="6" rx="2" fill="#1A6B72"/>
+  <path d="M20 26 L23 29 L30 21" fill="none" stroke="#FAF8F3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="36" cy="36" r="8" fill="#1A6B72" stroke="#FAF8F3" stroke-width="1.6"/>
+  <path d="M36 32 L36 36 L39 38" fill="none" stroke="#FAF8F3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '同室照護': `<!-- AAC 實心版：同室照護（嬰兒床） -->
+  <path d="M14 28 C14 26 16 25 18 25 L38 25 C40 25 42 26 42 28 L40 38 C40 39.5 38 40 28 40 C18 40 16 39.5 16 38 Z" fill="#1A6B72"/>
+  <circle cx="28" cy="20" r="4.5" fill="#1A6B72"/>
+  <path d="M20 44 L23 40 M36 44 L33 40" stroke="#1A6B72" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M22 31 C24 29 32 29 34 31" fill="none" stroke="#FAF8F3" stroke-width="1.8" stroke-linecap="round"/>`,
+    '眼藥水偏好': `<!-- AAC 實心版：眼藥水（眼睛+藥滴） -->
+  <path d="M14 30 C18 24 22 22 28 22 C34 22 38 24 42 30 C38 36 34 38 28 38 C22 38 18 36 14 30Z" fill="#1A6B72"/>
+  <circle cx="28" cy="30" r="5.5" fill="#FAF8F3"/>
+  <circle cx="28" cy="30" r="2.6" fill="#1A6B72"/>
+  <path d="M28 9 C28 9 25 13 25 15.5 C25 17.4 26.4 19 28 19 C29.6 19 31 17.4 31 15.5 C31 13 28 9 28 9Z" fill="#1A6B72"/>`,
+    '臍帶血': `<!-- AAC 實心版：臍帶血（採集袋+愛心） -->
+  <path d="M20 16 C20 13 36 13 36 16 L34 34 C34 37 22 37 22 34 Z" fill="#1A6B72"/>
+  <rect x="24" y="11" width="8" height="4" rx="2" fill="#1A6B72"/>
+  <path d="M28 37 L28 44" stroke="#1A6B72" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="28" cy="46" r="2" fill="#1A6B72"/>
+  <path d="M25 25 C25 23 27 22 28 23.5 C29 22 31 23 31 25 C31 27.5 28 29.5 28 29.5 C28 29.5 25 27.5 25 25Z" fill="#FAF8F3"/>`,
+    '伴侶在場': `<!-- AAC 實心版：伴侶在場（兩人並排） -->
+  <circle cx="19" cy="19" r="5" fill="#1A6B72"/>
+  <path d="M10 40 C10 32 14 29 19 29 C24 29 28 32 28 40 Z" fill="#1A6B72"/>
+  <circle cx="37" cy="19" r="5" fill="#1A6B72"/>
+  <path d="M28 40 C28 32 32 29 37 29 C42 29 46 32 46 40 Z" fill="#1A6B72"/>`,
+    '降下手術簾': `<!-- AAC 實心版：降下手術簾（產婦視角，越過布幔看見寶寶） -->
+  <circle cx="28" cy="15" r="6" fill="#1A6B72"/>
+  <path d="M20 31 C20 25 23 22 28 22 C33 22 36 25 36 31 Z" fill="#1A6B72"/>
+  <path d="M38 13 C38 11.5 40 10.8 41 12 C42 10.8 44 11.5 44 13 C44 15 41 17 41 17 C41 17 38 15 38 13Z" fill="#D98E5C"/>
+  <path d="M8 47 L8 39 C12 36 15 38 19 36 C23 34 27 38 31 36 C35 34 39 38 43 36 C45 35 48 37 48 39 L48 47 Z" fill="#1A6B72"/>
+  <path d="M15 40 L15 46 M22 39.5 L22 46 M29 40 L29 46 M36 39.5 L36 46 M42 40 L42 46" stroke="#FAF8F3" stroke-width="1" stroke-linecap="round"/>`,
+    '手術台接觸': `<!-- AAC 實心版：手術台肌膚接觸（躺著+心） -->
+  <rect x="10" y="34" width="36" height="3.5" rx="1.5" fill="#1A6B72"/>
+  <rect x="12" y="38" width="3" height="7" rx="1.5" fill="#1A6B72"/>
+  <rect x="41" y="38" width="3" height="7" rx="1.5" fill="#1A6B72"/>
+  <circle cx="16" cy="28" r="4.5" fill="#1A6B72"/>
+  <path d="M20 33 L41 33" stroke="#1A6B72" stroke-width="4" stroke-linecap="round"/>
+  <path d="M27 24 C27 22 29 21 30 22.3 C31 21 33 22 33 24 C33 26.5 30 28.5 30 28.5 C30 28.5 27 26.5 27 24Z" fill="#D98E5C"/>`,
+    '剖腹延遲斷臍': `<!-- AAC 實心版：剖腹延遲斷臍（胎盤+臍帶） -->
+  <circle cx="21" cy="34" r="9" fill="#1A6B72"/>
+  <path d="M28 30 C33 26 37 22 34 19 C31.5 16.5 29 19 31.5 21.5" fill="none" stroke="#1A6B72" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="31.5" cy="21.5" r="2.6" fill="#1A6B72"/>`,
+    '哺乳偏好': `<!-- AAC 實心版：哺乳偏好（媽媽哺育寶寶） -->
+  <circle cx="20" cy="17" r="5.5" fill="#7B5EA0"/>
+  <path d="M11 44 C11 33 15 27 22 27 C30 27 36 32 37 40 L37 44 Z" fill="#7B5EA0"/>
+  <circle cx="31" cy="32" r="4.5" fill="#FAF8F3"/>
+  <path d="M26 37 C26 34 35 34 35 38 C35 41.5 27 42 25.5 38Z" fill="#FAF8F3"/>`,
+    '生產梳': `<!-- AAC 實心版：生產梳（梳子） -->
+  <rect x="14" y="18" width="28" height="7" rx="3" fill="#7B5EA0"/>
+  <rect x="17" y="25" width="2.6" height="13" rx="1.3" fill="#7B5EA0"/>
+  <rect x="22" y="25" width="2.6" height="13" rx="1.3" fill="#7B5EA0"/>
+  <rect x="27" y="25" width="2.6" height="13" rx="1.3" fill="#7B5EA0"/>
+  <rect x="32" y="25" width="2.6" height="13" rx="1.3" fill="#7B5EA0"/>
+  <rect x="37" y="25" width="2.6" height="13" rx="1.3" fill="#7B5EA0"/>`,
+    '愛撫': `<!-- AAC 實心版：愛撫（手+愛心） -->
+  <path d="M14 22 C14 19.5 16 18 18.5 18 C21 18 23 19.5 23 22 L23 30 C23 33 21 35 18 35 C16.5 35 15.2 34.4 14.3 33.4 C12.8 33.9 11 33.1 11 31.3 C11 29.9 12.1 29.1 13.4 29.4 L14 29.6 Z" fill="#7B5EA0"/>
+  <path d="M30 27 C30 24.5 32.5 23 34 24.8 C35.5 23 38 24.5 38 27 C38 30.5 34 34 34 34 C34 34 30 30.5 30 27Z" fill="#7B5EA0"/>`,
+    '按摩棒': `<!-- AAC 實心版：按摩棒（震動） -->
+  <ellipse cx="24" cy="18" rx="7" ry="8" fill="#7B5EA0"/>
+  <path d="M18 20 L18 36 C18 39 21 41 24 41 C27 41 30 39 30 36 L30 20 Z" fill="#7B5EA0"/>
+  <path d="M34 14 C37 17 37 23 34 26" fill="none" stroke="#7B5EA0" stroke-width="2" stroke-linecap="round"/>
+  <path d="M38 11 C42 15 42 25 38 29" fill="none" stroke="#7B5EA0" stroke-width="1.6" stroke-linecap="round"/>`,
+    '與伴侶親密': `<!-- AAC 實心版：與伴侶親密（雙心相依） -->
+  <path d="M17 25 C17 21 20 19 23 21.5 C26 19 29 21 29 25 C29 29 23 34 23 34 C23 34 17 29 17 25Z" fill="#7B5EA0"/>
+  <path d="M27 28 C27 24.5 30 22.5 33 25 C36 22.5 39 24.5 39 28 C39 32 33 37 33 37 C33 37 27 32 27 28Z" fill="#7B5EA0" stroke="#FAF8F3" stroke-width="1.4"/>`,
+    '唱歌': `<!-- AAC 實心版：唱歌（麥克風） -->
+  <rect x="23" y="13" width="10" height="17" rx="5" fill="#7B5EA0"/>
+  <path d="M18 27 C18 33 22 37 28 37 C34 37 38 33 38 27" fill="none" stroke="#7B5EA0" stroke-width="2.4" stroke-linecap="round"/>
+  <rect x="26.5" y="37" width="3" height="7" rx="1.5" fill="#7B5EA0"/>
+  <rect x="21" y="44" width="14" height="3" rx="1.5" fill="#7B5EA0"/>`,
+    '冥想': `<!-- AAC 實心版：冥想（盤坐） -->
+  <circle cx="28" cy="15" r="5" fill="#7B5EA0"/>
+  <path d="M28 21 C23 21 19 26 18 33 C21 31 25 30 28 30 C31 30 35 31 38 33 C37 26 33 21 28 21Z" fill="#7B5EA0"/>
+  <ellipse cx="28" cy="36" rx="14" ry="5" fill="#7B5EA0"/>`,
+    '肯定語句': `<!-- AAC 實心版：肯定語句（對話泡泡+愛心） -->
+  <path d="M14 18 C14 16 16 14 18 14 L38 14 C40 14 42 16 42 18 L42 30 C42 32 40 34 38 34 L24 34 L17 40 L18.5 34 L18 34 C16 34 14 32 14 30Z" fill="#7B5EA0"/>
+  <path d="M28 20 C28 18 30 17 31 18.3 C32 17 34 18 34 20 C34 22.3 31 24.5 31 24.5 C31 24.5 28 22.3 28 20Z" fill="#FAF8F3"/>
+  <circle cx="22" cy="24" r="1.6" fill="#FAF8F3"/>`,
+    '使用密語': `<!-- AAC 實心版：使用密語（鑰匙） -->
+  <circle cx="21" cy="22" r="7" fill="#7B5EA0"/>
+  <circle cx="21" cy="22" r="2.8" fill="#FAF8F3"/>
+  <path d="M26 27 L39 40" stroke="#7B5EA0" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M34 35 L37 32 M38 39 L41 36" stroke="#7B5EA0" stroke-width="2.6" stroke-linecap="round"/>`,
+    '菌群移植': `<!-- AAC 實心版：菌群移植（試管+菌） -->
+  <path d="M25 12 L25 33 C25 37 31 37 31 33 L31 12" fill="none" stroke="#7B5EA0" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M25 25 L31 25 L31 33 C31 37 25 37 25 33 Z" fill="#7B5EA0"/>
+  <rect x="23" y="10" width="10" height="4" rx="2" fill="#7B5EA0"/>
+  <circle cx="19" cy="21" r="2.2" fill="#7B5EA0"/>
+  <circle cx="37" cy="25" r="1.8" fill="#7B5EA0"/>
+  <circle cx="18" cy="30" r="1.6" fill="#7B5EA0"/>`,
+    '媽媽親手引導': `<!-- AAC 實心版：媽媽親手引導（雙手捧著寶寶頭） -->
+  <circle cx="28" cy="21" r="7" fill="#7B5EA0"/>
+  <path d="M11 32 C11 38 18 43 28 43 C38 43 45 38 45 32 C45 35 44 37 42 38 C38 40 33 41 28 41 C23 41 18 40 14 38 C12 37 11 35 11 32Z" fill="#7B5EA0"/>
+  <path d="M18 38 L18 41 M24 40 L24 42.5 M32 40 L32 42.5 M38 38 L38 41" stroke="#FAF8F3" stroke-width="1" stroke-linecap="round"/>`,
+    '不給安撫奶嘴': `<!-- AAC 統一否定語法：奶嘴 + 粗 coral 圈斜線 -->
+  <circle cx="28" cy="23" r="7" fill="#1A6B72"/>
+  <circle cx="28" cy="35" r="5" fill="none" stroke="#1A6B72" stroke-width="2.6"/>
+  <circle cx="28" cy="28" r="17" fill="none" stroke="#D98E5C" stroke-width="4"/>
+  <line x1="16" y1="16" x2="40" y2="40" stroke="#D98E5C" stroke-width="4" stroke-linecap="round"/>`,
+    '不補充配方奶': `<!-- AAC 統一否定語法：奶瓶 + 粗 coral 圈斜線 -->
+  <path d="M23 15 L33 15 L33 18 C35 18 36 20 36 22 L36 37 C36 40 33 42 28 42 C23 42 20 40 20 37 L20 22 C20 20 21 18 23 18 Z" fill="#1A6B72"/>
+  <rect x="24" y="12" width="8" height="4" rx="2" fill="#1A6B72"/>
+  <circle cx="28" cy="28" r="17" fill="none" stroke="#D98E5C" stroke-width="4"/>
+  <line x1="16" y1="16" x2="40" y2="40" stroke="#D98E5C" stroke-width="4" stroke-linecap="round"/>`,
+    '蓮花生產': `<!-- AAC 實心版：蓮花生產（蓮花） -->
+  <path d="M28 38 C28 30 23 24 21 20 C25 20 28 25 28 25 C28 25 31 20 35 20 C33 24 28 30 28 38Z" fill="#7B5EA0"/>
+  <path d="M28 38 C21 36 15 30 15 26 C19 26 25 30 28 38Z" fill="#7B5EA0"/>
+  <path d="M28 38 C35 36 41 30 41 26 C37 26 31 30 28 38Z" fill="#7B5EA0"/>`,
+    '胎盤膠囊化': `<!-- AAC 實心版：胎盤膠囊化（胎盤→膠囊） -->
+  <circle cx="19" cy="24" r="8" fill="#7B5EA0"/>
+  <path d="M13 24 L15 20 M19 24 L19 18 M25 24 L24 20" stroke="#FAF8F3" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M30 24 L37 24 M35 22 L37 24 L35 26" fill="none" stroke="#7B5EA0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="38" y="18" width="9" height="15" rx="4.5" fill="#7B5EA0"/>
+  <path d="M38.5 25.5 L46.5 25.5" stroke="#FAF8F3" stroke-width="1.3" stroke-linecap="round"/>`,
+    'VBAC': `<!-- AAC 實心版：VBAC（子宮+向上產道箭頭） -->
+  <path d="M18 28 C18 20 22 16 28 16 C34 16 38 20 38 28 C38 34 34 38 28 40 C24 40 20 38 18 34Z" fill="#7B5EA0"/>
+  <path d="M28 35 L28 22 M23 27 L28 22 L33 27" fill="none" stroke="#FAF8F3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '會陰按摩': `<!-- AAC 實心版：會陰按摩（手指+畫圈按摩） -->
+  <path d="M16 22 C16 19.5 18 18 20.5 18 C23 18 25 19.5 25 22 L25 30 C25 33 23 35 20 35 C18.5 35 17.2 34.4 16.3 33.4 C14.8 33.9 13 33.1 13 31.3 C13 29.9 14.1 29.1 15.4 29.4 L16 29.6 Z" fill="#7B5EA0"/>
+  <path d="M31 23 C34.5 21.5 39 23 39.5 27 C40 31.5 36.5 35 32.5 34.5" fill="none" stroke="#7B5EA0" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M32.5 34.5 L30.5 32.6 M32.5 34.5 L34.8 33.2" fill="none" stroke="#7B5EA0" stroke-width="2" stroke-linecap="round"/>`,
+    '知情同意': `<!-- AAC 實心版：知情同意（對話泡泡+內容） -->
+  <path d="M14 18 C14 16 16 14 18 14 L38 14 C40 14 42 16 42 18 L42 30 C42 32 40 34 38 34 L24 34 L17 40 L18.5 34 L18 34 C16 34 14 32 14 30 Z" fill="#1A6B72"/>
+  <path d="M20 21 L36 21 M20 26 L31 26" stroke="#FAF8F3" stroke-width="2" stroke-linecap="round"/>`,
+    '冷熱敷': `<!-- AAC 實心版：冷熱敷（敷袋+雪花） -->
+  <rect x="17" y="19" width="22" height="18" rx="5" fill="#4A8EA0"/>
+  <path d="M28 23 L28 33 M24 25 L32 31 M32 25 L24 31 M23.5 28 L32.5 28" stroke="#FAF8F3" stroke-width="1.4" stroke-linecap="round"/>`,
 
-    '自由進食與飲水': `
-  <!-- 蘋果 -->
-  <path d="M22 22 C22 18 26 16 28 18 C30 16 34 18 34 22 C34 28 31 32 28 32 C25 32 22 28 22 22Z" fill="none" stroke="#4A8EA0" stroke-width="1.8"/>
-  <path d="M28 18 C28 16 30 14 30 14" fill="none" stroke="#4A8EA0" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- 水滴 -->
-  <path d="M36 24 C36 21 39 19 39 22 C39 24 37.5 25 36 24Z" fill="none" stroke="#4A8EA0" stroke-width="1.4"/>`,
+    '自由進食與飲水': `<!-- AAC 實心版：自由進食與飲水（蘋果+水滴） -->
+  <path d="M28 20 C25 17 21 18 21 23 C21 28 25 34 28 34 C31 34 35 28 35 23 C35 18 31 17 28 20Z" fill="#4A8EA0"/>
+  <path d="M28 20 C28 16 30 15 31 14" fill="none" stroke="#4A8EA0" stroke-width="2" stroke-linecap="round"/>
+  <path d="M41 25 C41 21.5 44 19.5 44 23.5 C44 26 42.5 27 41 25Z" fill="#4A8EA0"/>`,
 
-    '與伴侶親密接觸': `
-  <!-- 兩個人靠近 -->
-  <circle cx="23" cy="20" r="5" fill="none" stroke="#4A8EA0" stroke-width="1.8"/>
-  <path d="M14 34 C14 28 18 25 23 25 C28 25 32 28 32 34" fill="none" stroke="#4A8EA0" stroke-width="1.8" stroke-linecap="round"/>
-  <circle cx="33" cy="20" r="5" fill="none" stroke="#4A8EA0" stroke-width="1.8"/>
-  <path d="M28 34 C28 28 32 25 37 25 C42 25 46 28 46 34" fill="none" stroke="#4A8EA0" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- 心 -->
-  <path d="M27 17 C27 15 29 14 30 16 C31 14 33 15 33 17 C33 19 30 21 30 21 C30 21 27 19 27 17Z" fill="#4A8EA0" opacity="0.4"/>`,
+    '與伴侶親密接觸': `<!-- AAC 實心版：與伴侶親密接觸（兩人相依+心） -->
+  <circle cx="21" cy="19" r="5" fill="#4A8EA0"/>
+  <path d="M12 38 C12 30 16 27 21 27 C26 27 30 30 30 38 Z" fill="#4A8EA0"/>
+  <circle cx="35" cy="19" r="5" fill="#4A8EA0"/>
+  <path d="M26 38 C26 30 30 27 35 27 C40 27 44 30 44 38 Z" fill="#4A8EA0"/>
+  <path d="M25 13 C25 11 27 10 28 11.5 C29 10 31 11 31 13 C31 15.5 28 17.5 28 17.5 C28 17.5 25 15.5 25 13Z" fill="#D98E5C"/>`,
 
 
-    '寶寶伴侶隨行': `<!-- 伴侶小人 + 寶寶小圓 一起走 -->
-  <!-- 伴侶 -->
-  <circle cx="20" cy="18" r="4" fill="none" stroke="#5A7AA8" stroke-width="1.6"/>
-  <path d="M20 22 L20 34" stroke="#5A7AA8" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M14 27 L20 23 L26 27" fill="none" stroke="#5A7AA8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M20 34 L17 42 M20 34 L23 42" fill="none" stroke="#5A7AA8" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- 寶寶小圓 在旁邊 -->
-  <circle cx="36" cy="30" r="6" fill="none" stroke="#5A7AA8" stroke-width="1.6"/>
-  <path d="M32 33 C33 35 35 36 36 36 C37 36 39 35 40 33" fill="none" stroke="#5A7AA8" stroke-width="1.2" stroke-linecap="round"/>
-  <!-- 連線（陪同）-->
-  <path d="M26 30 C28 30 30 30 30 30" stroke="#5A7AA8" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2,2"/>
-  <!-- 愛心 -->
-  <path d="M34 22 C34 20 36 19 37 20 C38 19 40 20 40 22 C40 24 37 26 37 26 C37 26 34 24 34 22Z" fill="none" stroke="#5A7AA8" stroke-width="1.2" opacity="0.6"/>`,
-    '伴侶親膚': `<!-- 伴侶胸口 + 寶寶袋鼠式 -->
-  <!-- 伴侶頭 -->
-  <circle cx="20" cy="17" r="5" fill="none" stroke="#5A7AA8" stroke-width="1.6"/>
-  <!-- 伴侶身體/胸口 -->
-  <path d="M15 40 C15 32 18 27 28 26 C34 27 36 30 36 35" fill="none" stroke="#5A7AA8" stroke-width="1.7" stroke-linecap="round"/>
-  <!-- 手臂環抱 -->
-  <path d="M15 30 C17 28 20 27 22 28" fill="none" stroke="#5A7AA8" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M36 33 C38 31 40 30 40 33" fill="none" stroke="#5A7AA8" stroke-width="1.4" stroke-linecap="round"/>
-  <!-- 寶寶小頭 貼在胸口 -->
-  <circle cx="30" cy="28" r="5" fill="none" stroke="#5A7AA8" stroke-width="1.5"/>
-  <path d="M27 31 C28 33 32 33 33 31" fill="none" stroke="#5A7AA8" stroke-width="1.2" stroke-linecap="round"/>
-  <!-- 溫暖光暈 -->
-  <circle cx="27" cy="30" r="12" fill="none" stroke="#5A7AA8" stroke-width="0.7" opacity="0.18"/>`,
+    '寶寶伴侶隨行': `<!-- AAC 實心版：寶寶伴侶隨行（伴侶+寶寶同行） -->
+  <circle cx="19" cy="17" r="5" fill="#5A7AA8"/>
+  <path d="M10 40 C10 31 14 27 19 27 C24 27 28 31 28 40 Z" fill="#5A7AA8"/>
+  <circle cx="37" cy="30" r="6" fill="#5A7AA8"/>
+  <path d="M33 32 C34 34 40 34 41 32" fill="none" stroke="#FAF8F3" stroke-width="1.4" stroke-linecap="round"/>`,
+    '伴侶親膚': `<!-- AAC 實心版：伴侶親膚（伴侶懷中依偎寶寶） -->
+  <circle cx="21" cy="16" r="6" fill="#5A7AA8"/>
+  <path d="M10 44 C10 33 14 27 22 27 C31 27 37 32 38 41 L38 44 Z" fill="#5A7AA8"/>
+  <circle cx="31" cy="28" r="4.8" fill="#FAF8F3"/>
+  <path d="M26 34 C26 31 36 31 36 35 C36 39 27 39.5 25.5 35.5Z" fill="#FAF8F3"/>`,
   };
 
   function getIcon(label, cx, cy, size=44){
@@ -2879,10 +2745,17 @@ function renderVisualPlan(){
           parts.push(`<rect x="${cx_c}" y="${flowRow}" width="${FIXED_CW}" height="4" rx="12" fill="${c.sec.cfg.bar}" opacity="0.8"/>`);
           parts.push(bubble(cx, cy_icon, 21, c.sec.cfg.bub));
           parts.push(getIcon(c.item.label, cx, cy_icon, 44));
-          var lbl = c.item.label.length>6 ? c.item.label.slice(0,5)+'…' : c.item.label;
-          var nt = c.item.note.slice(0,8);
-          parts.push(`<text x="${cx}" y="${flowRow+CARD_H-17}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C" text-anchor="middle" font-weight="600">${lbl}</text>`);
-          parts.push(`<text x="${cx}" y="${flowRow+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${nt}</text>`);
+          var wl = wrapCardLabel(c.item.label, FIXED_CW - 12);
+          if(wl.lines.length === 1){
+            // 標籤一行 → 底下保留 note（使用者的簡短值）
+            parts.push(`<text x="${cx}" y="${flowRow+CARD_H-17}" font-family="Noto Sans TC" font-size="${wl.fs}" fill="#2A4A5C" text-anchor="middle" font-weight="600">${escSvg(wl.lines[0])}</text>`);
+            var nt = (c.item.note||'').toString();
+            if(nt) parts.push(`<text x="${cx}" y="${flowRow+CARD_H-5}" font-family="Noto Sans TC" font-size="7.5" fill="#6A8898" text-anchor="middle">${escSvg(nt.length>10 ? nt.slice(0,9)+'…' : nt)}</text>`);
+          } else {
+            // 標籤兩行 → 完整顯示標籤，note 讓位（標籤語意優先）
+            parts.push(`<text x="${cx}" y="${flowRow+CARD_H-22}" font-family="Noto Sans TC" font-size="${wl.fs}" fill="#2A4A5C" text-anchor="middle" font-weight="600">${escSvg(wl.lines[0])}</text>`);
+            parts.push(`<text x="${cx}" y="${flowRow+CARD_H-11}" font-family="Noto Sans TC" font-size="${wl.fs}" fill="#2A4A5C" text-anchor="middle" font-weight="600">${escSvg(wl.lines[1])}</text>`);
+          }
         } else {
           // Placeholder
           parts.push(`<rect x="${cx_c}" y="${flowRow}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${c.sec.cfg.card}" opacity="0.2"/>`);
@@ -3332,6 +3205,27 @@ async function downloadPDFFile(){
 // 部署 worker 後把這裡換成你的 Worker 網址（見 worker/README.md）
 const EMAIL_WORKER_URL = 'https://wave-email.oceandoula.workers.dev';
 
+// 共用寄信核心：把計畫書 POST 給 Worker。回傳 true/false。
+async function postPlanEmail(planHtml, attachments){
+  const isEN = currentLang === 'en';
+  const email = (state.user && state.user.email) || '';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return false;
+  if(!planHtml) return false;
+  const res = await fetch(EMAIL_WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: (state.user && state.user.name) || '',
+      email,
+      planHtml,
+      attachments: attachments || [],
+      lang: isEN ? 'en' : 'zh'
+    })
+  });
+  return res.ok;
+}
+
+// 使用者主動按「寄到我的信箱」
 async function emailMyPlan(){
   const isEN = currentLang === 'en';
   const btn = document.querySelector('.btn-email-plan');
@@ -3357,18 +3251,9 @@ async function emailMyPlan(){
   }
 
   try {
-    const res = await fetch(EMAIL_WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: (state.user && state.user.name) || '',
-        email,
-        planHtml,
-        attachments,
-        lang: isEN ? 'en' : 'zh'
-      })
-    });
-    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const ok = await postPlanEmail(planHtml, attachments);
+    if(!ok) throw new Error('send failed');
+    state.autoEmailSent = true; saveState();
     if(msg) msg.textContent = isEN ? `✅ Sent to ${email}` : `✅ 已寄到 ${email}`;
   } catch(e){
     console.error('email error', e);
@@ -3376,6 +3261,33 @@ async function emailMyPlan(){
   } finally {
     btn.disabled = false;
   }
+}
+
+// 計畫書生成後自動寄一次（含評論邀請）。每人只寄一次，避免重複生成洗信。
+async function autoEmailPlan(){
+  if(state.autoEmailSent) return;                       // 已寄過就不再寄
+  const email = (state.user && state.user.email) || '';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return; // 沒有有效 email 就跳過
+  const planEl = document.getElementById('aiPlanContent');
+  const planHtml = planEl ? planEl.innerHTML : '';
+  if(!planHtml) return;
+
+  const isEN = currentLang === 'en';
+  const msg = document.getElementById('emailPlanMsg');
+
+  // 自動寄的是文字版（此時多半尚未解鎖視覺版）；有解鎖就一起帶附件
+  let attachments = [];
+  try { attachments = await buildVisualAttachments(); } catch(e){ /* 附件是加分，失敗照寄 */ }
+
+  try {
+    const ok = await postPlanEmail(planHtml, attachments);
+    if(ok){
+      state.autoEmailSent = true; saveState();
+      if(msg) msg.textContent = isEN
+        ? `📩 We’ve also emailed this to ${email} — check your inbox and leave us a star 💛`
+        : `📩 我們也把計畫書寄到 ${email} 了，記得收信、順手給我們一顆星 💛`;
+    }
+  } catch(e){ console.warn('auto email skipped', e); }  // 靜默失敗，不干擾使用者
 }
 
 // 產生視覺計畫書的附件清單（PDF + 每頁 PNG）；未解鎖/未渲染則回傳空陣列
