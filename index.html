@@ -1053,9 +1053,28 @@ const LANG = {
     themeOriginal: '原本配色', themeMermaid: '美人魚配色',
     visualH3: '🗺 妳的視覺生產計畫書',
     visualSub: '一頁圖卡版，帶去產房讓醫護團隊一眼掌握妳的想法',
-    lockH4: '預約諮詢，解鎖視覺計畫書',
-    lockP: '預約 Naphy 的生產計畫諮詢後，妳會在諮詢當天拿到這份可以帶去產房的精美版本。',
+    lockH4: '輸入解鎖碼，立即查看視覺計畫書',
+    lockP: '購買後 email 裡有解鎖碼，輸入就能立刻看到並下載妳的視覺計畫書。',
     lockBtn: '預約生產計畫諮詢，解鎖計畫書 →',
+    unlockH3: '🔑 已購買？輸入解鎖碼',
+    unlockP: '購買完成後，妳的 email 裡會有一組解鎖碼。輸入後即可立刻查看並列印視覺計畫書。',
+    unlockPlaceholder: '輸入解鎖碼，例如：WAVE9',
+    unlockBtn: '解鎖',
+    dlPng: '📥 下載 PNG 圖檔', dlPdf: '📄 下載 PDF 檔案', dlPrint: '🖨 列印',
+    tier1Badge: '🌊 Launch 優惠至 8/31',
+    tier1Price: '隨心定價', tier1PriceSub: '建議 $9 · 最低 $3 ☕🧋',
+    tier1Name: '視覺圖卡下載',
+    tier1Desc: '精美一頁式視覺計畫書，可列印帶去產房。隨心定價，最低一杯咖啡或珍奶的錢（$3）。優惠至 2026 年 8 月 31 日，之後恢復原價 $19。',
+    tier1Btn: '立刻購買 →',
+    tier2Badge: '⭐ 最推薦',
+    tier2Name: '視覺計畫書 + 一對一諮詢',
+    tier2Desc: '視覺計畫書 + 與 Naphy 的 60 分鐘一對一諮詢，讓計畫真正被醫療團隊聽見。',
+    tier2Btn: '預約 + 購買 →',
+    fbH3: '💬 這個工具對妳有幫助嗎？',
+    fbP: '點星星就完成！匿名，1 秒鐘。',
+    fbThanks: '謝謝妳的回饋！🌊',
+    freeTextLink: '↓ 下載文字版計畫書（免費）',
+    backAdjust: '← 回去再調整選項',
     ctaTag: '文字版副本',
     ctaH4: '下載文字版計畫書',
     ctaP: '先把文字版存起來備用，帶著它去產檢時可以跟醫師討論，視覺版等諮詢時再一起完成。',
@@ -1111,9 +1130,28 @@ const LANG = {
     themeOriginal: 'Original colours', themeMermaid: 'Mermaid colours',
     visualH3: '🗺 Your Visual Birth Plan',
     visualSub: 'A one-page icon card — bring it to the labour ward so your care team can understand your wishes at a glance',
-    lockH4: 'Book a consultation to unlock your visual plan',
-    lockP: 'After booking a birth plan consultation with Naph, you\'ll receive this beautiful visual plan on the day of your session.',
+    lockH4: 'Enter your unlock code to view your visual plan',
+    lockP: 'After purchase, your email contains an unlock code — enter it to view and download your visual plan right away.',
     lockBtn: 'Book Consultation & Unlock →',
+    unlockH3: '🔑 Already purchased? Enter your code',
+    unlockP: 'After purchase you\'ll find an unlock code in your email. Enter it to view and print your visual plan right away.',
+    unlockPlaceholder: 'Enter code, e.g. WAVE9',
+    unlockBtn: 'Unlock',
+    dlPng: '📥 Download PNG', dlPdf: '📄 Download PDF', dlPrint: '🖨 Print',
+    tier1Badge: '🌊 Launch offer until 31 Aug',
+    tier1Price: 'Pay what you want', tier1PriceSub: 'suggested $9 · min $3 ☕🧋',
+    tier1Name: 'Visual plan download',
+    tier1Desc: 'A beautiful one-page visual birth plan you can print and bring to the birth room. Pay what you want — from the price of a coffee ($3). Offer ends 31 Aug 2026, then $19.',
+    tier1Btn: 'Buy now →',
+    tier2Badge: '⭐ Most popular',
+    tier2Name: 'Visual plan + 1:1 consultation',
+    tier2Desc: 'Your visual plan plus a 60-minute one-on-one consultation with Naphy, so your plan is truly heard by your care team.',
+    tier2Btn: 'Book + buy →',
+    fbH3: '💬 Was this tool helpful?',
+    fbP: 'Just tap a star — anonymous, takes 1 second.',
+    fbThanks: 'Thank you for your feedback! 🌊',
+    freeTextLink: '↓ Download text plan (free)',
+    backAdjust: '← Go back and adjust',
     ctaTag: 'Text version',
     ctaH4: 'Download Text Birth Plan',
     ctaP: 'Save the text version to review with your doctor. Your visual plan will be completed together in your consultation.',
@@ -1411,7 +1449,6 @@ function loadState(){
 
 const stageOrder = ['hero','philosophy','gate','builder','finish'];
 const tideMap = {hero:4, philosophy:22, gate:40, builder:75, finish:100};
-const labelMap = {hero:'開始', philosophy:'第 1 步・了解妳', gate:'第 2 步・解鎖', builder:'第 3 步・建立計畫', finish:'完成'};
 
 function goTo(stage){
   document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
@@ -1419,7 +1456,7 @@ function goTo(stage){
   if(!el){ console.error('Stage not found:', stage); return; }
   el.classList.add('active');
   document.getElementById('tideFill').style.width = tideMap[stage]+'%';
-  document.getElementById('stepLabel').textContent = labelMap[stage];
+  document.getElementById('stepLabel').textContent = LANG[currentLang].stepLabel[stage];
   window.scrollTo({top:0, behavior:'smooth'});
   if(stage==='builder'){
     renderBuilder();
@@ -1497,13 +1534,17 @@ function setLang(lang) {
   document.querySelector('#stage-builder .sub').textContent = L.builderSub;
   document.getElementById('progTotal').textContent = L.progTotal;
   document.getElementById('progCurrent').textContent = L.progCurrent(totalAnswered());
-  document.querySelector('.builder-nav .btn-ghost').textContent = L.builderBack;
-  document.querySelector('.builder-nav .btn-next').textContent = L.builderNext;
+  const bNav = document.querySelector('#stage-builder .builder-nav');
+  if(bNav){
+    const bg = bNav.querySelector('.btn-ghost'); if(bg) bg.textContent = L.builderBack;
+    const bn = bNav.querySelector('.btn-next'); if(bn) bn.textContent = L.builderNext;
+  }
   
   // Finish
   document.querySelector('.finish-wrap h2').textContent = L.finishH2;
-  document.querySelector('.lbl:first-of-type') && (document.querySelectorAll('.lbl')[0].textContent = L.statSelectedLbl);
-  document.querySelectorAll('.lbl')[1] && (document.querySelectorAll('.lbl')[1].textContent = L.statCatsLbl);
+  const statLbls = document.querySelectorAll('.finish-stat .lbl');
+  if(statLbls[0]) statLbls[0].textContent = L.statSelectedLbl;
+  if(statLbls[1]) statLbls[1].textContent = L.statCatsLbl;
   document.querySelector('.ai-section h3').textContent = L.aiH3;
   document.querySelector('.ai-sub').textContent = L.aiSub;
   document.querySelector('#aiLoading p').textContent = L.aiLoading;
@@ -1518,17 +1559,68 @@ function setLang(lang) {
   document.querySelector('.vs-subhead').textContent = L.visualSub;
   document.querySelector('.plan-lock-overlay h4').textContent = L.lockH4;
   document.querySelector('.plan-lock-overlay p').textContent = L.lockP;
-  document.querySelector('.btn-unlock').textContent = L.lockBtn;
-  
+  // .btn-unlock 已從頁面移除,保留 null 防護避免整個 setLang 中斷
+  const unlockCta = document.querySelector('.btn-unlock');
+  if(unlockCta) unlockCta.textContent = L.lockBtn;
+
+  // Unlock section + download buttons
+  const unlockSec = document.querySelector('.unlock-section');
+  if(unlockSec){
+    unlockSec.querySelector('h3').textContent = L.unlockH3;
+    unlockSec.querySelector('.unlock-inner > p').textContent = L.unlockP;
+    document.getElementById('unlockInput').placeholder = L.unlockPlaceholder;
+    document.getElementById('unlockBtn').textContent = L.unlockBtn;
+    document.querySelector('.btn-dl-png').textContent = L.dlPng;
+    document.querySelector('.btn-dl-pdf').textContent = L.dlPdf;
+    document.querySelector('.btn-dl-print').textContent = L.dlPrint;
+  }
+
+  // Pricing cards
+  const t1 = document.getElementById('stripe9Link');
+  if(t1){
+    t1.querySelector('.tier-badge').textContent = L.tier1Badge;
+    t1.querySelector('.tier-price').innerHTML = `${L.tier1Price} <span style="font-size:12px;font-weight:400;opacity:.7;">${L.tier1PriceSub}</span>`;
+    t1.querySelector('.tier-name').textContent = L.tier1Name;
+    t1.querySelector('.tier-desc').textContent = L.tier1Desc;
+    t1.querySelector('.tier-btn').textContent = L.tier1Btn;
+  }
+  const t2 = document.getElementById('stripe97Link');
+  if(t2){
+    t2.querySelector('.tier-badge').textContent = L.tier2Badge;
+    t2.querySelector('.tier-name').textContent = L.tier2Name;
+    t2.querySelector('.tier-desc').textContent = L.tier2Desc;
+    t2.querySelector('.tier-btn').textContent = L.tier2Btn;
+  }
+
+  // Feedback stars
+  const fb = document.getElementById('feedbackSection');
+  if(fb){
+    fb.querySelector('h3').textContent = L.fbH3;
+    fb.querySelector('.feedback-inner > p').textContent = L.fbP;
+    const thx = document.getElementById('starThanks');
+    if(thx) thx.textContent = L.fbThanks;
+  }
+
+  // Free text download link + back button + footer
+  const freeLink = document.querySelector('a[onclick*="downloadPdf"]');
+  if(freeLink) freeLink.textContent = L.freeTextLink;
+  const backBtn = document.querySelector('#stage-finish .btn-ghost[onclick*="builder"]');
+  if(backBtn) backBtn.textContent = L.backAdjust;
+  const footEl = document.querySelector('footer');
+  if(footEl && footEl.childNodes[0]) footEl.childNodes[0].textContent = L.footer;
+
   // Step label
   const stageId = document.querySelector('.stage.active')?.id?.replace('stage-','') || 'hero';
   document.getElementById('stepLabel').textContent = L.stepLabel[stageId] || '';
-  
-  // Re-render builder if visible
+
+  // Re-render dynamic stages if visible
   if(document.getElementById('stage-builder').classList.contains('active')) {
     renderBuilder();
   }
-  
+  if(document.getElementById('stage-finish').classList.contains('active')) {
+    renderFinish();
+  }
+
   // Re-render philosophies
   renderPhilosophy();
 }
@@ -1599,8 +1691,10 @@ function totalAnswered(){
 
 function getCats(){ return currentLang === 'en' ? CATEGORIES_EN : CATEGORIES; }
 function renderBuilder(){
-  document.getElementById('builderGreeting').textContent =
-    state.user.name ? `${state.user.name}，WAVE 正在為妳準備計畫` : 'WAVE 正在為妳準備計畫';
+  const bgEN = currentLang === 'en';
+  document.getElementById('builderGreeting').textContent = bgEN
+    ? (state.user.name ? `${state.user.name}, WAVE is preparing your plan` : 'WAVE is preparing your plan')
+    : (state.user.name ? `${state.user.name}，WAVE 正在為妳準備計畫` : 'WAVE 正在為妳準備計畫');
   document.getElementById('progCurrent').textContent = LANG[currentLang].progCurrent(totalAnswered());
 
   const list = document.getElementById('categoryList');
@@ -1757,8 +1851,10 @@ function removeAnswer(){
    FINISH
 =========================================================== */
 function renderFinish(){
-  document.getElementById('finishName').textContent =
-    state.user.name ? `${state.user.name}，妳的計畫已經準備好了` : '妳的計畫已經準備好了';
+  const fnEN = currentLang === 'en';
+  document.getElementById('finishName').textContent = fnEN
+    ? (state.user.name ? `${state.user.name}, your plan is ready` : 'Your plan is ready')
+    : (state.user.name ? `${state.user.name}，妳的計畫已經準備好了` : '妳的計畫已經準備好了');
   document.getElementById('statSelected').textContent = totalAnswered();
   document.getElementById('statCats').textContent = getCats().filter(c=>answeredCountForCategory(c)>0).length;
   // bookingLink removed
@@ -2484,11 +2580,46 @@ function renderVisualPlan(){
     unexpected:    {e:'🧭', bar:'#C8D8EC', card:'#EAF0F8', bub:'#C8D8EC', tc:'#1A3A4A'},
   };
 
-  const SEC_NAMES = {
+  const SEC_NAMES_ZH = {
     before:'產前準備', environment:'生產環境', pain:'疼痛管理',
     labor:'產程中', pushing:'用力與生產', csection_pref:'若需要剖腹產',
     postpartum:'產後黃金時刻', unexpected:'若情況有變化',
   };
+  const SEC_NAMES_EN = {
+    before:'Before birth', environment:'Environment', pain:'Pain relief',
+    labor:'During labour', pushing:'Pushing & birth', csection_pref:'If C-section',
+    postpartum:'Golden hour', unexpected:'If things change',
+  };
+  const SEC_NAMES = currentLang === 'en' ? SEC_NAMES_EN : SEC_NAMES_ZH;
+
+  // 卡片標籤英譯(icon 仍用中文 key 查 ICON_MAP,只有顯示文字換語言)
+  const ICON_LABEL_EN = {
+    '陪產者':'Support person','入院時機':'Admission timing','生產地點':'Birth place','燈光':'Lighting',
+    '音樂':'Music','室溫':'Room temp','隱私':'Privacy','香氛':'Aromatherapy','自帶物品':'Own items',
+    '陪產人數':'Companions','拍照錄影':'Photos & video','保持安靜':'Quiet please','減痛告知':'Ask me first',
+    '按摩舒緩':'Soothing touch','音樂舒緩':'Calming music','自由飲食':'Eat & drink','水中減痛':'Water relief',
+    '催眠生產':'Hypnobirthing','按摩':'Massage','TENS 電療':'TENS','笑氣':'Gas & air','減痛分娩':'Epidural',
+    '針劑止痛':'IV pain relief','胎兒監測':'Monitoring','自由活動':'Free movement','內診':'Fewer exams',
+    '引產偏好':'Induction','無線監測':'Wireless monitor','補水方式':'Hydration','骨盆活動':'Pelvic motion',
+    '靠生產球':'Birth ball','花生球':'Peanut ball','生產椅':'Birth stool','額外枕頭':'Extra pillows',
+    '水中生產':'Water birth','自然破水':'Natural rupture','避免 Oxytocin':'No oxytocin',
+    '避免子宮按壓':'No fundal pressure','延遲斷臍':'Delayed clamping','順應宮縮':'Spontaneous pushing',
+    '使用把桿':'Squat bar','使用鏡子':'Mirror','捕捉畫面':'Capture moment','會陰保護':'Perineal care',
+    '避免側切':'No episiotomy','避免產鉗':'No forceps','支持者剪臍':'Partner cuts cord','延後沐浴':'Delay first bath',
+    '維生素K':'Vitamin K','新生兒篩檢':'Newborn screening','胎盤處理':'Placenta plans','立即親膚':'Skin-to-skin',
+    '延後新生兒篩檢':'Delay screening','同室照護':'Rooming-in','眼藥水偏好':'Eye ointment','臍帶血':'Cord blood',
+    '伴侶在場':'Partner present','降下手術簾':'Lower the drape','手術台接觸':'Touch in theatre',
+    '剖腹延遲斷臍':'Delayed clamp (CS)','哺乳偏好':'Feeding wishes','生產梳':'Birth comb','愛撫':'Gentle touch',
+    '按摩棒':'Massager','與伴侶親密':'Intimacy','唱歌':'Singing','冥想':'Meditation','肯定語句':'Affirmations',
+    '使用密語':'Code word','菌群移植':'Vaginal seeding','媽媽親手引導':'Guide baby out','不給安撫奶嘴':'No pacifier',
+    '不補充配方奶':'No formula','蓮花生產':'Lotus birth','胎盤膠囊化':'Encapsulation','VBAC':'VBAC',
+    '會陰按摩':'Perineal massage','知情同意':'Informed consent','冷熱敷':'Hot & cold packs',
+    '自由進食與飲水':'Eat & drink freely','與伴侶親密接觸':'Close with partner','寶寶伴侶隨行':'Partner with baby',
+    '伴侶親膚':'Partner skin-to-skin'
+  };
+  function dispLabel(label){
+    return currentLang === 'en' ? (ICON_LABEL_EN[label] || label) : label;
+  }
 
   // ── Collect answers by section ───────────────────────────────
   const cats = getCats();
@@ -2562,17 +2693,18 @@ function renderVisualPlan(){
 
   if(activeSections.length === 0){
     // Demo mode - use all sections
+    const demoEN = currentLang === 'en';
     const demoSecs = [
-      {id:'environment', name:'生產環境', cfg:SEC_CFG.environment,
-       items:[{label:'燈光',note:'調暗'},{label:'音樂',note:'播放清單'},{label:'隱私',note:'限制進出'},{label:'香氛',note:'精油擴香'},{label:'室溫',note:'偏涼'}]},
-      {id:'pain', name:'疼痛管理', cfg:SEC_CFG.pain,
-       items:[{label:'減痛分娩',note:'硬脊膜外'},{label:'按摩',note:'支持者'},{label:'催眠生產',note:'呼吸放鬆'},{label:'笑氣',note:'吸入止痛'},{label:'水中減痛',note:'溫水淋浴'}]},
-      {id:'labor', name:'產程中', cfg:SEC_CFG.labor,
-       items:[{label:'胎兒監測',note:'間歇為主'},{label:'靠生產球',note:'趴球舒緩'},{label:'自由活動',note:'站立走動'},{label:'補水方式',note:'飲水冰塊'},{label:'花生球',note:'開骨盆'}]},
-      {id:'pushing', name:'用力與生產', cfg:SEC_CFG.pushing,
-       items:[{label:'順應宮縮',note:'自然用力'},{label:'延遲斷臍',note:'臍帶停跳'},{label:'捕捉畫面',note:'拍照錄影'},{label:'會陰保護',note:'溫敷保護'}]},
-      {id:'postpartum', name:'產後黃金時刻', cfg:SEC_CFG.postpartum,
-       items:[{label:'立即親膚',note:'出生後'},{label:'延後沐浴',note:'先親膚'},{label:'維生素K',note:'同意注射'},{label:'同室照護',note:'寶寶陪伴'}]},
+      {id:'environment', name:SEC_NAMES.environment, cfg:SEC_CFG.environment,
+       items:[{label:'燈光',note:demoEN?'dimmed':'調暗'},{label:'音樂',note:demoEN?'playlist':'播放清單'},{label:'隱私',note:demoEN?'limit entry':'限制進出'},{label:'香氛',note:demoEN?'oils':'精油擴香'},{label:'室溫',note:demoEN?'cool':'偏涼'}]},
+      {id:'pain', name:SEC_NAMES.pain, cfg:SEC_CFG.pain,
+       items:[{label:'減痛分娩',note:demoEN?'epidural':'硬脊膜外'},{label:'按摩',note:demoEN?'by partner':'支持者'},{label:'催眠生產',note:demoEN?'breathing':'呼吸放鬆'},{label:'笑氣',note:demoEN?'gas & air':'吸入止痛'},{label:'水中減痛',note:demoEN?'warm shower':'溫水淋浴'}]},
+      {id:'labor', name:SEC_NAMES.labor, cfg:SEC_CFG.labor,
+       items:[{label:'胎兒監測',note:demoEN?'intermittent':'間歇為主'},{label:'靠生產球',note:demoEN?'leaning':'趴球舒緩'},{label:'自由活動',note:demoEN?'walking':'站立走動'},{label:'補水方式',note:demoEN?'sips & ice':'飲水冰塊'},{label:'花生球',note:demoEN?'open pelvis':'開骨盆'}]},
+      {id:'pushing', name:SEC_NAMES.pushing, cfg:SEC_CFG.pushing,
+       items:[{label:'順應宮縮',note:demoEN?'spontaneous':'自然用力'},{label:'延遲斷臍',note:demoEN?'wait for cord':'臍帶停跳'},{label:'捕捉畫面',note:demoEN?'photos':'拍照錄影'},{label:'會陰保護',note:demoEN?'warm compress':'溫敷保護'}]},
+      {id:'postpartum', name:SEC_NAMES.postpartum, cfg:SEC_CFG.postpartum,
+       items:[{label:'立即親膚',note:demoEN?'right away':'出生後'},{label:'延後沐浴',note:demoEN?'skin first':'先親膚'},{label:'維生素K',note:demoEN?'consent':'同意注射'},{label:'同室照護',note:demoEN?'baby with me':'寶寶陪伴'}]},
     ];
     renderPages(demoSecs);
     return;
@@ -2684,14 +2816,15 @@ function renderVisualPlan(){
     [[500,2.5,.28],[520,1.8,.2],[538,1.5,.14],[556,2,.18],[574,1.5,.12]].forEach(([x,r,op])=>{
       parts.push(`<circle cx="${x}" cy="24" r="${r}" fill="rgba(255,255,255,${op})"/>`);
     });
+    const pgEN = currentLang === 'en';
     parts.push(`<text x="${PAD}" y="26" font-family="Noto Sans TC" font-size="9" fill="rgba(255,255,255,0.6)" letter-spacing="3">WAVE SUPPORT</text>`);
-    parts.push(`<text x="${PAD}" y="54" font-family="Noto Serif TC" font-size="24" fill="white" font-weight="700">生產計畫書</text>`);
+    parts.push(`<text x="${PAD}" y="54" font-family="Noto Serif TC" font-size="24" fill="white" font-weight="700">${pgEN ? 'Birth Plan' : '生產計畫書'}</text>`);
     if(userName){
-      parts.push(`<text x="${PW-PAD}" y="26" font-family="Noto Sans TC" font-size="9" fill="rgba(255,255,255,0.55)" text-anchor="end">準媽媽</text>`);
+      parts.push(`<text x="${PW-PAD}" y="26" font-family="Noto Sans TC" font-size="9" fill="rgba(255,255,255,0.55)" text-anchor="end">${pgEN ? 'MUM-TO-BE' : '準媽媽'}</text>`);
       parts.push(`<text x="${PW-PAD}" y="54" font-family="Noto Serif TC" font-size="20" fill="white" font-weight="700" text-anchor="end">${userName}</text>`);
     }
     if(totalPages > 1){
-      parts.push(`<text x="${PW/2}" y="54" font-family="Noto Sans TC" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle">第 ${pageNum} 頁 / 共 ${totalPages} 頁</text>`);
+      parts.push(`<text x="${PW/2}" y="54" font-family="Noto Sans TC" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle">${pgEN ? `Page ${pageNum} of ${totalPages}` : `第 ${pageNum} 頁 / 共 ${totalPages} 頁`}</text>`);
     }
 
     let curY = HEADER_H + 8;
@@ -2700,7 +2833,7 @@ function renderVisualPlan(){
     if(isFirst && philText){
       parts.push(`<rect x="${PAD}" y="${curY}" width="${usable_w}" height="${PHIL_H}" rx="10" fill="rgba(255,255,255,0.9)" filter="url(#sh${uid})"/>`);
       parts.push(`<rect x="${PAD}" y="${curY}" width="5" height="${PHIL_H}" rx="10" fill="url(#hg${uid})"/>`);
-      parts.push(`<text x="${PAD+14}" y="${curY+15}" font-family="Noto Sans TC" font-size="8" fill="#6A88A0" font-weight="600" letter-spacing="1.5">生產理念</text>`);
+      parts.push(`<text x="${PAD+14}" y="${curY+15}" font-family="Noto Sans TC" font-size="8" fill="#6A88A0" font-weight="600" letter-spacing="1.5">${pgEN ? 'BIRTH PHILOSOPHY' : '生產理念'}</text>`);
       const pt = philText.length > 40 ? philText.slice(0,39)+'…' : philText;
       parts.push(`<text x="${PAD+14}" y="${curY+30}" font-family="Noto Sans TC" font-size="12" fill="#2A4A5C" font-weight="600">🌊  ${pt}</text>`);
       curY += PHIL_H + 10;
@@ -2721,10 +2854,12 @@ function renderVisualPlan(){
         parts.push(`<rect x="${PAD}" y="${curY}" width="${usable_w}" height="${totalH}" rx="8" fill="rgba(255,255,255,0.6)"/>`);
         textItems.forEach((ti, idx) => {
           const y = curY + 18 + idx * rowH;
-          const nameStr = ti.name.length > 10 ? ti.name.slice(0,9)+'…' : ti.name;
+          const nameMax = pgEN ? 26 : 10;   // 英文名稱較長,放寬截斷
+          const nameStr = ti.name.length > nameMax ? ti.name.slice(0, nameMax-1)+'…' : ti.name;
           const valStr = ti.val.length > 60 ? ti.val.slice(0,58)+'…' : ti.val;
-          parts.push(`<text x="${PAD+12}" y="${y}" font-family="Noto Sans TC" font-size="9" fill="#5A8898" font-weight="600">${nameStr}：</text>`);
-          parts.push(`<text x="${PAD+12+nameStr.length*6+4}" y="${y}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C">${valStr}</text>`);
+          const nameW = pgEN ? Math.round(nameStr.length*5.2) : nameStr.length*6;  // 拉丁字較窄
+          parts.push(`<text x="${PAD+12}" y="${y}" font-family="Noto Sans TC" font-size="9" fill="#5A8898" font-weight="600">${nameStr}${pgEN ? ':' : '：'}</text>`);
+          parts.push(`<text x="${PAD+12+nameW+8}" y="${y}" font-family="Noto Sans TC" font-size="9" fill="#2A4A5C">${valStr}</text>`);
         });
         curY += totalH + 10;
       } else {
@@ -2792,7 +2927,7 @@ function renderVisualPlan(){
           parts.push(`<rect x="${cx_c}" y="${flowRow}" width="${FIXED_CW}" height="4" rx="12" fill="${c.sec.cfg.bar}" opacity="0.8"/>`);
           parts.push(bubble(cx, cy_icon, 21, c.sec.cfg.bub));
           parts.push(getIcon(c.item.label, cx, cy_icon, 44));
-          var wl = wrapCardLabel(c.item.label, FIXED_CW - 12);
+          var wl = wrapCardLabel(dispLabel(c.item.label), FIXED_CW - 12);
           if(wl.lines.length === 1){
             // 標籤一行 → 底下保留 note（使用者的簡短值）
             parts.push(`<text x="${cx}" y="${flowRow+CARD_H-17}" font-family="Noto Sans TC" font-size="${wl.fs}" fill="#2A4A5C" text-anchor="middle" font-weight="600">${escSvg(wl.lines[0])}</text>`);
@@ -2819,16 +2954,16 @@ function renderVisualPlan(){
       const noteH = 48;
       parts.push(`<rect x="${PAD}" y="${curY}" width="${usable_w}" height="${noteH}" rx="12" fill="rgba(255,255,255,0.85)"/>`);
       parts.push(`<rect x="${PAD}" y="${curY}" width="5" height="${noteH}" rx="12" fill="#A0D8EC"/>`);
-      parts.push(`<text x="${PAD+14}" y="${curY+18}" font-family="Noto Sans TC" font-size="10" fill="#2A4A5C" font-weight="700">🧭  若情況有變化</text>`);
-      parts.push(`<text x="${PAD+14}" y="${curY+36}" font-family="Noto Sans TC" font-size="9" fill="#4A6878">請在做任何變更前先告知我原因與選項，讓我有機會參與決定（緊急狀況除外）。感謝您的尊重與配合。</text>`);
+      parts.push(`<text x="${PAD+14}" y="${curY+18}" font-family="Noto Sans TC" font-size="10" fill="#2A4A5C" font-weight="700">${pgEN ? '🧭  If things change' : '🧭  若情況有變化'}</text>`);
+      parts.push(`<text x="${PAD+14}" y="${curY+36}" font-family="Noto Sans TC" font-size="9" fill="#4A6878">${pgEN ? 'Please tell me the reason and my options before any change (except emergencies), so I can take part in the decision. Thank you for your respect and care.' : '請在做任何變更前先告知我原因與選項，讓我有機會參與決定（緊急狀況除外）。感謝您的尊重與配合。'}</text>`);
     }
 
     // Footer
     const footY = PH - FOOTER_H;
     parts.push(`<rect x="0" y="${footY}" width="${PW}" height="${FOOTER_H}" fill="url(#fg${uid})"/>`);
     parts.push(`<path d="M0 ${footY+6} C${Math.round(PW*0.2)} ${footY-4} ${Math.round(PW*0.4)} ${footY+10} ${Math.round(PW*0.65)} ${footY+2} C${Math.round(PW*0.82)} ${footY-5} ${Math.round(PW*0.92)} ${footY+8} ${PW} ${footY} L${PW} ${footY} L0 ${footY}Z" fill="rgba(255,255,255,0.05)"/>`);
-    parts.push(`<text x="${PW/2}" y="${footY+26}" font-family="Noto Serif TC" font-size="13" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-weight="600">感謝您花時間了解我的生產計畫</text>`);
-    parts.push(`<text x="${PW/2}" y="${footY+42}" font-family="Noto Sans TC" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle">oceandoula.com · WAVE Support · 本計畫僅供溝通參考，不取代醫療專業建議</text>`);
+    parts.push(`<text x="${PW/2}" y="${footY+26}" font-family="Noto Serif TC" font-size="13" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-weight="600">${pgEN ? 'Thank you for taking the time to understand my birth plan' : '感謝您花時間了解我的生產計畫'}</text>`);
+    parts.push(`<text x="${PW/2}" y="${footY+42}" font-family="Noto Sans TC" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle">${pgEN ? 'oceandoula.com · WAVE Support · For communication only — not a substitute for medical advice' : 'oceandoula.com · WAVE Support · 本計畫僅供溝通參考，不取代醫療專業建議'}</text>`);
 
     return parts.join('\n');
   }
@@ -3094,7 +3229,7 @@ function submitUnlock(){
   console.log('Available codes:', Object.keys(UNLOCK_CODES));
 
   if(!tier){
-    if(msg){ msg.className = 'unlock-msg error'; msg.textContent = '找不到這組解鎖碼，請確認 email 裡的碼是否正確。'; }
+    if(msg){ msg.className = 'unlock-msg error'; msg.textContent = currentLang==='en' ? 'Code not found — please check the code in your email.' : '找不到這組解鎖碼，請確認 email 裡的碼是否正確。'; }
     return;
   }
 
@@ -3106,7 +3241,7 @@ function submitUnlock(){
 
   if(msg){
     msg.className = 'unlock-msg success';
-    msg.textContent = '✓ 已解鎖！視覺計畫書已顯示，點右鍵或使用瀏覽器列印功能存成 PDF。';
+    msg.textContent = currentLang==='en' ? '✓ Unlocked! Your visual plan is shown — use the download buttons or print to PDF.' : '✓ 已解鎖！視覺計畫書已顯示，點右鍵或使用瀏覽器列印功能存成 PDF。';
   }
 
   state.unlocked = tier;
@@ -3125,7 +3260,7 @@ function submitUnlock(){
     console.error('renderVisualPlan error:', e);
     if(msg){
       msg.className = 'unlock-msg success';
-      msg.textContent = '✓ 已解鎖！請使用瀏覽器列印功能（Ctrl+P）儲存 PDF。';
+      msg.textContent = currentLang==='en' ? '✓ Unlocked! Use your browser print (Ctrl+P) to save a PDF.' : '✓ 已解鎖！請使用瀏覽器列印功能（Ctrl+P）儲存 PDF。';
     }
   }
 }
@@ -3192,42 +3327,45 @@ function svgToCanvas(svgEl, scale){
 }
 
 async function downloadPNG(){
+  const dlEN = currentLang === 'en';
   const loading = document.getElementById('dlLoading');
   const container = document.getElementById('visualPlanContainer');
-  if(!container){ alert('請先解鎖視覺計畫書'); return; }
-  if(loading) loading.textContent = '⏳ 正在生成圖檔，請稍候…';
+  if(!container){ alert(dlEN ? 'Please unlock the visual plan first' : '請先解鎖視覺計畫書'); return; }
+  if(loading) loading.textContent = dlEN ? '⏳ Generating image, please wait…' : '⏳ 正在生成圖檔，請稍候…';
 
   try {
     const svgs = container.querySelectorAll('.plan-page svg');
-    if(!svgs.length){ if(loading) loading.textContent = ''; alert('找不到計畫書內容'); return; }
+    if(!svgs.length){ if(loading) loading.textContent = ''; alert(dlEN ? 'Plan content not found' : '找不到計畫書內容'); return; }
 
+    const base = dlEN ? 'WAVE-Birth-Plan' : 'WAVE_生產計畫書';
     for(let i = 0; i < svgs.length; i++){
       const canvas = await svgToCanvas(svgs[i], 2);
       const link = document.createElement('a');
-      link.download = svgs.length > 1 ? `WAVE_生產計畫書_第${i+1}頁.png` : 'WAVE_生產計畫書.png';
+      link.download = svgs.length > 1 ? (dlEN ? `${base}-p${i+1}.png` : `${base}_第${i+1}頁.png`) : `${base}.png`;
       link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
       if(i < svgs.length - 1) await new Promise(r => setTimeout(r, 600));
     }
-    if(loading) loading.textContent = '✅ 下載完成！';
+    if(loading) loading.textContent = dlEN ? '✅ Downloaded!' : '✅ 下載完成！';
     setTimeout(()=>{ if(loading) loading.textContent = ''; }, 3000);
   } catch(e) {
     console.error('PNG error:', e);
-    if(loading) loading.textContent = '下載失敗，請改用列印功能。';
+    if(loading) loading.textContent = dlEN ? 'Download failed — please use print instead.' : '下載失敗，請改用列印功能。';
   }
 }
 
 async function downloadPDFFile(){
+  const dlEN = currentLang === 'en';
   const loading = document.getElementById('dlLoading');
   const container = document.getElementById('visualPlanContainer');
-  if(!container){ alert('請先解鎖視覺計畫書'); return; }
-  if(loading) loading.textContent = '⏳ 正在生成 PDF，請稍候…';
+  if(!container){ alert(dlEN ? 'Please unlock the visual plan first' : '請先解鎖視覺計畫書'); return; }
+  if(loading) loading.textContent = dlEN ? '⏳ Generating PDF, please wait…' : '⏳ 正在生成 PDF，請稍候…';
 
   try {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
     const svgs = container.querySelectorAll('.plan-page svg');
-    if(!svgs.length){ if(loading) loading.textContent = ''; alert('找不到計畫書內容'); return; }
+    if(!svgs.length){ if(loading) loading.textContent = ''; alert(dlEN ? 'Plan content not found' : '找不到計畫書內容'); return; }
 
     for(let i = 0; i < svgs.length; i++){
       if(i > 0) pdf.addPage([297, 210], 'landscape');
@@ -3237,12 +3375,12 @@ async function downloadPDFFile(){
       pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
     }
 
-    pdf.save('WAVE_生產計畫書.pdf');
-    if(loading) loading.textContent = '✅ PDF 下載完成！';
+    pdf.save(dlEN ? 'WAVE-Birth-Plan.pdf' : 'WAVE_生產計畫書.pdf');
+    if(loading) loading.textContent = dlEN ? '✅ PDF downloaded!' : '✅ PDF 下載完成！';
     setTimeout(()=>{ if(loading) loading.textContent = ''; }, 3000);
   } catch(e) {
     console.error('PDF error:', e);
-    if(loading) loading.textContent = '下載失敗，請改用列印功能。';
+    if(loading) loading.textContent = dlEN ? 'Download failed — please use print instead.' : '下載失敗，請改用列印功能。';
   }
 }
 
@@ -3331,7 +3469,7 @@ async function autoEmailPlan(){
     if(ok){
       state.autoEmailSent = true; saveState();
       if(msg) msg.textContent = isEN
-        ? `📩 We’ve also emailed this to ${email} — check your inbox and leave us a star 💛`
+        ? `📩 We have also emailed this to ${email} — check your inbox and leave us a star 💛`
         : `📩 我們也把計畫書寄到 ${email} 了，記得收信、順手給我們一顆星 💛`;
     }
   } catch(e){ console.warn('auto email skipped', e); }  // 靜默失敗，不干擾使用者
