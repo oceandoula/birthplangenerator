@@ -380,6 +380,11 @@ a{color:inherit;}
 .btn-email-plan:disabled{opacity:.5;cursor:default;}
 .email-plan-msg{font-size:13px;font-weight:600;color:var(--ocean);}
 
+.theme-toggle{display:inline-flex;gap:0;border:1.5px solid var(--line);border-radius:100px;overflow:hidden;background:#fff;}
+.theme-btn{font-size:12.5px;font-weight:600;color:#7A9A9C;padding:8px 16px;border:none;background:transparent;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:inherit;}
+.theme-btn.active{background:var(--ocean);color:#fff;}
+.theme-btn:not(.active):hover{color:var(--ocean);}
+
 
 /* ---------- Language Toggle ---------- */
 .lang-toggle{display:flex;gap:4px;align-items:center;}
@@ -908,6 +913,10 @@ footer a{text-decoration:underline;}
           <h3>🗺 妳的視覺生產計畫書</h3>
           <div class="vs-subhead">一頁圖卡版，帶去產房讓醫護團隊一眼掌握妳的想法</div>
         </div>
+        <div class="theme-toggle" id="themeToggle">
+          <button class="theme-btn" data-theme="original" onclick="setVisualTheme('original')">原本配色</button>
+          <button class="theme-btn active" data-theme="mermaid" onclick="setVisualTheme('mermaid')">美人魚配色</button>
+        </div>
       </div>
       <div class="plan-preview-wrap locked" id="planPreviewWrap">
         <div id="visualPlanContainer"></div>
@@ -1041,6 +1050,7 @@ const LANG = {
     aiRetry: '重新生成',
     aiRegenerate: '↺ 重新生成',
     emailPlanBtn: '📧 把計畫書寄到我的信箱',
+    themeOriginal: '原本配色', themeMermaid: '美人魚配色',
     visualH3: '🗺 妳的視覺生產計畫書',
     visualSub: '一頁圖卡版，帶去產房讓醫護團隊一眼掌握妳的想法',
     lockH4: '預約諮詢，解鎖視覺計畫書',
@@ -1098,6 +1108,7 @@ const LANG = {
     aiRetry: 'Try again',
     aiRegenerate: '↺ Regenerate',
     emailPlanBtn: '📧 Email my plan to me',
+    themeOriginal: 'Original colours', themeMermaid: 'Mermaid colours',
     visualH3: '🗺 Your Visual Birth Plan',
     visualSub: 'A one-page icon card — bring it to the labour ward so your care team can understand your wishes at a glance',
     lockH4: 'Book a consultation to unlock your visual plan',
@@ -1361,7 +1372,8 @@ let state = {
   answers: {},
   customAnswers: {},
   unlocked: null,
-  autoEmailSent: false
+  autoEmailSent: false,
+  visualTheme: 'mermaid'
 };
 
 // ── localStorage persistence ─────────────────────────────
@@ -1375,7 +1387,8 @@ function saveState(){
       answers: state.answers,
       customAnswers: state.customAnswers,
       unlocked: state.unlocked,
-      autoEmailSent: state.autoEmailSent
+      autoEmailSent: state.autoEmailSent,
+      visualTheme: state.visualTheme
     }));
   } catch(e){ console.warn('Could not save:', e); }
 }
@@ -1391,6 +1404,7 @@ function loadState(){
     if(data.customAnswers) state.customAnswers = data.customAnswers;
     if(data.unlocked) state.unlocked = data.unlocked;
     if(data.autoEmailSent) state.autoEmailSent = data.autoEmailSent;
+    if(data.visualTheme) state.visualTheme = data.visualTheme;
     return true;
   } catch(e){ return false; }
 }
@@ -1496,6 +1510,10 @@ function setLang(lang) {
   document.querySelector('.btn-regenerate').textContent = L.aiRegenerate;
   const emailBtn = document.querySelector('.btn-email-plan');
   if(emailBtn) emailBtn.textContent = L.emailPlanBtn;
+  const tOrig = document.querySelector('#themeToggle .theme-btn[data-theme="original"]');
+  const tMer = document.querySelector('#themeToggle .theme-btn[data-theme="mermaid"]');
+  if(tOrig) tOrig.textContent = L.themeOriginal;
+  if(tMer) tMer.textContent = L.themeMermaid;
   document.querySelector('.visual-section h3').textContent = L.visualH3;
   document.querySelector('.vs-subhead').textContent = L.visualSub;
   document.querySelector('.plan-lock-overlay h4').textContent = L.lockH4;
@@ -2007,6 +2025,15 @@ function wrapCardLabel(label, maxW){
   return { lines:[l1, l2], fs };
 }
 
+function setVisualTheme(theme){
+  state.visualTheme = theme;
+  saveState();
+  document.querySelectorAll('#themeToggle .theme-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+  try { renderVisualPlan(); } catch(e){ console.warn('theme re-render failed', e); }
+}
+
 function renderVisualPlan(){
   const PW = 1123, PH = 794, PAD = 28;
   const HEADER_H = 70, PHIL_H = 38, FOOTER_H = 52;
@@ -2411,9 +2438,20 @@ function renderVisualPlan(){
   <path d="M26 34 C26 31 36 31 36 35 C36 39 27 39.5 25.5 35.5Z" fill="#FAF8F3"/>`,
   };
 
+  // 美人魚配色：把 icon 原本的實色換成同色系漸層（cream 挖空保持不變）
+  const MERMAID_MAP = {
+    '#1A6B72':'url(#mTeal)',   // 海洋綠 → 藍綠漸層
+    '#D98E5C':'url(#mCoral)',  // 珊瑚橘 → 粉橘漸層
+    '#7B5EA0':'url(#mPurple)', // 紫 → 粉紫漸層
+    '#4A8EA0':'url(#mSky)',    // 天空藍
+    '#5A7AA8':'url(#mBlue)'    // 藍
+  };
   function getIcon(label, cx, cy, size=44){
-    const inner = ICON_MAP[label] || '';
+    let inner = ICON_MAP[label] || '';
     if(!inner) return '';
+    if(state.visualTheme === 'mermaid'){
+      for(const c in MERMAID_MAP){ inner = inner.split(c).join(MERMAID_MAP[c]); }
+    }
     const scale = size/56;
     const tx = cx - 28*scale;
     const ty = cy - 28*scale;
@@ -2613,17 +2651,26 @@ function renderVisualPlan(){
     const parts = [];
     const uid = pageNum;
 
+    // header/footer 漸層跟著配色主題走：美人魚 = 粉彩藍→紫→粉
+    const mer = state.visualTheme === 'mermaid';
+    const hgStops = mer ? ['#4E8FB8','#8A6BB5','#D97BA0'] : ['#0B3D45','#1A4870','#5A4A90'];
+    const fgStops = mer ? ['#4E8FB8','#D97BA0'] : ['#0B3D45','#2A1060'];
     parts.push(`<defs>
       <linearGradient id="hg${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#0B3D45"/>
-        <stop offset="50%" style="stop-color:#1A4870"/>
-        <stop offset="100%" style="stop-color:#5A4A90"/>
+        <stop offset="0%" style="stop-color:${hgStops[0]}"/>
+        <stop offset="50%" style="stop-color:${hgStops[1]}"/>
+        <stop offset="100%" style="stop-color:${hgStops[2] || hgStops[1]}"/>
       </linearGradient>
       <linearGradient id="fg${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#0B3D45"/>
-        <stop offset="100%" style="stop-color:#2A1060"/>
+        <stop offset="0%" style="stop-color:${fgStops[0]}"/>
+        <stop offset="100%" style="stop-color:${fgStops[1]}"/>
       </linearGradient>
       <filter id="sh${uid}"><feDropShadow dx="0" dy="1" stdDeviation="3" flood-color="rgba(80,120,160,0.1)"/></filter>
+      <linearGradient id="mTeal" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="56" y2="56"><stop offset="0" stop-color="#1A6B72"/><stop offset="1" stop-color="#7FCBD6"/></linearGradient>
+      <linearGradient id="mCoral" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="56" y2="56"><stop offset="0" stop-color="#D98E5C"/><stop offset="1" stop-color="#F4B4C6"/></linearGradient>
+      <linearGradient id="mPurple" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="56" y2="56"><stop offset="0" stop-color="#7B5EA0"/><stop offset="1" stop-color="#C7ABE2"/></linearGradient>
+      <linearGradient id="mSky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="56" y2="56"><stop offset="0" stop-color="#4A8EA0"/><stop offset="1" stop-color="#9AD2E0"/></linearGradient>
+      <linearGradient id="mBlue" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="56" y2="56"><stop offset="0" stop-color="#5A7AA8"/><stop offset="1" stop-color="#AAC2E6"/></linearGradient>
     </defs>`);
 
     // Background
@@ -3336,6 +3383,11 @@ renderPhilosophy();
 document.addEventListener('DOMContentLoaded', function(){
   const unlockBtn = document.getElementById('unlockBtn');
   if(unlockBtn) unlockBtn.addEventListener('click', submitUnlock);
+
+  // 同步配色切換按鈕的 active 狀態（可能從 localStorage 還原）
+  document.querySelectorAll('#themeToggle .theme-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === state.visualTheme);
+  });
   
   const unlockInput = document.getElementById('unlockInput');
   if(unlockInput) unlockInput.addEventListener('keydown', function(e){
