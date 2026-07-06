@@ -3349,9 +3349,12 @@ async function emailMyPlan(){
   btn.disabled = true;
   if(msg) msg.textContent = isEN ? 'Sending…' : '寄送中…';
 
-  // 若視覺計畫書已解鎖並渲染，就一起附上 PDF（optional）
-  let pdfBase64 = '';
-  try { pdfBase64 = await generatePdfBase64(); } catch(e){ console.warn('pdf attach skipped', e); }
+  // 若視覺計畫書已解鎖並渲染，就一起附上 PDF + PNG（optional）
+  let attachments = [];
+  try { attachments = await buildVisualAttachments(); } catch(e){ console.warn('attachments skipped', e); }
+  if(attachments.length && msg){
+    msg.textContent = isEN ? 'Attaching your visual plan…' : '正在附上視覺計畫書…';
+  }
 
   try {
     const res = await fetch(EMAIL_WORKER_URL, {
@@ -3361,7 +3364,7 @@ async function emailMyPlan(){
         name: (state.user && state.user.name) || '',
         email,
         planHtml,
-        pdfBase64,
+        attachments,
         lang: isEN ? 'en' : 'zh'
       })
     });
@@ -3375,16 +3378,23 @@ async function emailMyPlan(){
   }
 }
 
-// 產生視覺計畫書的 PDF base64（無 data: 前綴）；未解鎖/未渲染則回傳空字串
-async function generatePdfBase64(){
+// 產生視覺計畫書的附件清單（PDF + 每頁 PNG）；未解鎖/未渲染則回傳空陣列
+// 回傳格式：[{ filename, type, content(base64，無 data: 前綴) }, ...]
+async function buildVisualAttachments(){
   // 視覺版是付費內容：SVG 會一直畫在 DOM 裡（只是被鎖的遮罩蓋住），
-  // 所以這裡一定要擋 state.unlocked，否則未付費用戶按 email 也會拿到 PDF。
-  if(!state.unlocked) return '';
+  // 所以這裡一定要擋 state.unlocked，否則未付費用戶按 email 也會拿到檔案。
+  if(!state.unlocked) return [];
   const container = document.getElementById('visualPlanContainer');
-  if(!container) return '';
+  if(!container) return [];
   const svgs = container.querySelectorAll('.plan-page svg');
-  if(!svgs.length) return '';
+  if(!svgs.length) return [];
 
+  const isEN = currentLang === 'en';
+  const baseName = isEN ? 'WAVE-Birth-Plan' : 'WAVE_生產計畫書';
+  const out = [];
+  const b64 = (dataUrl) => dataUrl.substring(dataUrl.indexOf('base64,') + 7);
+
+  // 1) PDF：所有頁合成一個檔
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
   for(let i = 0; i < svgs.length; i++){
@@ -3392,8 +3402,16 @@ async function generatePdfBase64(){
     const canvas = await svgToCanvas(svgs[i], 3);
     pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 297, 210);
   }
-  const uri = pdf.output('datauristring'); // data:application/pdf;...;base64,XXXX
-  return uri.substring(uri.indexOf('base64,') + 7);
+  out.push({ filename: baseName + '.pdf', type: 'application/pdf', content: b64(pdf.output('datauristring')) });
+
+  // 2) PNG：每頁一張
+  for(let i = 0; i < svgs.length; i++){
+    const canvas = await svgToCanvas(svgs[i], 2);
+    const suffix = svgs.length > 1 ? (isEN ? `-p${i+1}` : `_第${i+1}頁`) : '';
+    out.push({ filename: baseName + suffix + '.png', type: 'image/png', content: b64(canvas.toDataURL('image/png', 1.0)) });
+  }
+
+  return out;
 }
 
 /* ===========================================================

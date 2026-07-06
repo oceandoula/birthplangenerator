@@ -31,8 +31,18 @@ export default {
     const name = (body.name || '').toString().slice(0, 100);
     const email = (body.email || '').toString().trim();
     const planHtml = (body.planHtml || '').toString();
-    const pdfBase64 = (body.pdfBase64 || '').toString();
     const isEN = body.lang === 'en';
+
+    // 前端傳來的附件清單：[{ filename, type, content(base64) }, ...]（PDF + PNG）
+    // 舊版前端（快取）可能還是傳單一 pdfBase64，這裡一起相容。
+    let attachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 12) : [];
+    if (body.pdfBase64) {
+      attachments.push({
+        filename: isEN ? 'WAVE-Birth-Plan.pdf' : 'WAVE_生產計畫書.pdf',
+        type: 'application/pdf',
+        content: body.pdfBase64.toString(),
+      });
+    }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return json({ error: 'Invalid email' }, 400, cors);
@@ -40,9 +50,9 @@ export default {
     if (!planHtml) return json({ error: 'Missing plan content' }, 400, cors);
     // 粗略上限保護，避免超大 payload
     if (planHtml.length > 200000) return json({ error: 'Plan too large' }, 413, cors);
-    if (pdfBase64 && pdfBase64.length > 8000000) {
-      return json({ error: 'PDF attachment too large' }, 413, cors);
-    }
+    let attachTotal = 0;
+    for (const a of attachments) attachTotal += (a && a.content ? a.content.length : 0);
+    if (attachTotal > 25000000) return json({ error: 'Attachments too large' }, 413, cors);
 
     // SendGrid v3 mail/send payload
     const payload = {
@@ -55,14 +65,16 @@ export default {
       content: [{ type: 'text/html', value: buildEmail({ name, planHtml, isEN }) }],
     };
     if (env.REPLY_TO) payload.reply_to = { email: env.REPLY_TO };
-    if (pdfBase64) {
-      payload.attachments = [{
-        content: pdfBase64, // base64 字串（無 data: 前綴）
-        filename: isEN ? 'WAVE-Birth-Plan.pdf' : 'WAVE_生產計畫書.pdf',
-        type: 'application/pdf',
+
+    const cleanAttachments = attachments
+      .filter((a) => a && a.content && a.filename)
+      .map((a) => ({
+        content: a.content.toString(),
+        filename: a.filename.toString(),
+        type: (a.type || 'application/octet-stream').toString(),
         disposition: 'attachment',
-      }];
-    }
+      }));
+    if (cleanAttachments.length) payload.attachments = cleanAttachments;
 
     const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
       method: 'POST',
