@@ -3,80 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WAVE 生產計畫書｜AI 免費生成，帶得去產檢｜Ocean Doula</title>
-<meta name="description" content="WAVE 是 AI 生產計畫書工具，由陪產員 Naphy（Ocean Doula）打造。回答幾個關於生產偏好的問題，AI 就會整理成一份清晰、完整、可下載 PDF、能直接帶去產檢的生產計畫書，符合台灣醫院與助產情境。Beta 上線期間文字版限時免費。">
-<link rel="canonical" href="https://oceandoula.github.io/birthplangenerator/">
-<meta name="author" content="Naphy · Ocean Doula 海洋孕產顧問">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#1D5A6C">
-
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Ocean Doula 海洋孕產顧問">
-<meta property="og:title" content="WAVE 生產計畫書｜AI生成，帶得去產檢">
-<meta property="og:description" content="告訴 WAVE 妳的生產想法，AI 幫妳整理成一份清晰完整、可下載 PDF、直接帶去產檢的生產計畫書。Beta 上線期間文字版限時免費，符合台灣產檢情境。">
-<meta property="og:url" content="https://oceandoula.github.io/birthplangenerator/">
-<meta property="og:locale" content="zh_TW">
-<meta property="og:locale:alternate" content="en_US">
-<meta property="og:image" content="https://oceandoula.github.io/birthplangenerator/og-image.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="WAVE 生產計畫書｜AI 生成，帶得去產檢">
-<meta name="twitter:description" content="告訴 WAVE 妳的生產想法，AI 幫妳整理成一份可下載、直接帶去產檢的生產計畫書。Beta 上線期間文字版限時免費，符合台灣產檢情境。">
-<meta name="twitter:image" content="https://oceandoula.github.io/birthplangenerator/og-image.jpg">
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebApplication",
-      "@id": "https://oceandoula.github.io/birthplangenerator/#app",
-      "name": "WAVE 生產計畫書",
-      "alternateName": "WAVE Support · AI 生產計畫助理",
-      "url": "https://oceandoula.github.io/birthplangenerator/",
-      "applicationCategory": "HealthApplication",
-      "operatingSystem": "Web",
-      "inLanguage": ["zh-Hant", "en"],
-      "description": "AI 生產計畫書工具，依使用者的生產偏好，用 AI 生成一份清晰、完整、可下載 PDF、可帶去產檢的生產計畫書，符合台灣產檢情境。Beta 上線期間文字版限時免費。",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "TWD",
-        "description": "Beta 上線期間文字版生產計畫書限時免費生成；視覺圖卡版採隨心定價。"
-      },
-      "creator": { "@id": "https://www.oceandoula.com/#naphy" },
-      "publisher": { "@id": "https://www.oceandoula.com/#org" }
-    },
-    {
-      "@type": "Person",
-      "@id": "https://www.oceandoula.com/#naphy",
-      "name": "Naphy",
-      "alternateName": "海洋媽媽",
-      "jobTitle": "陪產員（Doula）· 孕產顧問",
-      "worksFor": { "@id": "https://www.oceandoula.com/#org" },
-      "url": "https://www.oceandoula.com/about",
-      "email": "naphy@oceandoula.com",
-      "knowsAbout": ["生產計畫書", "溫柔生產", "減痛分娩", "居家生產", "醫院生產準備", "陪產", "產後照護"],
-      "hasCredential": ["DONA International 陪產員訓練", "Orgasmic Birth Practitioner", "Body Ready Method® Pro"]
-    },
-    {
-      "@type": "Organization",
-      "@id": "https://www.oceandoula.com/#org",
-      "name": "Ocean Doula 海洋孕產顧問",
-      "url": "https://www.oceandoula.com",
-      "logo": "https://static.wixstatic.com/media/8d7993_3ddaa8ee7fa54fa4b9e3c13e69ae2ac9~mv2.png",
-      "email": "naphy@oceandoula.com",
-      "areaServed": ["TW", "AU", "MY"],
-      "sameAs": [
-        "https://www.instagram.com/oceandoula",
-        "https://www.facebook.com/oceandoula.tw/"
-      ]
-    }
-  ]
-}
-</script><link rel="preconnect" href="https://fonts.googleapis.com">
+<title>WAVE Support｜AI 生產計畫助理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -153,12 +81,21 @@ a{color:inherit;}
   display:flex; align-items:center; justify-content:space-between;
 }
 .brand{
-  display:flex; align-items:center; gap:8px;
+  display:flex; align-items:center; gap:6px;
   font-family:'Noto Serif TC', serif; font-weight:700; font-size:17px; color:var(--ocean);
-  letter-spacing:.5px;
+  letter-spacing:.5px; white-space:nowrap; flex-shrink:0;
 }
 .brand-mark{font-size:20px;}
-.step-label{font-size:12px; color:var(--ocean); opacity:.7; letter-spacing:1px;}
+.step-label{font-size:12px; color:var(--ocean); opacity:.7; letter-spacing:.5px; white-space:nowrap; flex-shrink:0;}
+
+/* Mobile nav fixes */
+@media(max-width:480px){
+  .brand{font-size:14px;}
+  .brand-mark{font-size:16px;}
+  .topbar-inner{padding:10px 14px; gap:8px;}
+  .step-label{font-size:11px; letter-spacing:0;}
+  .lang-btn{padding:5px 10px; font-size:12px;}
+}
 
 /* ---------- Sections (only one visible at a time, scroll-stage) ---------- */
 .stage{
@@ -820,9 +757,12 @@ footer a{text-decoration:underline;}
 <div class="tide-track"><div class="tide-fill" id="tideFill" style="width:4%"></div></div>
 
 <div class="topbar">
-  <div class="topbar-inner">
-    <div class="brand"><span class="brand-mark">🌊</span> WAVE Support <span style="font-size:9px;font-weight:700;background:linear-gradient(135deg,#5FB3B8,#7B6EAA);color:#fff;padding:2px 7px;border-radius:100px;letter-spacing:1px;vertical-align:middle;margin-left:4px;">BETA</span></div>
-    <div class="lang-toggle"><button class="lang-btn lang-active" id="langZh" onclick="setLang('zh')">繁中</button><button class="lang-btn" id="langEn" onclick="setLang('en')">EN</button></div><div class="step-label" id="stepLabel">開始</div>
+  <div class="topbar-inner" style="gap:8px;">
+    <div class="brand"><span class="brand-mark">🌊</span> WAVE <span style="font-size:9px;font-weight:700;background:linear-gradient(135deg,#5FB3B8,#7B6EAA);color:#fff;padding:2px 6px;border-radius:100px;letter-spacing:1px;vertical-align:middle;margin-left:2px;white-space:nowrap;">BETA</span></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <div class="lang-toggle"><button class="lang-btn lang-active" id="langZh" onclick="setLang('zh')">繁中</button><button class="lang-btn" id="langEn" onclick="setLang('en')">EN</button></div>
+      <div class="step-label" id="stepLabel">開始</div>
+    </div>
   </div>
 </div>
 
@@ -838,7 +778,7 @@ footer a{text-decoration:underline;}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
-    <div class="hero-foot">由 AI 生成 · Beta 限時免費· 符合台灣產檢情境 · 完成後可下載 PDF</div>
+    <div class="hero-foot">由 AI 生成 · 完全免費 · 符合台灣產檢情境 · 完成後可下載 PDF</div>
   </div>
 </section>
 
@@ -1003,7 +943,7 @@ footer a{text-decoration:underline;}
         <span class="tier-badge">🌊 Launch 優惠至 8/31</span>
         <div class="tier-price" style="font-size:20px;line-height:1.3;">隨心定價 <span style="font-size:12px;font-weight:400;opacity:.7;">建議 $9 · 最低 $3 ☕🧋</span></div>
         <div class="tier-name">視覺圖卡下載</div>
-        <div class="tier-desc">精美一頁式視覺計畫書，可列印帶去產房。隨心定價，最低一杯咖啡或珍奶的錢（$3）。優惠至 2026 年 8 月 31 日，之後恢復原價$19。</div>
+        <div class="tier-desc">精美一頁式視覺計畫書，可列印帶去產房。隨心定價，最低一杯咖啡或珍奶的錢（$3）。優惠至 2026 年 8 月 31 日，之後恢復原價 $19。</div>
         <button class="tier-btn">立刻購買 →</button>
       </a>
       <a class="price-cta-card tier-pro" href="https://buy.stripe.com/6oU14g99gec37u8dpBgMw04" target="_blank" rel="noopener" id="stripe97Link">
@@ -1018,6 +958,7 @@ footer a{text-decoration:underline;}
     <!-- Free option -->
     <div class="free-cta">
       <div class="left">
+        <h4>先預約免費 15 分鐘了解更多</h4>
         <p>不確定哪個方案適合妳？先聊聊再決定。</p>
       </div>
       <button class="btn-free-cta" onclick="window.open('https://calendly.com/oceanmamadoula/15minfree','_blank')">免費預約 →</button>
@@ -1075,7 +1016,7 @@ const LANG = {
     heroH1: '讓 <em>WAVE</em> 陪你',
     heroLede: '告訴 WAVE 妳的生產想法，AI 幫妳整理成一份清晰、完整、可以直接帶去產檢的生產計畫書。',
     heroBtn: '開始建立我的生產計畫',
-    heroFoot: '由 AI 生成 · Beta 限時免費 · 符合台灣產檢情境 · 完成後可下載 PDF',
+    heroFoot: '由 AI 生成 · 完全免費 · 符合台灣產檢情境 · 完成後可下載 PDF',
     philEyebrow: '第一步',
     philH2: '在妳心中，理想的生產比較接近哪一種？',
     philSub: '這不是測驗，沒有標準答案 —— 妳的計畫會依照這個方向客製化。',
@@ -3413,68 +3354,6 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><style>
-  .wave-faq { max-width: 760px; margin: 56px auto; padding: 0 22px; font-family: 'Noto Sans TC', sans-serif; color: #2C3A3F; }
-  .wave-faq h2 { font-family: 'Noto Serif TC', serif; font-weight: 500; font-size: 1.5rem; color: #1D5A6C; text-align: center; letter-spacing: 0.06em; margin-bottom: 8px; }
-  .wave-faq .faq-sub { text-align: center; font-size: 0.85rem; color: #4A6470; margin-bottom: 32px; }
-  .wave-faq details { border-bottom: 1px solid #D4EEF0; padding: 4px 0; }
-  .wave-faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 4px; font-family: 'Noto Serif TC', serif; font-weight: 500; font-size: 1.02rem; color: #1D5A6C; }
-  .wave-faq summary::-webkit-details-marker { display: none; }
-  .wave-faq summary::after { content: '+'; font-size: 1.3rem; color: #3A8A9E; transition: transform 0.2s; flex-shrink: 0; }
-  .wave-faq details[open] summary::after { content: '–'; }
-  .wave-faq .faq-a { padding: 0 4px 22px; font-size: 0.92rem; line-height: 1.9; color: #3E5560; }
-</style>
-
-<section class="wave-faq">
-  <h2>關於生產計畫書，常見問題</h2>
-  <p class="faq-sub">Frequently Asked Questions</p>
-
-  <details>
-    <summary>什麼是生產計畫書？</summary>
-    <div class="faq-a">生產計畫書是一份記錄妳生產偏好的文件，內容涵蓋產前、產中到產後，例如減痛分娩的選擇、待產時的活動與姿勢、會陰照護、斷臍時機、產後肌膚接觸與哺乳等。它的用途是在產程中幫助妳與醫療團隊溝通，也讓陪產者清楚妳的想法。生產計畫書不是硬性規定，而是一個表達期待、同時保留彈性的溝通工具。</div>
-  </details>
-
-  <details>
-    <summary>生產計畫書要怎麼寫？包含哪些項目？</summary>
-    <div class="faq-a">一份完整的生產計畫書通常包含幾個區塊：待產環境與陪產者、疼痛因應方式（如產球、水中減痛、減痛分娩）、產程中的活動與姿勢、生產方式偏好、會陰與斷臍處理、產後立即的肌膚接觸與哺乳、以及新生兒照護。書寫時建議以「偏好」而非「要求」的語氣呈現，並保留「若情況改變時」的彈性，較容易獲得醫療團隊配合。</div>
-  </details>
-
-  <details>
-    <summary>WAVE 生產計畫書工具是什麼？要付費嗎？</summary>
-    <div class="faq-a">WAVE 是一個 AI 生產計畫書工具，由 Ocean Doula 的陪產員 Naphy 製作。妳回答幾個關於生產偏好的問題後，AI 會為妳整理成一份文字版生產計畫書，可下載 PDF 並帶去產檢。Beta 上線期間，文字版限時免費；若需要一頁式的視覺圖卡版本，採隨心定價。</div>
-  </details>
-
-  <details>
-    <summary>生產計畫書可以帶去醫院給醫師看嗎？</summary>
-    <div class="faq-a">可以。生產計畫書的主要用途，就是帶去產檢與待產時，作為與醫師、助產師溝通的依據。建議在產前門診時先與醫療團隊討論內容，了解該院所的常規與可配合的範圍，並準備一份簡潔的一頁式版本放進待產包，方便產程中快速參考。</div>
-  </details>
-
-  <details>
-    <summary>減痛分娩需要事先寫進生產計畫書嗎？</summary>
-    <div class="faq-a">建議事先寫入。在生產計畫書中註明妳對減痛分娩的態度（例如「希望盡早使用」「想先嘗試其他方式」或「保持彈性視情況決定」），能讓醫療團隊提早了解妳的偏好。台灣多數提供減痛分娩的院所需要麻醉評估，先在計畫書中表達意向，有助於待產時更順暢的溝通。</div>
-  </details>
-
-  <details>
-    <summary>陪產員（doula）和助產師、月嫂有什麼不同？</summary>
-    <div class="faq-a">陪產員（doula）提供的是孕期、產程與產後的情緒支持、資訊陪伴與生理舒適協助，不執行醫療處置。助產師是受過專業訓練、可提供產檢與接生等醫療照護的醫事人員。月嫂則主要負責產後媽媽與新生兒的生活照顧。三者角色不同，可以互相搭配。</div>
-  </details>
-</section>
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "@id": "https://oceandoula.github.io/birthplangenerator/#faq",
-  "inLanguage": "zh-Hant",
-  "mainEntity": [
-    { "@type": "Question", "name": "什麼是生產計畫書？", "acceptedAnswer": { "@type": "Answer", "text": "生產計畫書是一份記錄妳生產偏好的文件，內容涵蓋產前、產中到產後，例如減痛分娩的選擇、待產時的活動與姿勢、會陰照護、斷臍時機、產後肌膚接觸與哺乳等。它的用途是在產程中幫助妳與醫療團隊溝通，也讓陪產者清楚妳的想法。生產計畫書不是硬性規定，而是一個表達期待、同時保留彈性的溝通工具。" } },
-    { "@type": "Question", "name": "生產計畫書要怎麼寫？包含哪些項目？", "acceptedAnswer": { "@type": "Answer", "text": "一份完整的生產計畫書通常包含幾個區塊：待產環境與陪產者、疼痛因應方式（如產球、水中減痛、減痛分娩）、產程中的活動與姿勢、生產方式偏好、會陰與斷臍處理、產後立即的肌膚接觸與哺乳、以及新生兒照護。書寫時建議以「偏好」而非「要求」的語氣呈現，並保留「若情況改變時」的彈性，較容易獲得醫療團隊配合。" } },
-    { "@type": "Question", "name": "WAVE 生產計畫書工具是什麼？要付費嗎？", "acceptedAnswer": { "@type": "Answer", "text": "WAVE 是一個 AI 生產計畫書工具，由 Ocean Doula 的陪產員 Naphy 製作。妳回答幾個關於生產偏好的問題後，AI 會為妳整理成一份文字版生產計畫書，可下載 PDF 並帶去產檢。Beta 上線期間，文字版限時免費；若需要一頁式的視覺圖卡版本，採隨心定價。" } },
-    { "@type": "Question", "name": "生產計畫書可以帶去醫院給醫師看嗎？", "acceptedAnswer": { "@type": "Answer", "text": "可以。生產計畫書的主要用途，就是帶去產檢與待產時，作為與醫師、助產師溝通的依據。建議在產前門診時先與醫療團隊討論內容，了解該院所的常規與可配合的範圍，並準備一份簡潔的一頁式版本放進待產包，方便產程中快速參考。" } },
-    { "@type": "Question", "name": "減痛分娩需要事先寫進生產計畫書嗎？", "acceptedAnswer": { "@type": "Answer", "text": "建議事先寫入。在生產計畫書中註明妳對減痛分娩的態度（例如希望盡早使用、想先嘗試其他方式，或保持彈性視情況決定），能讓醫療團隊提早了解妳的偏好。台灣多數提供減痛分娩的院所需要麻醉評估，先在計畫書中表達意向，有助於待產時更順暢的溝通。" } },
-    { "@type": "Question", "name": "陪產員（doula）和助產師、月嫂有什麼不同？", "acceptedAnswer": { "@type": "Answer", "text": "陪產員（doula）提供的是孕期、產程與產後的情緒支持、資訊陪伴與生理舒適協助，不執行醫療處置。助產師是受過專業訓練、可提供產檢與接生等醫療照護的醫事人員。月嫂則主要負責產後媽媽與新生兒的生活照顧。三者角色不同，可以互相搭配。" } }
-  ]
-}
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
