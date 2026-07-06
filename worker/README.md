@@ -81,6 +81,21 @@ npx wrangler dev
 會在 `http://localhost:8787` 起一個本機版；記得把 `ALLOWED_ORIGIN` 暫時設成 `*`
 並把前端的 `EMAIL_WORKER_URL` 指到本機網址測試。
 
+## 計畫書記錄（誰、何時、內容）
+1. **BCC**：每封寄出的計畫書會密件副本到 `BCC_EMAIL`（wrangler.toml 設定）。
+2. **D1 資料庫**：一次性設定——
+   ```bash
+   npx wrangler d1 create wave-plans
+   # 把輸出的 database_id 貼進 wrangler.toml 的 [[d1_databases]] 區塊（拿掉註解 #）
+   npx wrangler d1 execute wave-plans --remote --command "CREATE TABLE IF NOT EXISTS plans (id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL DEFAULT (datetime('now')), name TEXT, email TEXT, lang TEXT, plan_html TEXT, attachments INTEGER DEFAULT 0)"
+   npx wrangler deploy
+   ```
+3. **查資料**：
+   ```bash
+   npx wrangler d1 execute wave-plans --remote --command "SELECT id, created_at, name, email, lang FROM plans ORDER BY id DESC LIMIT 20"
+   ```
+   或到 Cloudflare Dashboard → Storage & Databases → D1 → wave-plans 用網頁查。
+
 ## 費用
 - Cloudflare Workers 免費方案：每天 10 萬次請求，對 Beta 綽綽有餘。
 - SendGrid 免費方案：每天 100 封。超過再升級。
