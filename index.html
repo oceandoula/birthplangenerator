@@ -3400,6 +3400,9 @@ async function emailMyPlan(){
 
 // 產生視覺計畫書的 PDF base64（無 data: 前綴）；未解鎖/未渲染則回傳空字串
 async function generatePdfBase64(){
+  // 視覺版是付費內容：SVG 會一直畫在 DOM 裡（只是被鎖的遮罩蓋住），
+  // 所以這裡一定要擋 state.unlocked，否則未付費用戶按 email 也會拿到 PDF。
+  if(!state.unlocked) return '';
   const container = document.getElementById('visualPlanContainer');
   if(!container) return '';
   const svgs = container.querySelectorAll('.plan-page svg');
