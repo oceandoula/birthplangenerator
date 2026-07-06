@@ -2297,12 +2297,12 @@ function renderVisualPlan(){
   <ellipse cx="28" cy="36" rx="5" ry="3" fill="#FAF8F3"/>
   <path d="M18 26 L12 25 M18 31 L12 32" stroke="#D98E5C" stroke-width="3.2" stroke-linecap="round"/>
   <path d="M38 26 L44 25 M38 31 L44 32" stroke="#D98E5C" stroke-width="3.2" stroke-linecap="round"/>`,
-    '減痛分娩': `<!-- AAC 粗體版：硬脊膜外針筒（去除脊椎/漣漪雜訊） -->
-  <line x1="36" y1="16" x2="22" y2="30" stroke="#D98E5C" stroke-width="4.5" stroke-linecap="round"/>
-  <line x1="22" y1="30" x2="15" y2="37" stroke="#D98E5C" stroke-width="3.2" stroke-linecap="round"/>
-  <line x1="36" y1="16" x2="41" y2="11" stroke="#D98E5C" stroke-width="3.2" stroke-linecap="round"/>
-  <line x1="30" y1="17" x2="34" y2="21" stroke="#D98E5C" stroke-width="3.2" stroke-linecap="round"/>
-  <circle cx="15" cy="37" r="2.6" fill="#D98E5C"/>`,
+    '減痛分娩': `<!-- AAC 實心版：硬脊膜外（彎腰背影+針打在下背） -->
+  <circle cx="38" cy="13" r="5.5" fill="#D98E5C"/>
+  <path d="M40 18 C30 20 25 27 24 35 L24 46 L44 46 C44 32 44 22 40 18 Z" fill="#D98E5C"/>
+  <line x1="6" y1="33" x2="15" y2="33" stroke="#D98E5C" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="15" y1="33" x2="22" y2="33" stroke="#D98E5C" stroke-width="2" stroke-linecap="round"/>
+  <line x1="6" y1="29" x2="6" y2="37" stroke="#D98E5C" stroke-width="2.4" stroke-linecap="round"/>`,
     '針劑止痛': `<!-- AAC 實心版：針劑止痛（直立針筒） -->
   <rect x="24" y="14" width="8" height="22" rx="2" fill="#D98E5C"/>
   <rect x="26" y="10" width="4" height="6" rx="1.5" fill="#D98E5C"/>
@@ -2616,30 +2616,48 @@ function renderVisualPlan(){
     '#4A8EA0':'url(#mSky)',    // 天空藍
     '#5A7AA8':'url(#mBlue)'    // 藍
   };
+  // 量測 icon 的實際邊界框(用隱藏 SVG + getBBox),快取避免重複量測
+  function iconBBox(label){
+    if(!window._ICON_BBOX) window._ICON_BBOX = {};
+    if(window._ICON_BBOX[label]) return window._ICON_BBOX[label];
+    let probe = document.getElementById('_iconBBoxProbe');
+    if(!probe){
+      probe = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      probe.id = '_iconBBoxProbe';
+      probe.setAttribute('width','60'); probe.setAttribute('height','60');
+      probe.style.cssText = 'position:absolute;left:-9999px;top:0;';
+      document.body.appendChild(probe);
+    }
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.innerHTML = ICON_MAP[label] || '';
+    probe.appendChild(g);
+    let bb;
+    try { bb = g.getBBox(); } catch(e){ bb = null; }
+    probe.removeChild(g);
+    if(!bb || !bb.width || !bb.height) bb = {x:6, y:6, width:44, height:44};
+    // getBBox 不含線寬,外擴 2 units 補償粗線
+    const out = { x: bb.x-2, y: bb.y-2, w: bb.width+4, h: bb.height+4 };
+    window._ICON_BBOX[label] = out;
+    return out;
+  }
+
   function getIcon(label, cx, cy, size=44){
     let inner = ICON_MAP[label] || '';
     if(!inner) return '';
     if(state.visualTheme === 'mermaid'){
       for(const c in MERMAID_MAP){ inner = inner.split(c).join(MERMAID_MAP[c]); }
     }
-    const scale = size/56;
-    const tx = cx - 28*scale;
-    const ty = cy - 28*scale;
+    // 依實測邊界框自動置中 + 統一視覺大小(最長邊 = size)
+    const bb = iconBBox(label);
+    const scale = size / Math.max(bb.w, bb.h);
+    const tx = cx - (bb.x + bb.w/2) * scale;
+    const ty = cy - (bb.y + bb.h/2) * scale;
     return `<g transform="translate(${tx.toFixed(2)},${ty.toFixed(2)}) scale(${scale.toFixed(4)})">${inner}</g>`;
   }
 
   function bubble(cx, cy, r, fill){
-    const hx = (cx - r*0.28).toFixed(1);
-    const hy = (cy - r*0.28).toFixed(1);
-    const rx = (r*0.38).toFixed(1);
-    const ry = (r*0.22).toFixed(1);
-    const sx = (cx - r*0.5).toFixed(1);
-    const sy = (cy - r*0.5).toFixed(1);
-    const sr = (r*0.1).toFixed(1);
-    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"/>` +
-      `<ellipse cx="${hx}" cy="${hy}" rx="${rx}" ry="${ry}" fill="rgba(255,255,255,0.65)" transform="rotate(-35,${cx},${cy})"/>` +
-      `<circle cx="${sx}" cy="${sy}" r="${sr}" fill="rgba(255,255,255,0.7)"/>` +
-      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"/>`;
+    // 乾淨的平面圓底(移除高光/亮點/外圈的泡泡效果)
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}"/>`;
   }
 
   // ── Section config ───────────────────────────────────────────
@@ -3001,7 +3019,7 @@ function renderVisualPlan(){
           parts.push(`<rect x="${cx_c}" y="${flowRow}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${c.sec.cfg.card}" filter="url(#sh${uid})"/>`);
           parts.push(`<rect x="${cx_c}" y="${flowRow}" width="${FIXED_CW}" height="4" rx="12" fill="${c.sec.cfg.bar}" opacity="0.8"/>`);
           parts.push(bubble(cx, cy_icon, 18, c.sec.cfg.bub));
-          parts.push(getIcon(c.item.label, cx, cy_icon, 38));
+          parts.push(getIcon(c.item.label, cx, cy_icon, 30));
           var maxW = FIXED_CW - 8;
           var wl = wrapCardLabel(dispLabel(c.item.label), maxW);
           var nt = (c.item.note||'').toString();
