@@ -101,6 +101,19 @@ function buildEmail({ name, planHtml, isEN }) {
     ? 'With love, Ocean Doula · oceandoula.com'
     : '溫柔陪伴妳，Ocean Doula · oceandoula.com';
 
+  // ── 回饋區：五星（連到預填 Google 表單）+ 簡短問題 ──
+  const formId = isEN
+    ? '1FAIpQLSecFLWo4F89NUffi5nmer6nEYO65x16HBbtI8tP54MYiKfxVg'
+    : '1FAIpQLSfXL5ktgF0fTI38a63bakLJAIcF_Z9L6yXU4jUs9vMfzwXQnA';
+  const formBase = `https://docs.google.com/forms/d/e/${formId}/viewform?usp=pp_url&entry.785284528=`;
+  const stars = [1, 2, 3, 4, 5].map((n) =>
+    `<a href="${formBase}${n}" target="_blank" style="text-decoration:none;font-size:34px;color:#D98E5C;line-height:1;margin:0 3px;">&#9733;</a>`
+  ).join('');
+  const rateTitle = isEN ? 'How was your WAVE experience?' : '喜歡妳的 WAVE 計畫書嗎？';
+  const rateSub = isEN
+    ? 'Tap a star — then tell us what you loved most and who you’d recommend WAVE to. Takes 30 seconds 💛'
+    : '點顆星，順便告訴我：妳最喜歡哪個部分？會推薦給誰？只要 30 秒 💛';
+
   return `<!doctype html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -118,6 +131,15 @@ function buildEmail({ name, planHtml, isEN }) {
           <div style="border-top:2px solid #E8F4F1;padding-top:24px;font-size:15px;line-height:1.8;">
             ${planHtml}
           </div>
+        </td></tr>
+        <tr><td style="padding:0 32px 8px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAF8F3;border-radius:12px;">
+            <tr><td style="padding:22px 24px;text-align:center;">
+              <div style="font-size:16px;font-weight:700;color:#0B3D45;margin-bottom:4px;">${rateTitle}</div>
+              <div style="font-size:13px;color:#1A6B72;line-height:1.6;margin-bottom:12px;">${rateSub}</div>
+              <div style="white-space:nowrap;">${stars}</div>
+            </td></tr>
+          </table>
         </td></tr>
         <tr><td style="background:#E8F4F1;padding:20px 32px;text-align:center;">
           <p style="font-size:13px;color:#1A6B72;margin:0;">${footer}</p>
