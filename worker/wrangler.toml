@@ -1,0 +1,13 @@
+name = "wave-email"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+# 非機密設定放這裡（會出現在 dashboard，不要放 API key）
+[vars]
+FROM_EMAIL = "plans@oceandoula.com"
+FROM_NAME = "WAVE Support"
+REPLY_TO = "hello@oceandoula.com"
+ALLOWED_ORIGIN = "https://oceandoula.github.io"
+
+# SENDGRID_API_KEY 是機密，用指令設定，不要寫在這個檔案：
+#   npx wrangler secret put SENDGRID_API_KEY

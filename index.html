@@ -369,6 +369,17 @@ a{color:inherit;}
 }
 .btn-regenerate:hover{border-color:var(--ocean);}
 
+.email-plan-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;}
+.btn-email-plan{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:13px; font-weight:600; color:#fff;
+  padding:10px 20px; border-radius:100px; border:none;
+  background:var(--ocean); transition:all .2s; white-space:nowrap; cursor:pointer;
+}
+.btn-email-plan:hover{opacity:.88;}
+.btn-email-plan:disabled{opacity:.5;cursor:default;}
+.email-plan-msg{font-size:13px;font-weight:600;color:var(--ocean);}
+
 
 /* ---------- Language Toggle ---------- */
 .lang-toggle{display:flex;gap:4px;align-items:center;}
@@ -898,6 +909,10 @@ footer a{text-decoration:underline;}
         </div>
       </div>
       <button class="btn-regenerate" onclick="generateAIPlan()">↺ 重新生成</button>
+      <div class="email-plan-row">
+        <button class="btn-email-plan" onclick="emailMyPlan()">📧 把計畫書寄到我的信箱</button>
+        <span class="email-plan-msg" id="emailPlanMsg"></span>
+      </div>
     </div>
 
     <!-- Visual Birth Plan Preview -->
@@ -1048,6 +1063,7 @@ const LANG = {
     aiError: '生成時發生問題，請稍後再試',
     aiRetry: '重新生成',
     aiRegenerate: '↺ 重新生成',
+    emailPlanBtn: '📧 把計畫書寄到我的信箱',
     visualH3: '🗺 妳的視覺生產計畫書',
     visualSub: '一頁圖卡版，帶去產房讓醫護團隊一眼掌握妳的想法',
     lockH4: '預約諮詢，解鎖視覺計畫書',
@@ -1104,6 +1120,7 @@ const LANG = {
     aiError: 'Something went wrong. Please try again.',
     aiRetry: 'Try again',
     aiRegenerate: '↺ Regenerate',
+    emailPlanBtn: '📧 Email my plan to me',
     visualH3: '🗺 Your Visual Birth Plan',
     visualSub: 'A one-page icon card — bring it to the labour ward so your care team can understand your wishes at a glance',
     lockH4: 'Book a consultation to unlock your visual plan',
@@ -1497,6 +1514,8 @@ function setLang(lang) {
   document.querySelector('.ai-sub').textContent = L.aiSub;
   document.querySelector('#aiLoading p').textContent = L.aiLoading;
   document.querySelector('.btn-regenerate').textContent = L.aiRegenerate;
+  const emailBtn = document.querySelector('.btn-email-plan');
+  if(emailBtn) emailBtn.textContent = L.emailPlanBtn;
   document.querySelector('.visual-section h3').textContent = L.visualH3;
   document.querySelector('.vs-subhead').textContent = L.visualSub;
   document.querySelector('.plan-lock-overlay h4').textContent = L.lockH4;
@@ -1540,11 +1559,22 @@ async function submitGate(){
   // Fire and forget - don't wait for Kit response
   state.user = {name, email};
   saveState();
+
+  // ConvertKit (Kit) subscription — public form endpoint, no API key needed
+  try {
+    const fd = new FormData();
+    fd.append('email_address', email);
+    fd.append('first_name', name);
+    fetch('https://app.kit.com/forms/9634406/subscriptions', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: fd
+    }).catch(()=>{});
+  } catch(e) { /* ignore — never block the user */ }
+
   btn.disabled = false;
   btn.textContent = currentLang==='en' ? 'Let WAVE Start Generating' : '讓 WAVE 開始生成';
   goTo('builder');
-
-  // ConvertKit subscription removed - add manually via Kit dashboard
 }
 
 /* ===========================================================
@@ -3317,6 +3347,73 @@ async function downloadPDFFile(){
     console.error('PDF error:', e);
     if(loading) loading.textContent = '下載失敗，請改用列印功能。';
   }
+}
+
+/* ===========================================================
+   EMAIL THE PLAN (via Cloudflare Worker + Resend)
+=========================================================== */
+// 部署 worker 後把這裡換成你的 Worker 網址（見 worker/README.md）
+const EMAIL_WORKER_URL = 'https://wave-email.oceandoula.workers.dev';
+
+async function emailMyPlan(){
+  const isEN = currentLang === 'en';
+  const btn = document.querySelector('.btn-email-plan');
+  const msg = document.getElementById('emailPlanMsg');
+  const planEl = document.getElementById('aiPlanContent');
+  const planHtml = planEl ? planEl.innerHTML : '';
+
+  if(!planHtml){ alert(isEN ? 'Please generate your plan first' : '請先生成計畫書'); return; }
+  const email = (state.user && state.user.email) || '';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    alert(isEN ? 'No email on file — please restart and enter one.' : '找不到妳的 email，請重新填寫');
+    return;
+  }
+
+  btn.disabled = true;
+  if(msg) msg.textContent = isEN ? 'Sending…' : '寄送中…';
+
+  // 若視覺計畫書已解鎖並渲染，就一起附上 PDF（optional）
+  let pdfBase64 = '';
+  try { pdfBase64 = await generatePdfBase64(); } catch(e){ console.warn('pdf attach skipped', e); }
+
+  try {
+    const res = await fetch(EMAIL_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: (state.user && state.user.name) || '',
+        email,
+        planHtml,
+        pdfBase64,
+        lang: isEN ? 'en' : 'zh'
+      })
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    if(msg) msg.textContent = isEN ? `✅ Sent to ${email}` : `✅ 已寄到 ${email}`;
+  } catch(e){
+    console.error('email error', e);
+    if(msg) msg.textContent = isEN ? '❌ Send failed, please try again.' : '❌ 寄送失敗，請稍後再試';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// 產生視覺計畫書的 PDF base64（無 data: 前綴）；未解鎖/未渲染則回傳空字串
+async function generatePdfBase64(){
+  const container = document.getElementById('visualPlanContainer');
+  if(!container) return '';
+  const svgs = container.querySelectorAll('.plan-page svg');
+  if(!svgs.length) return '';
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  for(let i = 0; i < svgs.length; i++){
+    if(i > 0) pdf.addPage([297, 210], 'landscape');
+    const canvas = await svgToCanvas(svgs[i], 3);
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 297, 210);
+  }
+  const uri = pdf.output('datauristring'); // data:application/pdf;...;base64,XXXX
+  return uri.substring(uri.indexOf('base64,') + 7);
 }
 
 /* ===========================================================
