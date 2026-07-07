@@ -1433,7 +1433,8 @@ let state = {
   unlocked: null,
   autoEmailSent: false,
   visualTheme: 'mermaid',
-  prefilled: false
+  prefilled: false,
+  intimacyTagged: false
 };
 
 // ── localStorage persistence ─────────────────────────────
@@ -1449,7 +1450,8 @@ function saveState(){
       unlocked: state.unlocked,
       autoEmailSent: state.autoEmailSent,
       visualTheme: state.visualTheme,
-      prefilled: state.prefilled
+      prefilled: state.prefilled,
+      intimacyTagged: state.intimacyTagged
     }));
   } catch(e){ console.warn('Could not save:', e); }
 }
@@ -1467,6 +1469,7 @@ function loadState(){
     if(data.autoEmailSent) state.autoEmailSent = data.autoEmailSent;
     if(data.visualTheme) state.visualTheme = data.visualTheme;
     if(data.prefilled) state.prefilled = data.prefilled;
+    if(data.intimacyTagged) state.intimacyTagged = data.intimacyTagged;
     return true;
   } catch(e){ return false; }
 }
@@ -1721,6 +1724,30 @@ async function submitGate(){
   btn.disabled = false;
   btn.textContent = currentLang==='en' ? 'Let WAVE Start Generating' : '讓 WAVE 開始生成';
   goTo('builder');
+}
+
+// 勾了親密舒緩選項(Orgasmic Birth 取向)→ 補送 Kit 標記 fields[intimacy]，供專屬 nurture 分眾。
+// Kit 公開表單端點對同一 email 重送會更新欄位，不會重複訂閱；每人只送一次(intimacyTagged)。
+// Kit 端需先建好 intimacy custom field，未建則自動忽略。
+function tagIntimacyInterest(){
+  if(state.intimacyTagged || !state.user || !state.user.email) return;
+  const INTIMATE = ['震動按摩棒','愛撫（伴侶溫柔撫觸）','與伴侶親密接觸',
+                    'Vibrating massager','Gentle touch from partner','Closeness with my partner'];
+  const coping = Array.isArray(state.answers.coping) ? state.answers.coping
+               : (state.answers.coping ? [state.answers.coping] : []);
+  if(!coping.some(v => INTIMATE.indexOf(v) >= 0)) return;
+  state.intimacyTagged = true; saveState();
+  try {
+    const fd = new FormData();
+    fd.append('email_address', state.user.email);
+    if(state.user.name) fd.append('first_name', state.user.name);
+    fd.append('fields[intimacy]', '1');
+    fetch('https://app.kit.com/forms/9634406/subscriptions', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: fd
+    }).catch(()=>{});
+  } catch(e) { /* ignore — never block the user */ }
 }
 
 /* ===========================================================
@@ -2186,6 +2213,8 @@ async function generateAIPlan(){
 
     // 生成後自動寄一次到信箱（含評論邀請），每人只寄一次
     autoEmailPlan();
+    // 勾了親密舒緩選項 → Kit 分眾標記（每人一次）
+    tagIntimacyInterest();
 
   } catch(e) {
     console.error(e);
