@@ -466,6 +466,14 @@ a{color:inherit;}
   font-size:13px;color:#496A6D;margin-bottom:20px;
   word-break:keep-all;line-height:1.7;
 }
+/* 星星預設灰色；hover 亮到目前指到那顆(先全亮，再把 hover 之後的重新變灰)。
+   觸控裝置沒有 hover，維持全彩以免看起來像不能按 */
+@media (hover:hover){
+  #starRating button{filter:grayscale(1);opacity:.5;}
+  #starRating:hover button{filter:none;opacity:1;}
+  #starRating button:hover ~ button{filter:grayscale(1);opacity:.5;}
+  #starRating button:hover{transform:scale(1.2);}
+}
 .feedback-iframe{
   width:100%;border:none;
   border-radius:0 0 18px 18px;
@@ -978,11 +986,11 @@ footer .terms a{color:inherit; text-decoration:underline; text-underline-offset:
         <h3>💬 這個工具對妳有幫助嗎？</h3>
         <p>點星星就完成！匿名，1 秒鐘。</p>
         <div id="starRating" style="display:flex;gap:8px;margin-top:16px;margin-bottom:12px;">
-          <button onclick="submitStar(1)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="1 星">⭐</button>
-          <button onclick="submitStar(2)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="2 星">⭐</button>
-          <button onclick="submitStar(3)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="3 星">⭐</button>
-          <button onclick="submitStar(4)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="4 星">⭐</button>
-          <button onclick="submitStar(5)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s;" title="5 星">⭐</button>
+          <button onclick="submitStar(1)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s,filter .15s,opacity .15s;" title="1 星">⭐</button>
+          <button onclick="submitStar(2)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s,filter .15s,opacity .15s;" title="2 星">⭐</button>
+          <button onclick="submitStar(3)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s,filter .15s,opacity .15s;" title="3 星">⭐</button>
+          <button onclick="submitStar(4)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s,filter .15s,opacity .15s;" title="4 星">⭐</button>
+          <button onclick="submitStar(5)" style="font-size:32px;background:none;border:none;cursor:pointer;transition:transform .15s,filter .15s,opacity .15s;" title="5 星">⭐</button>
         </div>
         <div id="starThanks" style="display:none;font-size:14px;color:var(--ocean);font-weight:700;">謝謝妳的回饋！🌊</div>
         <a id="feedbackLink"
