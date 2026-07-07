@@ -3010,9 +3010,10 @@ function renderVisualPlan(){
 
       selectedVals.forEach(v => {
         if(!v || !v.toString().trim()) return;
-        // Find matching icon
+        // Find matching icon(括號內容先剔除,避免「(若無減痛分娩)」誤配到減痛分娩 icon)
+        const vClean = v.toString().replace(/（[^）]*）|\([^)]*\)/g, '');
         let iconLabel = Object.keys(ICON_MAP).find(k => k === v);
-        if(!iconLabel) iconLabel = Object.keys(ICON_MAP).find(k => v.includes(k) || k.includes(v.slice(0,4)));
+        if(!iconLabel) iconLabel = Object.keys(ICON_MAP).find(k => vClean.includes(k) || k.includes(vClean.slice(0,4)));
         if(!iconLabel) iconLabel = ITEM_ICON[item.id];
         if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
           addedLabels.add(iconLabel);
@@ -3063,16 +3064,47 @@ function renderVisualPlan(){
 
   renderPages(activeSections);
 
+  // 卡片攤平共用函式：依序排 8 欄，必要時插入空白卡(item:null)，
+  // 保證每個 section bar 的每一段都寬到能放完整標題(最小字級 8)——標題不截斷。
+  // 分頁(renderPages)與繪製(buildPage)都走這裡，row 數才會一致，改一邊必壞另一邊。
+  function flowCards(secList){
+    const CW = Math.floor((usable_w - 7*CARD_GAP) / 8);
+    const cards = [];
+    let col = 0;
+    secList.forEach(function(sec){
+      const label = sec.cfg.e + '  ' + sec.name;
+      const w = estTextW(label, 8) + 16;
+      let need = 1;
+      while(need < 8 && need*CW + (need-1)*CARD_GAP < w) need++;
+      // 段首：這排剩下的欄位放不下標題 → 空白卡補滿這排(掛前一個 section)，換排再開始
+      if(col > 0 && 8 - col < need){
+        const prevSec = cards[cards.length-1].sec;
+        while(col < 8){ cards.push({item:null, sec:prevSec}); col++; }
+        col = 0;
+      }
+      let segStart = col;
+      sec.items.forEach(function(item){
+        cards.push({item:item, sec:sec});
+        col++;
+        if(col === 8){ col = 0; segStart = 0; }
+      });
+      // 段尾：最後一段太窄 → 補空白卡把 bar 延伸到夠寬(不跨排)
+      if(col > 0){
+        let segLen = col - segStart;
+        while(segLen < need && col < 8){ cards.push({item:null, sec:sec}); col++; segLen++; }
+        if(col === 8) col = 0;
+      }
+    });
+    return cards;
+  }
+
   function renderPages(sections){
     const phil = (currentLang==='en' ? PHILOSOPHIES_EN : PHILOSOPHIES).find(p=>p.id===state.philosophy);
     const philText = phil ? phil.title : '';
     const userName = state.user ? state.user.name : '';
 
-    // Build all cards flat
-    const allCards = [];
-    sections.forEach(sec => {
-      sec.items.forEach(item => allCards.push({item, sec}));
-    });
+    // Build all cards flat（含標題排版用的空白卡，與 buildPage 同一套 flowCards）
+    const allCards = flowCards(sections);
 
     // Calculate rows needed (8 per row)
     const COLS_N = 8;
@@ -3103,8 +3135,10 @@ function renderVisualPlan(){
     // Convert back to secs format for buildPage
     const pageSVGs = pages.map((page, pi) => {
       // Reconstruct secs from cards for this page
+      // 空白卡略過：buildPage 會用同一套 flowCards 重新插回，位置一致
       const pageSecs = [];
       page.cards.forEach(c => {
+        if(!c.item) return;
         let s = pageSecs.find(s => s.id === c.sec.id);
         if(!s){ s = {id: c.sec.id, name: c.sec.name, cfg: c.sec.cfg, items: []}; pageSecs.push(s); }
         s.items.push(c.item);
@@ -3211,13 +3245,8 @@ function renderVisualPlan(){
     const FIXED_CW = Math.floor((usable_w - 7*CARD_GAP) / 8);
     const COLS = 8;
 
-    // Step 1: build flat list of all cards
-    var allCards = [];
-    secs.forEach(function(sec){
-      sec.items.forEach(function(item){
-        allCards.push({item: item, sec: sec});
-      });
-    });
+    // Step 1: build flat list of all cards（與 renderPages 共用 flowCards，含空白卡）
+    var allCards = flowCards(secs);
 
     // Step 2: pad to fill rows (add placeholders at end)
     while(allCards.length % COLS !== 0){
@@ -3249,7 +3278,8 @@ function renderVisualPlan(){
         var barW = g.count*FIXED_CW + (g.count-1)*CARD_GAP;
         parts.push(`<rect x="${barX}" y="${flowRow}" width="${barW}" height="${SEC_BAR_H}" rx="8" fill="${g.sec.cfg.bar}" opacity="0.88"/>`);
         parts.push(`<rect x="${barX}" y="${flowRow}" width="${barW}" height="${SEC_BAR_H}" rx="8" fill="rgba(255,255,255,0.2)"/>`);
-        // 標題盡量顯示全文:放不下先縮字級(10→9→8),再不行才截斷(至少保住 emoji)
+        // 標題顯示全文:放不下先縮字級(10→9→8)。flowCards 已保證字級 8 一定放得下,
+        // 下面的截斷只是保險絲,正常情況不會觸發
         var secLabel = g.sec.cfg.e+'  '+g.sec.name;
         var availW = barW - 16;
         var secFs = 10;
