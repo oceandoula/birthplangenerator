@@ -1697,6 +1697,7 @@ async function submitGate(){
     fd.append('email_address', email);
     fd.append('first_name', name);
     // 自訂欄位：Kit 端需先建好同名 custom field，未建則自動忽略（不會報錯）
+    fd.append('fields[lang]', currentLang === 'en' ? 'en' : 'zh'); // 報名當下的介面語言 → 決定收哪個語言的 nurture 序列
     if(dueDate) fd.append('fields[due_date]', dueDate);
     if(edd){
       fd.append('fields[edd_segment]', edd.segment);
