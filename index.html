@@ -1206,7 +1206,7 @@ const CATEGORIES_EN = [
       {id:'perineal_prep', name:'Perineal Massage', desc:'Have you been practising perineal massage?', type:'choice',
         options:['Yes, please support this during birth','Not yet, I\'d like to learn more','Not planning to']},
       {id:'vbac', name:'VBAC (Vaginal Birth After Caesarean)', desc:'If you have a previous caesarean, are you hoping for a vaginal birth this time?', type:'choice',
-        options:['Yes, I would like to attempt VBAC','No, I am planning a repeat caesarean','Not applicable (first birth)']},
+        options:['Yes, I would like to attempt VBAC','No, I am planning a repeat caesarean (ERCS)','Undecided — I would like to learn more','Not applicable (first birth)']},
     ]
   },
   {
@@ -1240,7 +1240,7 @@ const CATEGORIES_EN = [
       {id:'med_options', name:'Medications of Interest', desc:'Select all that apply', type:'multi',
         options:['Epidural','Nitrous oxide (gas)','IV pain medication','TENS machine','Prefer no medication']},
       {id:'coping', name:'Non-medical Comfort Measures', desc:'Select all that apply', type:'multi',
-        options:['Heat / cold packs','Music or distraction','Hypnobirthing','Massage','Freedom to eat and drink','Hydrotherapy (pool / shower)','Birth comb','Vocalising (singing / sounds)','Meditation','Affirmations','Intimacy with partner']},
+        options:['Heat / cold packs','Music or distraction','Hypnobirthing','Massage','Freedom to eat and drink','Hydrotherapy (pool / shower)','Birth comb','Vibrating massager','Gentle touch from partner','Closeness with my partner','Vocalising (singing / humming)','Meditation','Affirmations']},
     ]
   },
   {
@@ -1264,9 +1264,9 @@ const CATEGORIES_EN = [
     id:'pushing', name:'Pushing & Birth', icon:'🌅',
     items:[
       {id:'push_pref', name:'Pushing Preferences', desc:'Select all that apply', type:'multi',
-        options:['I\'d like my support person to hold my legs','I\'d like to use the squat bar','I\'d like to use the birth stool','I\'d like to try different positions','I\'d like to wait until I feel the urge to push (if no epidural)','I\'d like to be guided when to push','I\'d like photos or video taken','I prefer a water birth']},
+        options:['Support person to help hold my legs','I\'d like to use the squat bar','I\'d like to use a birth stool','I\'d like to try different positions','Wait for my own urge to push (if no epidural)','I\'d like to be guided when to push','Photos or video of the moment']},
       {id:'delivery_pref', name:'At the Moment of Birth', desc:'Select all that apply', type:'multi',
-        options:['I\'d like a mirror to see the birth','Delayed cord clamping','Immediate skin-to-skin after birth','I\'d like my partner to help catch the baby (if safe)','Water birth','Warm perineal compress / support','Avoid episiotomy (unless necessary)','Avoid forceps or vacuum (unless necessary)','My partner would like to cut the cord']},
+        options:['Use a mirror to watch the birth','Delayed cord clamping','Immediate skin-to-skin after birth','My partner to help catch the baby (if safe)','Water birth','Warm perineal compress / support','Avoid episiotomy (unless necessary)','Avoid forceps or vacuum (unless necessary)','My partner would like to cut the cord','Breathe the baby down (avoid directed pushing)','Wait for the placenta to deliver naturally','Maternal assisted caesarean (I guide baby out)']},
     ]
   },
   {
@@ -1283,13 +1283,13 @@ const CATEGORIES_EN = [
   {
     id:'postpartum', name:'Golden Hour After Birth', icon:'🌤',
     items:[
-      {id:'skin_to_skin', name:'First Contact & Feeding', desc:'', type:'choice', options:['Immediate skin-to-skin, delay routine checks','Complete basic checks first, then skin-to-skin','Skin-to-skin on operating table (caesarean)']},
+      {id:'skin_to_skin', name:'First Contact & Feeding', desc:'', type:'choice', options:['Immediate skin-to-skin, delay routine checks','Complete basic checks first, then skin-to-skin','Skin-to-skin on the operating table (caesarean)','Maternal assisted caesarean (I guide baby out myself)']},
       {id:'feeding_pref', name:'Feeding Preferences', desc:'Select all that apply', type:'multi',
         options:['Exclusive breastfeeding','I\'d like to start nursing as soon as possible','I\'d like lactation consultant (IBCLC) support','Please don\'t offer a dummy / pacifier without asking','Please don\'t supplement with formula without my consent','A small amount of formula is acceptable if needed','Expressed breast milk by bottle is fine','Not yet decided — I\'d like more information']},
       {id:'placenta', name:'Placenta', desc:'', type:'choice',
-        options:['Hospital standard handling','We would like to take the placenta home','Interested in delayed cord clamping / cord blood options']},
+        options:['Hospital standard handling','We would like to take the placenta home','Placenta encapsulation (please help preserve)','Lotus birth (cord left to detach naturally)','Interested in cord blood banking or donation']},
       {id:'newborn_proc', name:'Newborn Care & Procedures', desc:'Select all that apply', type:'multi',
-        options:['Vitamin K injection','Newborn screening','Delay newborn screening (skin-to-skin first)','Delay first bath','Rooming-in (baby stays with me, not nursery)','Eye ointment preference (please discuss options)','Cord blood banking','Cord blood donation']},
+        options:['Vitamin K injection','Newborn screening','Delay newborn screening (skin-to-skin first)','Delay first bath','Rooming-in (baby stays with me, not nursery)','Eye ointment preference (please discuss options)','Uninterrupted golden hour (delay non-urgent procedures)','Cord blood banking','Cord blood donation','Vaginal seeding (please assist)']},
     ]
   },
   {
@@ -1731,9 +1731,11 @@ function renderBuilder(){
 }
 
 function summarize(it){
-  const v = state.answers[it.id];
+  let v = state.answers[it.id];
   if(!v) return '';
-  if(Array.isArray(v)) return v.join('、');
+  // 摘要跟著目前語言顯示(已存答案自動翻譯)
+  if(Array.isArray(v)) return v.map(x => xlateAnswer(it.id, x)).join(currentLang==='en' ? ', ' : '、');
+  v = xlateAnswer(it.id, v);
   return v.toString().length>28 ? v.toString().slice(0,28)+'…' : v;
 }
 
@@ -1769,7 +1771,7 @@ function renderModal(){
   } else if(item.type==='choice'){
     const customVal = state.customAnswers && state.customAnswers[item.id] ? state.customAnswers[item.id] : '';
     body = `<div class="opt-grid">` + item.options.map(opt=>{
-      const picked = state.answers[item.id]===opt;
+      const picked = sameAnswer(item.id, state.answers[item.id], opt);
       return `<button class="opt-pill ${picked?'picked':''}" onclick="selectChoice('${escapeAttr(opt)}')">${opt}</button>`;
     }).join('') + `</div>
     <div class="custom-input-wrap">
@@ -1782,7 +1784,7 @@ function renderModal(){
     const current = state.answers[item.id] || [];
     const customVal = state.customAnswers && state.customAnswers[item.id] ? state.customAnswers[item.id] : '';
     body = `<div class="opt-grid">` + item.options.map(opt=>{
-      const picked = current.includes(opt);
+      const picked = current.some(x => sameAnswer(item.id, x, opt));
       return `<button class="opt-pill ${picked?'picked':''}" onclick="toggleMulti('${escapeAttr(opt)}')">${opt}</button>`;
     }).join('') + `</div>
     <div class="custom-input-wrap">
@@ -1801,8 +1803,8 @@ function renderModal(){
     ${item.desc?`<p class="q">${item.desc}</p>`:''}
     ${body}
     <div class="modal-actions">
-      ${hasValue?`<button class="modal-remove" onclick="removeAnswer()">移除</button>`:''}
-      <button class="modal-save" id="modalSaveBtn" onclick="saveModal()">儲存</button>
+      ${hasValue?`<button class="modal-remove" onclick="removeAnswer()">${LANG[currentLang].modalRemove}</button>`:''}
+      <button class="modal-save" id="modalSaveBtn" onclick="saveModal()">${LANG[currentLang].modalSave}</button>
     </div>
   `;
 }
@@ -1829,7 +1831,8 @@ function selectChoice(opt){
 function toggleMulti(opt){
   const id = activeItem.item.id;
   let arr = state.answers[id] ? [...state.answers[id]] : [];
-  if(arr.includes(opt)) arr = arr.filter(x=>x!==opt);
+  // 取消勾選時,存的可能是另一種語言的同一選項,用 sameAnswer 對照
+  if(arr.some(x => sameAnswer(id, x, opt))) arr = arr.filter(x => !sameAnswer(id, x, opt));
   else arr.push(opt);
   state.answers[id] = arr;
   renderModal();
@@ -2188,6 +2191,11 @@ function xlateAnswer(itemId, val){
     return (idx >= 0 && di.options[idx] != null) ? di.options[idx] : val;
   }
   return val;
+}
+
+// 判斷已存答案與目前語言的選項是否為同一個(原文相等,或翻譯後相等)
+function sameAnswer(itemId, stored, opt){
+  return stored === opt || xlateAnswer(itemId, stored) === opt;
 }
 
 function setVisualTheme(theme){
@@ -3168,22 +3176,28 @@ function renderWizardStep(){
     if(item.type === 'choice'){
       const cur = state.answers[item.id] || '';
       optsHtml = `<div class="wiz-opts">` +
-        item.options.map(opt => `
-          <button class="wiz-opt ${cur===opt?'selected':''}"
+        item.options.map(opt => {
+          const sel = sameAnswer(item.id, cur, opt);
+          return `
+          <button class="wiz-opt ${sel?'selected':''}"
             onclick="wizSelectChoice('${item.id}','${escapeAttr(opt)}')">
-            <span class="wiz-opt-check">${cur===opt?'✓':''}</span>
+            <span class="wiz-opt-check">${sel?'✓':''}</span>
             <span>${opt}</span>
-          </button>`).join('') +
+          </button>`;
+        }).join('') +
         `</div>`;
     } else if(item.type === 'multi'){
       const cur = state.answers[item.id] || [];
       optsHtml = `<div class="wiz-opts">` +
-        item.options.map(opt => `
-          <button class="wiz-opt ${cur.includes(opt)?'multi-sel':''}"
+        item.options.map(opt => {
+          const sel = cur.some(x => sameAnswer(item.id, x, opt));
+          return `
+          <button class="wiz-opt ${sel?'multi-sel':''}"
             onclick="wizToggleMulti('${item.id}','${escapeAttr(opt)}')">
-            <span class="wiz-opt-check">${cur.includes(opt)?'✓':''}</span>
+            <span class="wiz-opt-check">${sel?'✓':''}</span>
             <span>${opt}</span>
-          </button>`).join('') +
+          </button>`;
+        }).join('') +
         `</div>`;
     } else if(item.type === 'text'){
       const cur = state.answers[item.id] || '';
@@ -3243,7 +3257,8 @@ function wizSelectChoice(id, opt){
 
 function wizToggleMulti(id, opt){
   if(!state.answers[id]) state.answers[id] = [];
-  const idx = state.answers[id].indexOf(opt);
+  // 取消勾選時,存的可能是另一種語言的同一選項,用 sameAnswer 對照
+  const idx = state.answers[id].findIndex(x => sameAnswer(id, x, opt));
   if(idx >= 0) state.answers[id].splice(idx, 1);
   else state.answers[id].push(opt);
   saveState();
