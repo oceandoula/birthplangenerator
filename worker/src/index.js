@@ -145,6 +145,14 @@ function buildEmail({ name, planHtml, isEN }) {
     ? 'Tap a star — then tell us what you loved most and who you would recommend WAVE to. Takes 30 seconds 💛'
     : '點顆星，順便告訴我：妳最喜歡哪個部分？會推薦給誰？只要 30 秒 💛';
 
+  // ── LINE 邀請區：真人對話入口（加好友連結） ──
+  const lineUrl = 'https://line.me/R/ti/p/@256zztrr';
+  const lineTitle = isEN ? 'Want to ask a real human?' : '有問題想問真人嗎？';
+  const lineSub = isEN
+    ? 'Add Naphy on LINE to chat about your plan, how to raise it with your hospital, or anything about your birth.'
+    : '加 Naphy 的 LINE，直接聊聊妳的計畫書、跟醫院怎麼開口、或任何生產的疑問。真人回覆，不是機器人。';
+  const lineBtn = isEN ? 'Add on LINE &rarr;' : '加 LINE 好友 &rarr;';
+
   return `<!doctype html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -169,6 +177,15 @@ function buildEmail({ name, planHtml, isEN }) {
               <div style="font-size:16px;font-weight:700;color:#0B3D45;margin-bottom:4px;">${rateTitle}</div>
               <div style="font-size:13px;color:#1A6B72;line-height:1.6;margin-bottom:12px;">${rateSub}</div>
               <div style="white-space:nowrap;">${stars}</div>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:0 32px 24px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F2FBF5;border-radius:12px;">
+            <tr><td style="padding:22px 24px;text-align:center;">
+              <div style="font-size:16px;font-weight:700;color:#0B3D45;margin-bottom:4px;">${lineTitle}</div>
+              <div style="font-size:13px;color:#1A6B72;line-height:1.6;margin-bottom:14px;">${lineSub}</div>
+              <a href="${lineUrl}" target="_blank" style="display:inline-block;background:#06C755;color:#ffffff;font-size:14px;font-weight:700;padding:11px 28px;border-radius:999px;text-decoration:none;">${lineBtn}</a>
             </td></tr>
           </table>
         </td></tr>

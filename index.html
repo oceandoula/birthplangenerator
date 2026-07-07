@@ -453,6 +453,36 @@ a{color:inherit;}
   border:1.5px solid var(--line);
   overflow:hidden;
 }
+/* ---------- LINE 邀請卡 ---------- */
+.line-section{
+  margin-top:20px;
+  background:#fff;
+  border-radius:20px;
+  border:1.5px solid var(--line);
+  overflow:hidden;
+}
+.line-section::before{
+  content:'';display:block;height:4px;
+  background:#06C755;
+}
+.line-inner{padding:28px 28px 28px;}
+.line-inner h3{
+  font-size:18px;font-family:"Noto Serif TC",serif;
+  color:var(--deep);margin-bottom:6px;word-break:keep-all;
+}
+.line-inner p{
+  font-size:13px;color:#496A6D;margin-bottom:18px;
+  word-break:keep-all;line-height:1.7;
+}
+.btn-line{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#06C755;color:#fff;
+  font-size:14px;font-weight:700;
+  padding:12px 26px;border-radius:999px;
+  text-decoration:none;
+  transition:opacity .15s,transform .15s;
+}
+.btn-line:hover{opacity:.88;transform:translateY(-1px);}
 .feedback-section::before{
   content:'';display:block;height:4px;
   background:linear-gradient(90deg,var(--lagoon),var(--ocean),var(--coral));
@@ -1002,6 +1032,15 @@ footer .terms a{color:inherit; text-decoration:underline; text-underline-offset:
       </div>
     </div>
 
+    <!-- LINE invite -->
+    <div class="line-section" id="lineSection">
+      <div class="line-inner">
+        <h3 id="lineH3">💬 有問題想問真人嗎？</h3>
+        <p id="lineP">加 Naphy 的 LINE，直接聊聊妳的計畫書、跟醫院怎麼開口、或任何生產的疑問。真人回覆，不是機器人。</p>
+        <a class="btn-line" id="lineBtn" href="https://line.me/R/ti/p/@256zztrr" target="_blank" rel="noopener">加 LINE 好友 →</a>
+      </div>
+    </div>
+
     <!-- Text plan download + back -->
     <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
       <a href="#" onclick="downloadPdf();return false;" style="font-size:13px;color:var(--ocean);font-weight:600;text-decoration:underline;text-underline-offset:3px;">↓ 下載文字版計畫書（免費）</a>
@@ -1092,6 +1131,9 @@ const LANG = {
     fbH3: '💬 這個工具對妳有幫助嗎？',
     fbP: '點星星就完成！匿名，1 秒鐘。',
     fbThanks: '謝謝妳的回饋！🌊',
+    lineH3: '💬 有問題想問真人嗎？',
+    lineP: '加 Naphy 的 LINE，直接聊聊妳的計畫書、跟醫院怎麼開口、或任何生產的疑問。真人回覆，不是機器人。',
+    lineBtn: '加 LINE 好友 →',
     freeTextLink: '↓ 下載文字版計畫書（免費）',
     backAdjust: '← 回去再調整選項',
     ctaTag: '文字版副本',
@@ -1171,6 +1213,9 @@ const LANG = {
     fbH3: '💬 Was this tool helpful?',
     fbP: 'Just tap a star — anonymous, takes 1 second.',
     fbThanks: 'Thank you for your feedback! 🌊',
+    lineH3: '💬 Want to ask a real human?',
+    lineP: 'Add Naphy on LINE to chat about your plan, how to raise it with your hospital, or anything about your birth. A real person replies — not a bot.',
+    lineBtn: 'Add on LINE →',
     freeTextLink: '↓ Download text plan (free)',
     backAdjust: '← Go back and adjust',
     ctaTag: 'Text version',
@@ -1628,6 +1673,14 @@ function setLang(lang) {
     fb.querySelector('.feedback-inner > p').textContent = L.fbP;
     const thx = document.getElementById('starThanks');
     if(thx) thx.textContent = L.fbThanks;
+  }
+
+  // LINE invite
+  const lineH3 = document.getElementById('lineH3');
+  if(lineH3){
+    lineH3.textContent = L.lineH3;
+    document.getElementById('lineP').textContent = L.lineP;
+    document.getElementById('lineBtn').textContent = L.lineBtn;
   }
 
   // Free text download link + back button + footer
@@ -2436,6 +2489,11 @@ function setVisualTheme(theme){
   });
   try { renderVisualPlan(); } catch(e){ console.warn('theme re-render failed', e); }
 }
+
+// LINE 加好友 QR（https://line.me/R/ti/p/@256zztrr）。29×29 modules，
+// 離線預先生成的 path（每列橫向合併），列印在視覺計畫書頁腳右下角
+const LINE_QR_MODULES = 29;
+const LINE_QR_PATH = 'M0 0h7v1h-7zM8 0h4v1h-4zM13 0h3v1h-3zM17 0h3v1h-3zM22 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h3v1h-3zM13 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h3v1h-3zM16 2h1v1h-1zM18 2h2v1h-2zM22 2h1v1h-1zM24 2h3v1h-3zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM12 3h1v1h-1zM14 3h2v1h-2zM20 3h1v1h-1zM22 3h1v1h-1zM24 3h3v1h-3zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM11 4h1v1h-1zM14 4h1v1h-1zM16 4h2v1h-2zM19 4h1v1h-1zM22 4h1v1h-1zM24 4h3v1h-3zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h2v1h-2zM12 5h2v1h-2zM15 5h2v1h-2zM19 5h2v1h-2zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h7v1h-7zM8 7h2v1h-2zM11 7h2v1h-2zM15 7h3v1h-3zM19 7h1v1h-1zM0 8h1v1h-1zM2 8h2v1h-2zM5 8h3v1h-3zM9 8h1v1h-1zM13 8h1v1h-1zM15 8h1v1h-1zM17 8h1v1h-1zM22 8h1v1h-1zM25 8h1v1h-1zM27 8h2v1h-2zM0 9h2v1h-2zM3 9h1v1h-1zM5 9h1v1h-1zM7 9h2v1h-2zM11 9h5v1h-5zM19 9h1v1h-1zM21 9h2v1h-2zM24 9h1v1h-1zM28 9h1v1h-1zM2 10h1v1h-1zM4 10h1v1h-1zM6 10h1v1h-1zM9 10h3v1h-3zM13 10h1v1h-1zM16 10h1v1h-1zM21 10h2v1h-2zM26 10h2v1h-2zM4 11h1v1h-1zM9 11h1v1h-1zM11 11h1v1h-1zM16 11h1v1h-1zM19 11h1v1h-1zM23 11h1v1h-1zM28 11h1v1h-1zM0 12h1v1h-1zM2 12h3v1h-3zM6 12h3v1h-3zM11 12h1v1h-1zM14 12h2v1h-2zM17 12h3v1h-3zM25 12h2v1h-2zM0 13h3v1h-3zM8 13h1v1h-1zM11 13h1v1h-1zM14 13h1v1h-1zM16 13h4v1h-4zM22 13h1v1h-1zM26 13h3v1h-3zM2 14h2v1h-2zM6 14h1v1h-1zM10 14h1v1h-1zM12 14h2v1h-2zM15 14h2v1h-2zM18 14h2v1h-2zM21 14h1v1h-1zM24 14h1v1h-1zM26 14h3v1h-3zM2 15h1v1h-1zM11 15h2v1h-2zM14 15h1v1h-1zM16 15h1v1h-1zM20 15h1v1h-1zM23 15h1v1h-1zM27 15h1v1h-1zM1 16h2v1h-2zM4 16h3v1h-3zM10 16h2v1h-2zM14 16h2v1h-2zM21 16h1v1h-1zM23 16h3v1h-3zM27 16h1v1h-1zM3 17h1v1h-1zM5 17h1v1h-1zM7 17h3v1h-3zM12 17h1v1h-1zM14 17h1v1h-1zM16 17h1v1h-1zM18 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM25 17h3v1h-3zM0 18h1v1h-1zM3 18h1v1h-1zM6 18h3v1h-3zM11 18h1v1h-1zM13 18h3v1h-3zM17 18h1v1h-1zM20 18h1v1h-1zM23 18h2v1h-2zM26 18h1v1h-1zM2 19h2v1h-2zM7 19h2v1h-2zM10 19h2v1h-2zM13 19h3v1h-3zM17 19h1v1h-1zM19 19h1v1h-1zM21 19h1v1h-1zM23 19h2v1h-2zM26 19h1v1h-1zM1 20h1v1h-1zM3 20h5v1h-5zM12 20h3v1h-3zM17 20h2v1h-2zM20 20h7v1h-7zM8 21h2v1h-2zM11 21h2v1h-2zM16 21h2v1h-2zM20 21h1v1h-1zM24 21h5v1h-5zM0 22h7v1h-7zM8 22h4v1h-4zM14 22h1v1h-1zM19 22h2v1h-2zM22 22h1v1h-1zM24 22h2v1h-2zM27 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM11 23h6v1h-6zM19 23h2v1h-2zM24 23h2v1h-2zM28 23h1v1h-1zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h1v1h-1zM9 24h4v1h-4zM15 24h3v1h-3zM20 24h5v1h-5zM26 24h2v1h-2zM0 25h1v1h-1zM2 25h3v1h-3zM6 25h1v1h-1zM8 25h1v1h-1zM11 25h1v1h-1zM13 25h1v1h-1zM15 25h2v1h-2zM18 25h1v1h-1zM23 25h3v1h-3zM28 25h1v1h-1zM0 26h1v1h-1zM2 26h3v1h-3zM6 26h1v1h-1zM8 26h4v1h-4zM16 26h2v1h-2zM19 26h1v1h-1zM23 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM14 27h3v1h-3zM18 27h2v1h-2zM22 27h1v1h-1zM24 27h2v1h-2zM27 27h1v1h-1zM0 28h7v1h-7zM8 28h1v1h-1zM11 28h1v1h-1zM16 28h1v1h-1zM18 28h5v1h-5zM24 28h1v1h-1zM27 28h1v1h-1z';
 
 function renderVisualPlan(){
   const PW = 1123, PH = 794, PAD = 28;
@@ -3347,6 +3405,13 @@ function renderVisualPlan(){
     parts.push(`<path d="M0 ${footY+6} C${Math.round(PW*0.2)} ${footY-4} ${Math.round(PW*0.4)} ${footY+10} ${Math.round(PW*0.65)} ${footY+2} C${Math.round(PW*0.82)} ${footY-5} ${Math.round(PW*0.92)} ${footY+8} ${PW} ${footY} L${PW} ${footY} L0 ${footY}Z" fill="rgba(255,255,255,0.05)"/>`);
     parts.push(`<text x="${PW/2}" y="${footY+26}" font-family="Noto Serif TC" font-size="13" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-weight="600">${pgEN ? 'Thank you for taking the time to understand my birth plan' : '感謝您花時間了解我的生產計畫'}</text>`);
     parts.push(`<text x="${PW/2}" y="${footY+42}" font-family="Noto Sans TC" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle">${pgEN ? 'oceandoula.com · WAVE Support · For communication only — not a substitute for medical advice' : 'oceandoula.com · WAVE Support · 本計畫僅供溝通參考，不取代醫療專業建議'}</text>`);
+
+    // LINE QR：頁腳右下角，掃描加 Naphy 好友。白底+深色模組（不在 MERMAID_MAP 內，兩種主題都不變）
+    const qrS = 40, qrPad = 4;
+    const qrX = PW - PAD - qrS, qrY = footY + Math.round((FOOTER_H - qrS) / 2);
+    parts.push(`<rect x="${qrX - qrPad}" y="${qrY - qrPad}" width="${qrS + qrPad*2}" height="${qrS + qrPad*2}" rx="5" fill="rgba(255,255,255,0.95)"/>`);
+    parts.push(`<g transform="translate(${qrX},${qrY}) scale(${(qrS / LINE_QR_MODULES).toFixed(4)})"><path d="${LINE_QR_PATH}" fill="#1B3A4B"/></g>`);
+    parts.push(`<text x="${qrX - qrPad - 8}" y="${footY + FOOTER_H/2 + 3}" font-family="Noto Sans TC" font-size="8" fill="rgba(255,255,255,0.55)" text-anchor="end">${pgEN ? 'Questions? Scan to chat on LINE' : '有疑問？掃描加 LINE 直接聊'}</text>`);
 
     return parts.join('\n');
   }
