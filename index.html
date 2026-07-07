@@ -3153,9 +3153,17 @@ function renderVisualPlan(){
         var barW = g.count*FIXED_CW + (g.count-1)*CARD_GAP;
         parts.push(`<rect x="${barX}" y="${flowRow}" width="${barW}" height="${SEC_BAR_H}" rx="8" fill="${g.sec.cfg.bar}" opacity="0.88"/>`);
         parts.push(`<rect x="${barX}" y="${flowRow}" width="${barW}" height="${SEC_BAR_H}" rx="8" fill="rgba(255,255,255,0.2)"/>`);
+        // 標題盡量顯示全文:放不下先縮字級(10→9→8),再不行才截斷(至少保住 emoji)
         var secLabel = g.sec.cfg.e+'  '+g.sec.name;
-        if(barW < 160) secLabel = g.sec.cfg.e;
-        parts.push(`<text x="${barX+10}" y="${flowRow+16}" font-family="Noto Sans TC" font-size="10" fill="${g.sec.cfg.tc}" font-weight="700">${secLabel}</text>`);
+        var availW = barW - 16;
+        var secFs = 10;
+        while(secFs > 8 && estTextW(secLabel, secFs) > availW) secFs -= 1;
+        if(estTextW(secLabel, secFs) > availW){
+          var cut = secLabel;
+          while(cut.length > g.sec.cfg.e.length && estTextW(cut+'…', secFs) > availW) cut = cut.slice(0,-1);
+          secLabel = (cut === secLabel) ? secLabel : cut+'…';
+        }
+        parts.push(`<text x="${barX+10}" y="${flowRow+16}" font-family="Noto Sans TC" font-size="${secFs}" fill="${g.sec.cfg.tc}" font-weight="700">${secLabel}</text>`);
       });
       flowRow += SEC_BAR_H + 4;
 
@@ -3740,7 +3748,7 @@ async function autoEmailPlan(){
       state.autoEmailSent = true; saveState();
       if(msg) msg.textContent = isEN
         ? `📩 We have also emailed this to ${email} — check your inbox and leave us a star 💛`
-        : `📩 我們也把計畫書寄到 ${email} 了，記得收信、順手給我們一顆星 💛`;
+        : `📩 我們也把計畫書寄到 ${email} 了，記得收信、順手給我們五顆星 💛`;
     }
   } catch(e){ console.warn('auto email skipped', e); }  // 靜默失敗，不干擾使用者
 }
