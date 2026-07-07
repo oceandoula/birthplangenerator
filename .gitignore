@@ -1,0 +1,9 @@
+# 本機工具/檢查頁,不要上線
+icon-review.html
+.claude/
+.DS_Store
+
+# worker 本機產物
+worker/node_modules/
+worker/.wrangler/
+worker/.dev.vars

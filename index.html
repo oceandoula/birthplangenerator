@@ -2182,6 +2182,8 @@ function xlateAnswer(itemId, val){
     const dc = dst.find(c => c.id === sc.id);
     const di = dc && dc.items.find(it => it.id === itemId);
     if(!di || !di.options) return val;
+    // 安全鎖:兩邊選項數不同代表清單沒對齊,按索引翻會翻錯 → 寧可保留原文
+    if(si.options.length !== di.options.length) return val;
     const idx = si.options.indexOf(val);
     return (idx >= 0 && di.options[idx] != null) ? di.options[idx] : val;
   }
