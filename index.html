@@ -3033,7 +3033,9 @@ function renderVisualPlan(){
         if(c.item){
           parts.push(`<rect x="${cx_c}" y="${flowRow}" width="${FIXED_CW}" height="${CARD_H}" rx="12" fill="${c.sec.cfg.card}" filter="url(#sh${uid})"/>`);
           parts.push(`<rect x="${cx_c}" y="${flowRow}" width="${FIXED_CW}" height="4" rx="12" fill="${c.sec.cfg.bar}" opacity="0.8"/>`);
-          parts.push(bubble(cx, cy_icon, 18, c.sec.cfg.bub));
+          // 美人魚模式用近白圓底:粉彩漸層 icon 在同色系圓底上會糊(藍配藍),白底才跳得出來
+          var bubFill = state.visualTheme === 'mermaid' ? 'rgba(255,255,255,0.92)' : c.sec.cfg.bub;
+          parts.push(bubble(cx, cy_icon, 18, bubFill));
           parts.push(getIcon(c.item.label, cx, cy_icon, 30));
           var maxW = FIXED_CW - 8;
           var wl = wrapCardLabel(dispLabel(c.item.label), maxW);

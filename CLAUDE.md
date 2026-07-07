@@ -66,7 +66,8 @@
 
 ### 卡片
 - 每排 8 個（`COLS = 8`），section bar merge 橫跨所屬卡片
-- icon：平面圓底 r=18（泡泡光影已移除）+ `getIcon(label, cx, cy, 30)`
+- icon：平面圓底 r=18（泡泡光影已移除）+ `getIcon(label, cx, cy, 30)`；
+  **美人魚模式圓底用近白 `rgba(255,255,255,0.92)`**（粉彩 icon 配同色系圓底會糊）
 - **`getIcon()` 會自動置中+統一大小**：用隱藏 SVG `getBBox()` 實測邊界框（快取
   `window._ICON_BBOX`），新 icon 不用精準置中，畫在 56 box 內即可
 - 文字：標籤 11px 粗體（`wrapCardLabel` 最多兩行）、note 8.5px（`wrapText` 最多兩行，
