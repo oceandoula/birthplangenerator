@@ -820,6 +820,10 @@ footer a{text-decoration:underline;}
           <label for="userEmail">Email</label>
           <input type="email" id="userEmail" placeholder="you@example.com">
         </div>
+        <div class="field">
+          <label for="userDueDate">預產期 <span style="font-weight:400;color:#8AA5A6;">選填 — 讓 WAVE 依週數提醒妳</span></label>
+          <input type="date" id="userDueDate">
+        </div>
         <button class="gate-submit" onclick="submitGate()">讓 WAVE 開始生成</button>
         <div class="gate-privacy">我們不會寄送垃圾訊息，妳可以隨時取消訂閱。</div>
       </div>
@@ -1030,11 +1034,13 @@ const LANG = {
     gateBenefit3: '完成後可直接預約生產計畫諮詢',
     gateNameLabel: '妳的稱呼',
     gateNamePlaceholder: '例如：小雅',
+    gateDueLabel: '預產期',
+    gateDueHint: '選填 — 讓 WAVE 依週數提醒妳',
     gateSubmit: '讓 WAVE 開始生成',
     gatePrivacy: '我們不會寄送垃圾訊息，妳可以隨時取消訂閱。',
     builderEyebrow: 'WAVE · AI 生產計畫',
     builderGreeting: (name) => name ? `${name}，這是為妳客製化的生產計畫` : '為妳客製化的生產計畫',
-    builderSub: '告訴 WAVE 妳的偏好，完成後 AI 會幫妳整理成一份完整的計畫書。點開每個區塊，選擇符合妳的選項。',
+    builderSub: '告訴 WAVE 妳的偏好，完成後 AI 會幫妳整理成一份完整的計畫書。點開每個區塊，選擇符合妳的選項。進度會自動保存，隨時可以離開再回來。',
     progTotal: '共 9 大類別',
     progCurrent: (n) => `已選擇 ${n} 項`,
     builderBack: '← 返回上一步',
@@ -1107,11 +1113,13 @@ const LANG = {
     gateBenefit3: 'Book a birth plan consultation when you\'re done',
     gateNameLabel: 'Your name',
     gateNamePlaceholder: 'e.g. Sarah',
+    gateDueLabel: 'Due date',
+    gateDueHint: 'Optional — so WAVE can time reminders to your weeks',
     gateSubmit: 'Let WAVE Start Generating',
     gatePrivacy: 'We won\'t send spam. Unsubscribe anytime.',
     builderEyebrow: 'WAVE · AI Birth Plan',
     builderGreeting: (name) => name ? `${name}, here is your personalised birth plan` : 'Your personalised birth plan',
-    builderSub: 'Tell WAVE your preferences. When you\'re done, AI will compile everything into a complete plan. Tap each section to choose your options.',
+    builderSub: 'Tell WAVE your preferences. When you\'re done, AI will compile everything into a complete plan. Tap each section to choose your options. Your progress saves automatically — leave and come back any time.',
     progTotal: '9 categories total',
     progCurrent: (n) => `${n} preferences selected`,
     builderBack: '← Back',
@@ -1411,7 +1419,8 @@ let state = {
   customAnswers: {},
   unlocked: null,
   autoEmailSent: false,
-  visualTheme: 'mermaid'
+  visualTheme: 'mermaid',
+  prefilled: false
 };
 
 // ── localStorage persistence ─────────────────────────────
@@ -1426,7 +1435,8 @@ function saveState(){
       customAnswers: state.customAnswers,
       unlocked: state.unlocked,
       autoEmailSent: state.autoEmailSent,
-      visualTheme: state.visualTheme
+      visualTheme: state.visualTheme,
+      prefilled: state.prefilled
     }));
   } catch(e){ console.warn('Could not save:', e); }
 }
@@ -1443,6 +1453,7 @@ function loadState(){
     if(data.unlocked) state.unlocked = data.unlocked;
     if(data.autoEmailSent) state.autoEmailSent = data.autoEmailSent;
     if(data.visualTheme) state.visualTheme = data.visualTheme;
+    if(data.prefilled) state.prefilled = data.prefilled;
     return true;
   } catch(e){ return false; }
 }
@@ -1459,8 +1470,8 @@ function goTo(stage){
   document.getElementById('stepLabel').textContent = LANG[currentLang].stepLabel[stage];
   window.scrollTo({top:0, behavior:'smooth'});
   if(stage==='builder'){
+    applyPhilosophyPreset();   // 第一次進來且選了理念 → 預填常見組合
     renderBuilder();
-
   }
   if(stage==='finish') renderFinish();
 }
@@ -1526,6 +1537,8 @@ function setLang(lang) {
   if(benefits[2]) benefits[2].innerHTML = '<span class="check">✓</span> ' + L.gateBenefit3;
   document.querySelector('label[for="userName"]').textContent = L.gateNameLabel;
   document.getElementById('userName').placeholder = L.gateNamePlaceholder;
+  const dueLabel = document.querySelector('label[for="userDueDate"]');
+  if(dueLabel) dueLabel.innerHTML = L.gateDueLabel + ' <span style="font-weight:400;color:#8AA5A6;">' + L.gateDueHint + '</span>';
   document.querySelector('.gate-submit').textContent = L.gateSubmit;
   document.querySelector('.gate-privacy').textContent = L.gatePrivacy;
   
@@ -1634,9 +1647,29 @@ function pickPhilosophy(id){
 /* ===========================================================
    EMAIL GATE
 =========================================================== */
+// 由預產期算出週數、剩餘天數與「行銷分眾」——nurture email 依此排程時機。
+// 回傳 null 代表沒填或格式不對；不會擋使用者流程。
+function computeEddInfo(dueDateStr){
+  if(!dueDateStr) return null;
+  const edd = new Date(dueDateStr + 'T00:00:00');
+  if(isNaN(edd.getTime())) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const daysLeft = Math.round((edd - today) / 86400000);
+  const weeksLeft = Math.floor(daysLeft / 7);
+  const gestWeeks = 40 - weeksLeft;             // 概略孕週（以 40 週足月回推）
+  let segment;
+  if(daysLeft < -14)      segment = 'postpartum';   // 已過預產期兩週：多半已生 → 產後 / 二胎
+  else if(weeksLeft <= 4) segment = 'due-soon';     // ~36 週後：高意願 → 推 $97 諮詢
+  else if(gestWeeks >= 28) segment = 'third-tri';   // 28–35 週：焦慮高峰 → 推 $9 視覺版
+  else if(gestWeeks >= 14) segment = 'second-tri';  // 14–27 週：建立信任
+  else                     segment = 'first-tri';   // 早孕：長線培養
+  return { dueDate: dueDateStr, daysLeft, weeksLeft, gestWeeks, segment };
+}
+
 async function submitGate(){
   const name = document.getElementById('userName').value.trim();
   const email = document.getElementById('userEmail').value.trim();
+  const dueDate = document.getElementById('userDueDate').value; // 選填，可能為 ''
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if(!name){ alert(currentLang==='en' ? 'Please enter your name 🙂' : '請留下妳的稱呼 🙂'); return; }
   if(!emailOk){ alert(currentLang==='en' ? 'Please enter a valid email address' : '請留下正確的 Email 格式'); return; }
@@ -1646,8 +1679,11 @@ async function submitGate(){
   btn.disabled = true;
   btn.textContent = currentLang==='en' ? 'Subscribing…' : '訂閱中…';
 
+  // 預產期 → 週數 / 分眾（供 nurture email 排程時機）
+  const edd = computeEddInfo(dueDate);
+
   // Fire and forget - don't wait for Kit response
-  state.user = {name, email};
+  state.user = {name, email, dueDate, eddSegment: edd ? edd.segment : ''};
   saveState();
 
   // ConvertKit (Kit) subscription — public form endpoint, no API key needed
@@ -1655,6 +1691,12 @@ async function submitGate(){
     const fd = new FormData();
     fd.append('email_address', email);
     fd.append('first_name', name);
+    // 自訂欄位：Kit 端需先建好同名 custom field，未建則自動忽略（不會報錯）
+    if(dueDate) fd.append('fields[due_date]', dueDate);
+    if(edd){
+      fd.append('fields[edd_segment]', edd.segment);
+      fd.append('fields[weeks_left]', String(edd.weeksLeft));
+    }
     fetch('https://app.kit.com/forms/9634406/subscriptions', {
       method: 'POST',
       headers: { 'Accept': 'application/json' },
@@ -1695,6 +1737,24 @@ function renderBuilder(){
   document.getElementById('builderGreeting').textContent = bgEN
     ? (state.user.name ? `${state.user.name}, WAVE is preparing your plan` : 'WAVE is preparing your plan')
     : (state.user.name ? `${state.user.name}，WAVE 正在為妳準備計畫` : 'WAVE 正在為妳準備計畫');
+
+  // 預填提示橫幅(有預填且尚未收起時顯示)
+  const oldBanner = document.getElementById('prefillBanner');
+  if(oldBanner) oldBanner.remove();
+  if(state.prefilled && totalAnswered() > 0){
+    const b = document.createElement('div');
+    b.id = 'prefillBanner';
+    b.style.cssText = 'margin:0 0 16px;padding:14px 16px;background:#EAF6F4;border:1.5px solid #BFE3DD;border-radius:14px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:13.5px;color:#1A5B62;line-height:1.6;';
+    b.innerHTML = `<span style="flex:1;min-width:200px;">${bgEN
+      ? '🌊 We pre-filled common choices based on your birth philosophy — please review each section and make it yours.'
+      : '🌊 已根據妳的生產理念預填常見組合,請逐區檢查、調整成妳自己的答案。'}</span>
+      <span style="display:flex;gap:8px;">
+        <button onclick="clearPrefill()" style="font-size:12.5px;padding:7px 14px;border-radius:100px;border:1.5px solid #BFE3DD;background:#fff;color:#1A6B72;cursor:pointer;font-family:inherit;">${bgEN ? 'Clear & choose myself' : '清除預填,自己選'}</button>
+        <button onclick="dismissPrefill()" style="font-size:12.5px;padding:7px 14px;border-radius:100px;border:none;background:#1A6B72;color:#fff;cursor:pointer;font-family:inherit;">${bgEN ? 'Got it' : '知道了'}</button>
+      </span>`;
+    const catList = document.getElementById('categoryList');
+    if(catList) catList.parentNode.insertBefore(b, catList);
+  }
   document.getElementById('progCurrent').textContent = LANG[currentLang].progCurrent(totalAnswered());
 
   const list = document.getElementById('categoryList');
@@ -1728,6 +1788,74 @@ function renderBuilder(){
   if(!wizardMode && !hasAnswers){
     setWizardMode(true);
   }
+}
+
+/* ===========================================================
+   智慧預填:依生產理念預選常見組合(使用選項「索引」,中英文通用)
+   注意:只是常見起點,使用者需逐項確認;絕不預填 text 類個人敘述
+=========================================================== */
+const PHILOSOPHY_PRESETS = {
+  unmedicated: {
+    hospital_time:1, lighting:[0], quiet:0, privacy:[2], consent:1, med_options:[4],
+    coping:[3,4,5,10,12], induction:0, movement:[1,2,4], equipment:[0,5], exams:1,
+    monitoring:1, hydration:[0,6], push_pref:[3,4], delivery_pref:[1,2,6,9],
+    skin_to_skin:0, newborn_proc:[3,4,6]
+  },
+  open: {
+    hospital_time:1, lighting:[1], privacy:[2], consent:0, med_options:[0,1],
+    coping:[0,1,3,4], induction:1, movement:[1,4], equipment:[0], exams:0,
+    monitoring:1, hydration:[1,4], push_pref:[3,5], delivery_pref:[1,2],
+    skin_to_skin:0, newborn_proc:[0,1,4]
+  },
+  medicated: {
+    hospital_time:1, lighting:[0], privacy:[2], consent:0, med_options:[0],
+    coping:[0,1], induction:1, movement:[4], exams:0, monitoring:2,
+    hydration:[1,4,5], push_pref:[0,5], delivery_pref:[2,6],
+    skin_to_skin:0, newborn_proc:[0,1,4]
+  },
+  csection: {
+    music:0, privacy:[2], consent:0, cs_partner:0, cs_skin:0, cs_curtain:0,
+    skin_to_skin:2, delivery_pref:[1], newborn_proc:[0,1,3,4]
+  }
+};
+
+function applyPhilosophyPreset(){
+  if(totalAnswered() > 0) return false;              // 已有答案就不動
+  const preset = PHILOSOPHY_PRESETS[state.philosophy];
+  if(!preset) return false;
+  const items = {};
+  getCats().forEach(cat => cat.items.forEach(it => { items[it.id] = it; }));
+  Object.keys(preset).forEach(id => {
+    const it = items[id];
+    if(!it || !it.options) return;
+    const idx = preset[id];
+    if(Array.isArray(idx)){
+      const vals = idx.map(i => it.options[i]).filter(v => v != null);
+      if(vals.length) state.answers[id] = vals;
+    } else if(it.options[idx] != null){
+      state.answers[id] = it.options[idx];
+    }
+  });
+  state.prefilled = true;
+  saveState();
+  return true;
+}
+
+function clearPrefill(){
+  const en = currentLang === 'en';
+  if(!confirm(en ? 'Clear all pre-filled answers and start fresh?' : '確定清除所有預填答案,自己從頭選嗎?')) return;
+  state.answers = {};
+  state.customAnswers = {};
+  state.prefilled = false;
+  saveState();
+  setWizardMode(true);   // 從頭選 → 帶入一題一題的模式
+  renderBuilder();
+}
+
+function dismissPrefill(){
+  state.prefilled = false;  // 收起橫幅,答案保留
+  saveState();
+  renderBuilder();
 }
 
 function summarize(it){
@@ -3164,6 +3292,9 @@ function renderWizardStep(){
         <button class="wiz-cat-start" onclick="wizNext()">
           ${isEN ? 'Start this section →' : '開始填寫 →'}
         </button>
+        <button class="wiz-btn-skip" onclick="wizSkipCategory()" style="display:block;margin:10px auto 0;">
+          ${isEN ? 'No preferences here — skip this section →' : '這類我沒有特別偏好,跳過 →'}
+        </button>
       </div>
       <div class="wiz-nav" style="margin-top:16px;">
         ${wizardIndex > 0 ? `<button class="wiz-btn-back" onclick="wizBack()">← ${isEN ? 'Back' : '上一步'}</button>` : '<div></div>'}
@@ -3254,6 +3385,15 @@ function wizSelectChoice(id, opt){
   renderWizardStep();
   // Auto-advance after short delay
   setTimeout(() => wizNext(), 400);
+}
+
+function wizSkipCategory(){
+  // 從類別頁跳到下一個類別(或直接完成)
+  let i = wizardIndex + 1;
+  while(i < wizardSteps.length && wizardSteps[i].type === 'item') i++;
+  if(i >= wizardSteps.length){ wizFinish(); return; }
+  wizardIndex = i;
+  renderWizardStep();
 }
 
 function wizToggleMulti(id, opt){
@@ -3526,7 +3666,9 @@ async function postPlanEmail(planHtml, attachments){
       email,
       planHtml,
       attachments: attachments || [],
-      lang: isEN ? 'en' : 'zh'
+      lang: isEN ? 'en' : 'zh',
+      dueDate: (state.user && state.user.dueDate) || '',
+      eddSegment: (state.user && state.user.eddSegment) || ''
     })
   });
   return res.ok;
