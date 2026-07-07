@@ -2253,42 +2253,101 @@ function wrapCardLabel(label, maxW){
     }
     l2 = words.slice(i).join(' ');
   } else {
-    // 中日文：從中間斷
-    const mid = Math.ceil(label.length / 2);
-    l1 = label.slice(0, mid);
-    l2 = label.slice(mid);
+    // 中日文：在詞界找最接近中間的斷點，不切斷詞；無詞界可用才從中間硬切
+    const toks = zhWordParts(label);
+    let best = null;
+    if(toks && toks.length > 1){
+      for(let i=1; i<toks.length; i++){
+        const a = toks.slice(0,i).join(''), b = toks.slice(i).join('');
+        const d = Math.abs(estTextW(a, 9) - estTextW(b, 9));
+        if(!best || d <= best.d) best = {d, a, b}; // 平手取後者:上行偏長較自然
+      }
+    }
+    if(best){ l1 = best.a; l2 = best.b; }
+    else {
+      const mid = Math.ceil(label.length / 2);
+      l1 = label.slice(0, mid);
+      l2 = label.slice(mid);
+    }
   }
   let fs = 9;
   while(fs > 7 && (estTextW(l1, fs) > maxW || estTextW(l2, fs) > maxW)) fs -= 0.5;
   return { lines:[l1, l2], fs };
 }
 
-// 通用換行：拉丁文照單字斷；中文優先在標點斷行，不在詞中間硬切。超出最後一行加「…」
+// 中文分詞：優先用 Intl.Segmenter(整詞不切斷，如「清單」「接觸」)；舊瀏覽器回傳 null 走備援
+let _zhSegmenter = null;
+try{ if(typeof Intl !== 'undefined' && Intl.Segmenter) _zhSegmenter = new Intl.Segmenter('zh-Hant', {granularity:'word'}); }catch(e){}
+function zhWordParts(str){
+  if(!_zhSegmenter) return null;
+  const BREAK_AFTER = '，、。；！？：）),:;';
+  const BREAK_BEFORE = '（(';
+  const PARTICLES = '的地得了嗎呢吧喔嘛哦'; // 助詞不放行首，併回前一個詞
+  const parts = [];
+  for(const s of _zhSegmenter.segment(str)){
+    const seg = s.segment;
+    // 收尾標點/助詞跟前一塊、開括號留給下一塊
+    if(parts.length && (BREAK_AFTER.indexOf(seg) >= 0 || (seg.length === 1 && PARTICLES.indexOf(seg) >= 0))) parts[parts.length-1] += seg;
+    else if(parts.length && BREAK_BEFORE.indexOf(parts[parts.length-1].slice(-1)) >= 0) parts[parts.length-1] += seg;
+    else parts.push(seg);
+  }
+  // 領域詞典：Segmenter 不認得的產科詞彙，相鄰塊拼起來是這些詞就併回去(如「宮/縮」→「宮縮」)
+  const DICT = ['宮縮','斷臍','減痛','親膚','剖腹','剖腹產','會陰','催生','破水','待產','產程','胎心','笑氣','導樂','側切','助產師','手術台','嬰兒室','花生球','生產球'];
+  for(let i = 0; i < parts.length - 1; ){
+    if(DICT.indexOf(parts[i] + parts[i+1]) >= 0){ parts.splice(i, 2, parts[i] + parts[i+1]); if(i) i--; }
+    else i++;
+  }
+  return parts;
+}
+
+// 兩行平均分配：在詞界找讓兩行寬度最接近的斷點(兩行都要放得下)；找不到回傳 null
+function balanceTwoLines(parts, sep, fs, maxW){
+  let best = null;
+  for(let i=1; i<parts.length; i++){
+    const l1 = parts.slice(0,i).join(sep), l2 = parts.slice(i).join(sep);
+    const w1 = estTextW(l1, fs), w2 = estTextW(l2, fs);
+    if(w1 > maxW || w2 > maxW) continue;
+    const d = Math.abs(w1 - w2);
+    if(!best || d <= best.d) best = {d, lines:[l1, l2]}; // 平手取後者:上行偏長較自然
+  }
+  return best ? best.lines : null;
+}
+
+// 通用換行：拉丁文照單字斷；中文照詞斷(Segmenter)，不切斷詞語。
+// 需要折兩行時盡量讓兩行寬度平均。超出最後一行加「…」
 function wrapText(str, fs, maxW, maxLines){
   str = (str==null ? '' : String(str)).trim();
   if(!str) return [];
+  if(estTextW(str, fs) <= maxW) return [str];
   const hasSpace = str.indexOf(' ') >= 0;
   let parts, sep;
   if(hasSpace){
     parts = str.split(/\s+/); sep = ' ';
   } else {
-    // 中文：先照標點切成語塊(收尾標點跟前一塊、開括號跟下一塊)，語塊太長才退回逐字
-    const BREAK_AFTER = '，、。；！？：）),:;';
-    const BREAK_BEFORE = '（(';
-    const chunks = [];
-    let buf = '';
-    for(const ch of str){
-      if(BREAK_BEFORE.indexOf(ch) >= 0 && buf){ chunks.push(buf); buf = ch; continue; }
-      buf += ch;
-      if(BREAK_AFTER.indexOf(ch) >= 0){ chunks.push(buf); buf = ''; }
+    parts = zhWordParts(str); sep = '';
+    if(!parts){
+      // 備援(無 Segmenter 的舊瀏覽器)：照標點切語塊，語塊太長退回逐字
+      const BREAK_AFTER = '，、。；！？：）),:;';
+      const BREAK_BEFORE = '（(';
+      const chunks = [];
+      let buf = '';
+      for(const ch of str){
+        if(BREAK_BEFORE.indexOf(ch) >= 0 && buf){ chunks.push(buf); buf = ch; continue; }
+        buf += ch;
+        if(BREAK_AFTER.indexOf(ch) >= 0){ chunks.push(buf); buf = ''; }
+      }
+      if(buf) chunks.push(buf);
+      parts = [];
+      chunks.forEach(p => {
+        if(estTextW(p, fs) > maxW){ parts.push(...p.split('')); }
+        else parts.push(p);
+      });
     }
-    if(buf) chunks.push(buf);
-    const refined = [];
-    chunks.forEach(p => {
-      if(estTextW(p, fs) > maxW){ refined.push(...p.split('')); }
-      else refined.push(p);
-    });
-    parts = refined; sep = '';
+  }
+  // 需要折行時：先試在詞界找最平均的兩行斷點
+  if(maxLines >= 2){
+    const bal = balanceTwoLines(parts, sep, fs, maxW);
+    if(bal) return bal;
   }
   const lines = [];
   let cur = '';
