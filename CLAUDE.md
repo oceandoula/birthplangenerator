@@ -129,13 +129,32 @@
 ### WAVE 專頁（/wave）
 - `wave-s1-hero.html` ~ `wave-s9-finalcta.html`（Hero/痛點/三步驟/mockup/功能/滾動卡/定價/FAQ/CTA）
 
+### Wix 嵌入修復流程（2026-07 建立）
+- **工作模式**：Naphy 從 Wix 貼區塊代碼過來 → 修好 → 存 `marketing/wix/`（gitignored）→ 回傳整段給她貼回去
+- 已修好的存檔：`wave-rolling-cards.html`、`wave-painpoint-cards.html`、`wave-s1-hero.html`、`wave-s4-mockup.html`；
+  `_preview-wrapper.html` 是本機測試殼（`/marketing/wix/_preview-wrapper.html?<encodeURIComponent(檔案路徑)>`），
+  搭配 preview 瀏覽器 resize 到 320px 驗證零爆版
+- **手機爆版常見原因**：
+  1. `word-break:keep-all` 會**禁止中文字間換行**，整句中文擠成一行衝出畫面
+     → 中文內文改 `word-break:normal`；標題想按短語換行就包 `<span class="kp">`（inline-block）
+  2. 缺 `box-sizing:border-box`（padding 加在寬度外）→ 區塊開頭加 `*{box-sizing:border-box;…}`
+  3. iframe 裡相對連結（`/contact`）會壞 → 一律絕對網址 + `target="_blank"`
+- **Wix 代碼審查會 403（Forbidden）**：別用 `html,body{}` 複合選擇器、CSS `min()` 函式；
+  響應式改用 `@media(max-width:600px){…grid-template-columns:1fr}` 這種保守寫法
+- **Mockup 圖片**：嵌入代碼引用 `https://oceandoula.github.io/birthplangenerator/assets/wave-mockup.png`
+  （美人魚版；`-original.png` 是原本配色）。以後更新 mockup＝重新生成 PNG → 覆蓋 `assets/` → push，Wix 不用動
+
 ---
 
 ## 待辦事項
+- [ ] **Naphy 手上**：push（assets/mockup 圖 + 本檔更新）→ 把 hero、s4-mockup 新代碼貼回 Wix
+      → 手機實測 /wave 全頁；還有跑版的區塊照流程貼過來修
+- [ ] 確認聯絡頁網址是否真的是 `https://www.oceandoula.com/contact`（hero 按鈕用了這個，是猜的）
 - [ ] 隱私聲明：gate 的「不寄垃圾訊息」補一句「計畫書會安全保存」（已開始 BCC+D1 存內容）
 - [ ] 「🔄 重新開始」按鈕（清 localStorage 重填；二胎/共用裝置需要）
-- [ ] Mockup 截圖更新：工具本身的「下載 PNG」就是最新素材，拿去換 Wix 各區塊
+- [ ] Kit 後台手動建 4 個 custom fields：`due_date`、`edd_segment`、`weeks_left`、`lang`（不建值會被丟掉）
 - [ ] 收集 Beta feedback，繼續逐顆修 icon（Naphy 點名制）
+- [ ] Home 頁 wave-home-block 的 mockup 截圖也還是舊的（貼代碼過來換 assets 網址即可）
 
 ## 已完成的大項（2026-07）
 - ✅ Email 功能（自動寄文字版+評論邀請；解鎖附 PDF/PNG）
