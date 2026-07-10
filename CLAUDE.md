@@ -141,8 +141,12 @@
   3. iframe 裡相對連結（`/contact`）會壞 → 一律絕對網址 + `target="_blank"`
 - **Wix 代碼審查會 403（Forbidden）**：別用 `html,body{}` 複合選擇器、CSS `min()` 函式；
   響應式改用 `@media(max-width:600px){…grid-template-columns:1fr}` 這種保守寫法
-- **Mockup 圖片**：嵌入代碼引用 `https://oceandoula.github.io/birthplangenerator/assets/wave-mockup.png`
-  （美人魚版；`-original.png` 是原本配色）。以後更新 mockup＝重新生成 PNG → 覆蓋 `assets/` → push，Wix 不用動
+- **Mockup 圖片**（2026-07-10 更新）：Naphy 決定「中文用原本配色、英文用美人魚配色」。
+  - `assets/wave-mockup.png` = **中文原本配色**（中文 embed `wave-s4-mockup.html` 引用這個）
+  - `assets/wave-mockup-en.png` = **英文美人魚配色**（之後做英文頁 embed 用）
+  - 來源是 Naphy 從工具下載的 PDF（第 1 頁），用 macOS `qlmanage -t -s 2400 -o out foo.pdf` 轉 PNG
+    再 `sips --resampleWidth 1800` 縮圖（沒 poppler/pngquant，Read 工具的 PDF 轉檔也不能用）
+  - 以後更新 mockup＝重轉 PNG → 覆蓋 `assets/` → push，Wix 代碼不用動
 
 ---
 
