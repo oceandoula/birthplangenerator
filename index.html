@@ -2994,7 +2994,7 @@ function renderVisualPlan(){
     '靠生產球':'Birth ball','花生球':'Peanut ball','生產椅':'Birth stool','額外枕頭':'Extra pillows',
     '水中生產':'Water birth','自然破水':'Natural rupture','避免 Oxytocin':'No oxytocin',
     '避免子宮按壓':'No fundal pressure','延遲斷臍':'Delayed clamping','順應宮縮':'Spontaneous pushing',
-    '使用把桿':'Squat bar','使用鏡子':'Mirror','捕捉畫面':'Capture moment','會陰保護':'Perineal care',
+    '使用把桿':'Squat bar','蹲式把桿':'Squat bar','使用鏡子':'Mirror','捕捉畫面':'Capture moment','會陰保護':'Perineal care',
     '避免側切':'No episiotomy','避免產鉗':'No forceps','支持者剪臍':'Partner cuts cord','延後沐浴':'Delay first bath',
     '維生素K':'Vitamin K','新生兒篩檢':'Newborn screening','胎盤處理':'Placenta plans','立即親膚':'Skin-to-skin',
     '延後新生兒篩檢':'Delay screening','同室照護':'Rooming-in','眼藥水偏好':'Eye ointment','臍帶血':'Cord blood',
@@ -3009,6 +3009,25 @@ function renderVisualPlan(){
   };
   function dispLabel(label){
     return currentLang === 'en' ? (ICON_LABEL_EN[label] || label) : label;
+  }
+
+  // 蹲式把桿沒有專屬圖,借用「使用把桿」的 squat-bar 圖(但保留自己的標題)
+  if(ICON_MAP['使用把桿'] && !ICON_MAP['蹲式把桿']) ICON_MAP['蹲式把桿'] = ICON_MAP['使用把桿'];
+  // 選項字面 → icon key 的別名(選項沒有同名圖、又想指定精確圖時用)
+  const ICON_ALIAS = { '震動按摩棒':'按摩棒' };
+  // 內文清理:與標題重複就隱藏;中文模式移除純英文括號註解(如（Affirmations）（HypnoBirthing）),
+  // 保留有實質補充的中文括號(如（溫水池/淋浴）（伴侶溫柔撫觸）)
+  function tidyNote(labelKey, rawNote){
+    let s = (rawNote == null ? '' : rawNote).toString().trim();
+    if(!s) return '';
+    if(currentLang !== 'en') s = s.replace(/（[\x00-\x7F]+）/g, '').trim();
+    const disp = dispLabel(labelKey);
+    const strip = x => x.toString().replace(/[\s（）()·／/]/g, '');
+    const a = strip(s), b = strip(disp);
+    if(!a) return '';
+    if(a === b) return '';                                     // 完全重複 → 只留標題
+    if(a.startsWith(b) && a.length - b.length <= 1) return ''; // 標題是前綴、只多一字(電療儀 vs 電療)
+    return s;
   }
 
   // ── Collect answers by section ───────────────────────────────
@@ -3065,27 +3084,35 @@ function renderVisualPlan(){
       const val = state.answers[item.id];
       if(!val) return;
       const selectedVals = Array.isArray(val) ? val : [val];
+      const beforeCount = iconItems.length;
 
       selectedVals.forEach(v => {
         if(!v || !v.toString().trim()) return;
         // Find matching icon(括號內容先剔除,避免「(若無減痛分娩)」誤配到減痛分娩 icon)
         const vClean = v.toString().replace(/（[^）]*）|\([^)]*\)/g, '');
-        let iconLabel = Object.keys(ICON_MAP).find(k => k === v);
-        if(!iconLabel) iconLabel = Object.keys(ICON_MAP).find(k => vClean.includes(k) || k.includes(vClean.slice(0,4)));
+        let iconLabel = ICON_MAP[v] ? v : (ICON_ALIAS[v] || ICON_ALIAS[vClean] || null);
+        if(!iconLabel){
+          // 選最「精準」(最長)的相符 key,避免「震動按摩棒」先撞到短的「按摩」
+          let best = '';
+          Object.keys(ICON_MAP).forEach(k => { if(vClean.includes(k) && k.length > best.length) best = k; });
+          if(!best){ const p = vClean.slice(0,4); Object.keys(ICON_MAP).forEach(k => { if(p && k.includes(p) && k.length > best.length) best = k; }); }
+          iconLabel = best || null;
+        }
         if(!iconLabel) iconLabel = ITEM_ICON[item.id];
         if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
           addedLabels.add(iconLabel);
-          // 完整保留答案(依語言翻譯),換行/截斷交給卡片渲染時處理
-          iconItems.push({label: iconLabel, note: xlateAnswer(item.id, v), selected: true});
+          // 內文與標題重複/純英文註解交給 tidyNote,換行交給渲染
+          iconItems.push({label: iconLabel, note: tidyNote(iconLabel, xlateAnswer(item.id, v)), selected: true});
         }
       });
 
-      // Also try item-level icon if nothing found from values
-      if(iconItems.length === 0 || !addedLabels.has(ITEM_ICON[item.id])){
+      // 只有這題完全沒有任何選項配到 icon 時,才用題目層級預設 icon 補一張
+      // (避免像 med_options 選了 TENS 卻又多補一張「減痛分娩／有興趣的減痛方式」)
+      if(iconItems.length === beforeCount){
         const iconLabel = ITEM_ICON[item.id];
         if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
           addedLabels.add(iconLabel);
-          iconItems.push({label: iconLabel, note: item.name, selected: true});
+          iconItems.push({label: iconLabel, note: tidyNote(iconLabel, item.name), selected: true});
         }
       }
     });
