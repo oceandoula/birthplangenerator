@@ -3023,6 +3023,11 @@ function renderVisualPlan(){
     if(currentLang !== 'en') s = s.replace(/（[\x00-\x7F]+）/g, '').trim();
     const disp = dispLabel(labelKey);
     const strip = x => x.toString().replace(/[\s（）()·／/]/g, '');
+    // 「標題（補充）」格式 → 拿掉重複的標題,只留括號內補充(自由飲食（希望…）→ 希望…)
+    if(currentLang !== 'en'){
+      const m = s.match(/^(.+?)（(.+)）\s*$/);
+      if(m && strip(m[1]) === strip(disp)) return m[2].trim();
+    }
     const a = strip(s), b = strip(disp);
     if(!a) return '';
     if(a === b) return '';                                     // 完全重複 → 只留標題
