@@ -257,9 +257,11 @@ Instrumental delivery, or fetal distress requiring immediate birth — even then
 ## 5. 如果我被診斷子癲前症，怎麼辦？
 
 ### 🌊 這是什麼狀況
-子癲前症（妊娠毒血症）影響約 2～8% 的孕婦，是**真正的醫療狀況**——這一題不是教妳拒絕治療，而是：即使航道必須改變，妳仍然有知情的權利，也仍然保有很多選擇。
+子癲前症（妊娠毒血症）影響約 2～8% 的孕婦。先看清楚這三個字裡最重要的一個字：**「前」**——它的意思是，子癲症（癲癇發作）**還沒有發生**；好好控制，絕大多數孕婦都不會走到那一步。所以這一題有兩個階段：還沒發生之前，**預防有很多可以做的事**；真的確診了，它是真正的醫療狀況——但妳仍然有知情的權利，也仍然保有很多選擇。
 
 ### 🔬 證據快照
+- **預防（實證最強）**：高風險族群（曾有子癲前症、慢性高血壓、多胞胎等）從 **12～16 週起服用低劑量阿斯匹林**，已證實能顯著降低發生率——許多孕婦孕期都依醫師指示服用
+- **營養預防**也值得和醫師或營養師討論：**鈣質補充**（WHO 支持，尤其鈣攝取不足者）、**維他命 D**、**富含鎂的飲食**，以及**富含蛋白質與甘胺酸（glycine）的食物**——像大骨高湯、海鮮、雞肉
 - 診斷標準：20 週後血壓 ≥140/90 加上蛋白尿或器官影響指標；嚴重程度是一個光譜，處置隨嚴重度與週數而不同
 - 唯一根治的方法是讓寶寶出生；輕度且足月（37 週後）通常建議催生，嚴重時可能需要更早
 - **子癲前症不等於自動剖腹**——多數情況下催生後的陰道產仍是可行的第一選項
@@ -267,10 +269,10 @@ Instrumental delivery, or fetal distress requiring immediate birth — even then
 - 即使在密集監測下，很多妳在意的事仍可以保留：陪產者在場、生產過程被告知、寶寶穩定時的肌膚接觸與延遲斷臍
 
 ### 💬 可以問醫師的問題
-1. 「我的數值是多少？屬於**輕度還是有嚴重特徵**？」
-2. 「以我的情況，可以**催生走陰道產**嗎？還是必須剖腹？」
-3. 「如果需要硫酸鎂，**我會有什麼感覺**？對寶寶有影響嗎？」
-4. 「寶寶出生後如果狀況穩定，**肌膚接觸和延遲斷臍**還可以做嗎？」
+1. 「我屬於**高風險群**嗎？需要從 12～16 週開始吃**低劑量阿斯匹林**嗎？」
+2. 「我的數值是多少？屬於**輕度還是有嚴重特徵**？」
+3. 「以我的情況，可以**催生走陰道產**嗎？還是必須剖腹？」
+4. 「如果需要硫酸鎂，**我會有什麼感覺**？寶寶出生後如果穩定，**肌膚接觸和延遲斷臍**還可以做嗎？」
 
 ### ⚠️ 這些情況請立刻處理
 血壓 ≥160/110、劇烈頭痛、視力模糊或閃光、上腹痛、突然嚴重水腫——這些是急症警訊，請直接讓醫療團隊接手。
@@ -286,9 +288,11 @@ Instrumental delivery, or fetal distress requiring immediate birth — even then
 ## 5. What if I'm diagnosed with preeclampsia?
 
 ### 🌊 What's happening
-Preeclampsia affects roughly 2–8% of pregnancies and is a **genuine medical condition** — this scenario isn't about declining treatment. It's about this: even when the route has to change, you keep your right to be informed, and you keep more choices than you might think.
+Preeclampsia affects roughly 2–8% of pregnancies. Start with the most important part of the word: **"pre"** — the seizure condition it precedes (eclampsia) **has not happened**, and with good management, the vast majority of mothers never get there. So this scenario has two stages: before anything happens, **there's a lot you can do to prevent it**; and if you are diagnosed, it's a genuine medical condition — but you keep your right to be informed, and more choices than you might think.
 
 ### 🔬 Evidence snapshot
+- **Prevention (strongest evidence)**: for higher-risk women (previous preeclampsia, chronic hypertension, multiples, etc.), **low-dose aspirin from 12–16 weeks** significantly reduces the risk — many mothers take it through pregnancy under their provider's guidance
+- **Nutritional prevention** is worth discussing with your provider or a dietitian: **calcium supplementation** (WHO-backed, especially where dietary calcium is low), **vitamin D**, **magnesium-rich foods**, and **foods rich in protein and glycine** — think bone broth, seafood, chicken
 - Diagnosis: blood pressure ≥140/90 after 20 weeks plus protein in urine or signs of organ involvement; severity is a spectrum, and management depends on severity and gestational age
 - The only cure is birth; mild cases at term (after 37 weeks) are usually managed with induction, while severe cases may need earlier delivery
 - **Preeclampsia does not automatically mean cesarean** — in most cases, induction aiming for vaginal birth remains the first option
@@ -296,10 +300,10 @@ Preeclampsia affects roughly 2–8% of pregnancies and is a **genuine medical co
 - Even under close monitoring, much of what matters to you can stay: your support person present, being kept informed, skin-to-skin and delayed cord clamping when baby is stable
 
 ### 💬 Questions to ask your provider
-1. "What are my numbers? Is this **mild, or with severe features**?"
-2. "In my case, can we **induce and aim for a vaginal birth**, or is cesarean necessary?"
-3. "If I need magnesium sulfate, **what will it feel like**? Does it affect my baby?"
-4. "If baby is stable after birth, can we still do **skin-to-skin and delayed cord clamping**?"
+1. "Am I in a **higher-risk group**? Should I start **low-dose aspirin at 12–16 weeks**?"
+2. "What are my numbers? Is this **mild, or with severe features**?"
+3. "In my case, can we **induce and aim for a vaginal birth**, or is cesarean necessary?"
+4. "If I need magnesium sulfate, **what will it feel like**? And if baby is stable after birth, can we still do **skin-to-skin and delayed cord clamping**?"
 
 ### ⚠️ Act immediately if
 Blood pressure ≥160/110, severe headache, blurred vision or flashing lights, upper abdominal pain, sudden severe swelling — these are emergency signs. Let your care team take over.
