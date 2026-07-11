@@ -1317,7 +1317,7 @@ const CATEGORIES_EN = [
       {id:'movement', name:'Movement & Positions', desc:'Select all that apply. Note: epidurals or continuous monitoring may limit movement — check with your provider.',
         type:'multi', options:['Standing','Walking','Hip swaying','Pelvic rocking / rolling','Leaning on birth ball','Water birth / hydrotherapy']},
       {id:'equipment', name:'Birth Equipment', desc:'Select all that apply', type:'multi',
-        options:['Birth ball (yoga ball)','Peanut ball','Squat bar','Birth stool','Extra pillows','Hydrotherapy pool / bath']},
+        options:['Birth ball (yoga ball)','Peanut ball','Squat bar','Birth stool','Extra pillows','Birth pool / bath','Shower']},
       {id:'exams', name:'Internal Exams (Cervical Checks)', desc:'',
         type:'choice', options:['I\'m comfortable with routine internal exams','I\'d like to minimise internal exams unless medically necessary','I\'d like to avoid internal exams altogether unless I request one']},
       {id:'monitoring', name:'Fetal Monitoring', desc:'',
@@ -1424,7 +1424,7 @@ const CATEGORIES = [
       {id:'movement', name:'產程中想嘗試的姿勢與活動', desc:'可多選（部分減痛方式或胎兒監測可能會限制活動範圍，若很重要請先跟醫療團隊確認）',
         type:'multi', options:['站立','走動','搖晃骨盆','骨盆活動（前後搖擺）','靠在生產球上','水中待產（水中生產）']},
       {id:'equipment', name:'想使用的生產輔具', desc:'可多選', type:'multi',
-        options:['生產球（瑜珈球）','花生球','蹲式把桿','生產椅','額外枕頭','水療池 / 浴缸']},
+        options:['生產球（瑜珈球）','花生球','蹲式把桿','生產椅','額外枕頭','生產池／浴缸','淋浴']},
       {id:'exams', name:'內診（陰道檢查）的頻率', desc:'',
         type:'choice', options:['可以配合常規內診','希望盡量減少，除非醫療上必要','希望盡量避免，除非我主動要求']},
       {id:'monitoring', name:'胎兒監測方式', desc:'',
@@ -3006,7 +3006,7 @@ function renderVisualPlan(){
     '針劑止痛':'IV pain relief','胎兒監測':'Monitoring','自由活動':'Free movement','內診':'Fewer exams',
     '引產偏好':'Induction','無線監測':'Wireless monitor','補水方式':'Hydration','骨盆活動':'Pelvic motion',
     '靠生產球':'Birth ball','花生球':'Peanut ball','生產椅':'Birth stool','額外枕頭':'Extra pillows',
-    '水中生產':'Water birth','自然破水':'Natural rupture','避免 Oxytocin':'No oxytocin',
+    '水中生產':'Water birth','淋浴':'Shower','自然破水':'Natural rupture','避免 Oxytocin':'No oxytocin',
     '避免子宮按壓':'No fundal pressure','延遲斷臍':'Delayed clamping','順應宮縮':'Spontaneous pushing',
     '使用把桿':'Squat bar','蹲式把桿':'Squat bar','使用鏡子':'Mirror','捕捉畫面':'Capture moment','會陰保護':'Perineal care',
     '避免側切':'No episiotomy','避免產鉗':'No forceps','支持者剪臍':'Partner cuts cord','延後沐浴':'Delay first bath',
@@ -3029,8 +3029,15 @@ function renderVisualPlan(){
 
   // 蹲式把桿沒有專屬圖,借用「使用把桿」的 squat-bar 圖(但保留自己的標題)
   if(ICON_MAP['使用把桿'] && !ICON_MAP['蹲式把桿']) ICON_MAP['蹲式把桿'] = ICON_MAP['使用把桿'];
+  // 淋浴沒有專屬圖,借用「水中減痛」的水/浴缸圖(但保留自己的標題「淋浴」)
+  if(ICON_MAP['水中減痛'] && !ICON_MAP['淋浴']) ICON_MAP['淋浴'] = ICON_MAP['水中減痛'];
   // 選項字面 → icon key 的別名(選項沒有同名圖、又想指定精確圖時用)
-  const ICON_ALIAS = { '震動按摩棒':'按摩棒' };
+  // 生產池/浴缸 → 水中生產圖(標題=水中生產、內文=生產池/浴缸);淋浴/Shower → 淋浴圖
+  const ICON_ALIAS = {
+    '震動按摩棒':'按摩棒',
+    '生產池／浴缸':'水中生產', '水療池 / 浴缸':'水中生產', 'Birth pool / bath':'水中生產',
+    'Shower':'淋浴'
+  };
   // 內文清理:與標題重複就隱藏;中文模式移除純英文括號註解(如（Affirmations）（HypnoBirthing）),
   // 保留有實質補充的中文括號(如（溫水池/淋浴）（伴侶溫柔撫觸）)
   function tidyNote(labelKey, rawNote){
