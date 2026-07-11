@@ -148,10 +148,10 @@ Gestational hypertension/preeclampsia, growth restriction, low amniotic fluid, r
 - 有妊娠糖尿病時情況不同——血糖控制與估重會一起評估（見糖水題）
 
 ### 💬 可以問醫師的問題
-1. 「這個估重的**誤差範圍**是多少？上下限各是幾克？」
-2. 「具體擔心的是什麼——肩難產嗎？以我的情況，**實際的風險有多高**？」
-3. 「我**沒有糖尿病**的話，這個體重需要改變生產方式嗎？」
-4. 「可以讓我**自由變換姿勢**待產，邊生邊評估嗎？」
+1. 「這個院所**支持產婦在產程中自由活動、自選生產姿勢**嗎？」（最實用的一問——在選院所／產檢時就先確認，別等生產當下才發現只能平躺）
+2. 「這個估重的**誤差範圍**是多少？上下限各是幾克？」
+3. 「具體擔心的是什麼——肩難產嗎？以我的情況，**實際的風險有多高**？」
+4. 「我**沒有糖尿病**的話，這個體重需要改變生產方式嗎？」
 5. 「如果真的擔心肩難產，是不是**更應該**讓我避免平躺、保持活動，把骨盆空間用到最大？」
 
 ### ⚠️ 這些情況要特別討論
@@ -179,10 +179,10 @@ Gestational hypertension/preeclampsia, growth restriction, low amniotic fluid, r
 - Gestational diabetes changes the picture — blood sugar control and the estimate get weighed together (see the glucose scenario)
 
 ### 💬 Questions to ask your provider
-1. "What's the **margin of error** on this estimate — what's the realistic range?"
-2. "What exactly is the concern — shoulder dystocia? For my situation, **what's the actual risk**?"
-3. "If I **don't have diabetes**, does this weight estimate change how I should give birth?"
-4. "Can I labor with **freedom of movement** and reassess as we go?"
+1. "Does this facility **support freedom of movement and your choice of birthing position** in labor?" (the most practical one — confirm it when choosing a provider / at a prenatal visit, not in the moment)
+2. "What's the **margin of error** on this estimate — what's the realistic range?"
+3. "What exactly is the concern — shoulder dystocia? For my situation, **what's the actual risk**?"
+4. "If I **don't have diabetes**, does this weight estimate change how I should give birth?"
 5. "If shoulder dystocia is the real concern, shouldn't that be **all the more reason** to keep me off my back and moving, so my pelvis has maximum room?"
 
 ### ⚠️ When it deserves serious discussion
