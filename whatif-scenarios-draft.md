@@ -447,7 +447,10 @@ A previous baby with GBS disease, or GBS found in your urine this pregnancy — 
 - 治療有效而且通常很溫和：多數確診的媽媽**只靠飲食調整和運動**就能控制，不需要藥物（ACHOIS 等研究證實治療改善結果）
 - 確診且控制良好（不用藥）的媽媽，**不一定需要提早催生**——這是可以和醫師討論的，不是自動套餐
 - 反過來想：如果後期被說「寶寶偏大」，一份正常的糖水報告是妳**最有力的談判籌碼**（見寶寶太大題）
-- 替代方式（果凍、家用血糖機自我監測一兩週）證據較弱，但對強烈不想喝糖水的媽媽，是可以跟醫師討論的折衷
+- **有替代方式可以和醫師討論**（證據強度不一，但對真的無法喝糖水的媽媽是選項）：
+  - **更天然的糖飲**：國外有像 The Fresh Test 這類成分較單純的檢測飲品（無色素、無防腐劑），葡萄糖劑量與標準檢測相同
+  - **糖果（雷根糖 Jelly Beans）**：臨床研究顯示，吃下精確份量（約 50 克糖，相當於 28 顆 Jelly Belly）能得到相近的血糖反應，噁心與副作用明顯較少
+  - **家用血糖機自我監測**：完全無法接受任何糖飲的媽媽，有些醫師允許改為在家連續監測約一週——用血糖機採指尖血（扎手指）記錄空腹與餐後血糖
 
 ### 💬 可以問醫師的問題
 1. 「我們醫院用**一階段還是兩階段**篩檢？標準是什麼？」
@@ -476,7 +479,10 @@ The 24–28 week glucose drink (oral glucose tolerance test)⚑ is a step many m
 - Treatment works and is usually gentle: most diagnosed mothers manage it with **diet and exercise alone**, no medication (trials like ACHOIS confirmed treatment improves outcomes)
 - Well-controlled, diet-managed gestational diabetes does **not automatically require early induction** — that's a discussion, not a default
 - Flip it around: if you're later told "baby's looking big," a normal glucose result is your **strongest card in that conversation** (see the big-baby scenario)
-- Alternatives (jelly beans, home glucose monitoring for a week or two) have weaker evidence, but for mums who truly can't face the drink, they're a compromise worth raising
+- **There are alternatives to discuss with your provider** (evidence varies, but they're options for mums who truly can't do the drink):
+  - **A cleaner glucose drink**: abroad, products like The Fresh Test offer a simpler-ingredient test drink (no dyes or preservatives) with the same glucose dose as the standard test
+  - **Jelly beans**: clinical studies show a precise amount (about 50g of sugar, roughly 28 Jelly Belly beans) produces an equivalent blood-sugar response with noticeably less nausea and fewer side effects
+  - **At-home blood sugar monitoring**: for those who can't tolerate any sugary drink, some providers allow a week of home monitoring with a glucometer — a small finger-prick to check fasting and post-meal levels
 
 ### 💬 Questions to ask your provider
 1. "Does this hospital use a **one-step or two-step** screening? What are the cutoffs?"
