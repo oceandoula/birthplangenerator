@@ -1552,6 +1552,10 @@ function renderPhilosophy(){
       </div>
     </button>
   `).join('');
+  // 依目前是否已選理念同步「下一步」按鈕(修正:載入時已從 localStorage 還原理念,
+  // 卡片顯示選中但按鈕仍卡在 disabled,要點過別的才解鎖)
+  const philNextBtn = document.getElementById('philosophyNext');
+  if(philNextBtn) philNextBtn.disabled = !state.philosophy;
 }
 
 function setLang(lang) {
