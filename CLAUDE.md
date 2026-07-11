@@ -51,8 +51,7 @@
 'WAVEPLUS': 'pro', 'OCEAN97': 'pro',
 'NAPHY001'~'NAPHY010': 'pro',
 'WAVEBETA': 'pro', 'OCEANTEAM': 'pro',
-'WAVEFREE': 'pro',        // 通用測試碼
-'WAVEFREE01'~'WAVEFREE05': 'pro'  // 個人測試碼
+// WAVEFREE 系列已於 2026-07-10 移除
 ```
 
 ---
