@@ -1312,8 +1312,8 @@ const CATEGORIES_EN = [
   {
     id:'labor', name:'During Labour', icon:'🌀',
     items:[
-      {id:'induction', name:'Induction Preferences', desc:'Induction uses medication or techniques to start labour artificially.',
-        type:'choice', options:['I strongly prefer labour to start naturally and would like to avoid induction','I\'m open to induction if there is a medical reason','I\'d prefer to wait for spontaneous rupture of membranes — please avoid artificial rupture (AROM)','Please avoid artificial Oxytocin to speed up labour unless medically necessary','Please avoid fundal pressure','If artificial Oxytocin is used, please start with a low dose and increase slowly (slow and low)']},
+      {id:'induction', name:'Induction Preferences', desc:'Induction uses medication or techniques to start labour artificially. Select all that apply.',
+        type:'multi', options:['I strongly prefer labour to start naturally and would like to avoid induction','I\'m open to induction if there is a medical reason','I\'d prefer to wait for spontaneous rupture of membranes — please avoid artificial rupture (AROM)','Please avoid artificial Oxytocin to speed up labour unless medically necessary','Please avoid fundal pressure','If artificial Oxytocin is used, please start with a low dose and increase slowly (slow and low)']},
       {id:'movement', name:'Movement & Positions', desc:'Select all that apply. Note: epidurals or continuous monitoring may limit movement — check with your provider.',
         type:'multi', options:['Standing','Walking','Hip swaying','Pelvic rocking / rolling','Leaning on birth ball','Water birth / hydrotherapy']},
       {id:'equipment', name:'Birth Equipment', desc:'Select all that apply', type:'multi',
@@ -1373,7 +1373,7 @@ const CATEGORIES = [
     items:[
       {id:'support', name:'陪產與支持者', desc:'誰會在產房陪妳？', type:'text', placeholder:'例如：先生、Doula 陪產員'},
       {id:'place', name:'生產地點', desc:'醫院 / 助產所 / 居家', type:'text', placeholder:'例如：台北市某醫院'},
-      {id:'hospital_time', name:'什麼時候去醫院／待產中心', desc:'多數醫院會建議在規律陣痛、符合「5-1-1」原則（每5分鐘一次、每次持續1分鐘、持續1小時）時入院。提早抵達可能會被建議先回家，除非大出血、胎動異常、37週前破水或有緊急狀況。破水時請聯繫照護者（醫生或助產師）告知時間、顏色、量多少。落紅出血量多，找照護者檢查（超過點狀出血）。',
+      {id:'hospital_time', name:'什麼時候去醫院／待產中心', desc:'「5-1-1」原則（陣痛每5分鐘一次、每次持續約1分鐘、持續1小時）是常見的入院參考時機，但建議依自己的狀況彈性調整：到醫院交通時間較長、或經產婦（曾經生產過的媽媽）產程通常較快，都可以早一點出發；若太早到，醫院有時會建議先回家等待。若出現大出血、胎動異常、37週前破水或其他緊急狀況，請立即就醫。破水時請聯繫照護者（醫師或助產師），並告知破水的時間、顏色與量。落紅若出血量多（超過點狀出血），請找照護者檢查。',
         type:'choice', options:['一感覺到陣痛就想去','規律陣痛、符合5-1-1原則再去','由醫師／助產師判斷']},
       {id:'belief', name:'我最在意的生產信念', desc:'用一句話描述對妳最重要的事', type:'text', placeholder:'例如：希望被尊重、知情同意每一個決定'},
       {id:'perineal_prep', name:'產前會陰按摩', desc:'妳有在練習產前會陰按摩嗎？', type:'choice',
@@ -1419,8 +1419,8 @@ const CATEGORIES = [
   {
     id:'labor', name:'產程中', icon:'🌀',
     items:[
-      {id:'induction', name:'催生／引產的態度', desc:'引產是使用藥物或其他方式人工啟動產程。',
-        type:'choice', options:['希望盡量讓產程自然啟動，能避免引產就避免','只要有醫療上的理由，我可以接受引產','希望等待自然破水，避免人工破膜（AROM）','希望避免使用人工 Oxytocin 加速產程（除非醫療必要）','希望避免子宮底按壓（Fundal pressure）','如需使用人工催產素（Oxytocin），希望低劑量開始、緩慢調升（slow and low）']},
+      {id:'induction', name:'催生／引產的態度', desc:'引產是使用藥物或其他方式人工啟動產程。可多選。',
+        type:'multi', options:['希望盡量讓產程自然啟動，能避免引產就避免','只要有醫療上的理由，我可以接受引產','希望等待自然破水，避免人工破膜（AROM）','希望避免使用人工 Oxytocin 加速產程（除非醫療必要）','希望避免子宮底按壓（Fundal pressure）','如需使用人工催產素（Oxytocin），希望低劑量開始、緩慢調升（slow and low）']},
       {id:'movement', name:'產程中想嘗試的姿勢與活動', desc:'可多選（部分減痛方式或胎兒監測可能會限制活動範圍，若很重要請先跟醫療團隊確認）',
         type:'multi', options:['站立','走動','搖晃骨盆','骨盆活動（前後搖擺）','靠在生產球上','水中待產（水中生產）']},
       {id:'equipment', name:'想使用的生產輔具', desc:'可多選', type:'multi',
@@ -1509,6 +1509,16 @@ function loadState(){
     if(data.user) state.user = data.user;
     if(data.philosophy) state.philosophy = data.philosophy;
     if(data.answers) state.answers = data.answers;
+    // 相容:曾是單選、後改多選的題目,舊存檔可能是字串 → 轉陣列(否則多選的 .some/.push 會爆)
+    try{
+      const multiIds = new Set();
+      CATEGORIES.forEach(c => c.items.forEach(it => { if(it.type==='multi') multiIds.add(it.id); }));
+      Object.keys(state.answers).forEach(id => {
+        if(multiIds.has(id) && state.answers[id] != null && !Array.isArray(state.answers[id])){
+          state.answers[id] = [state.answers[id]];
+        }
+      });
+    }catch(_){}
     if(data.customAnswers) state.customAnswers = data.customAnswers;
     if(data.unlocked) state.unlocked = data.unlocked;
     if(data.autoEmailSent) state.autoEmailSent = data.autoEmailSent;
@@ -1895,19 +1905,19 @@ function renderBuilder(){
 const PHILOSOPHY_PRESETS = {
   unmedicated: {
     hospital_time:1, lighting:[0], quiet:0, privacy:[2], consent:1, med_options:[4],
-    coping:[3,4,5,10,12], induction:0, movement:[1,2,4], equipment:[0,5], exams:1,
+    coping:[3,4,5,10,12], induction:[0], movement:[1,2,4], equipment:[0,5], exams:1,
     monitoring:1, hydration:[0,6], push_pref:[3,4], delivery_pref:[1,2,6,9],
     skin_to_skin:0, newborn_proc:[3,4,6]
   },
   open: {
     hospital_time:1, lighting:[1], privacy:[2], consent:0, med_options:[0,1],
-    coping:[0,1,3,4], induction:1, movement:[1,4], equipment:[0], exams:0,
+    coping:[0,1,3,4], induction:[1], movement:[1,4], equipment:[0], exams:0,
     monitoring:1, hydration:[1,4], push_pref:[3,5], delivery_pref:[1,2],
     skin_to_skin:0, newborn_proc:[0,1,4]
   },
   medicated: {
     hospital_time:1, lighting:[0], privacy:[2], consent:0, med_options:[0],
-    coping:[0,1], induction:1, movement:[4], exams:0, monitoring:2,
+    coping:[0,1], induction:[1], movement:[4], exams:0, monitoring:2,
     hydration:[1,4,5], push_pref:[0,5], delivery_pref:[2,6],
     skin_to_skin:0, newborn_proc:[0,1,4]
   },
@@ -3704,6 +3714,8 @@ const UNLOCK_CODES = {
   'NAPHY004': 'pro', 'NAPHY005': 'pro', 'NAPHY006': 'pro',
   'NAPHY007': 'pro', 'NAPHY008': 'pro', 'NAPHY009': 'pro',
   'NAPHY010': 'pro',
+  // 免費碼
+  'WAVEFREE01': 'pro',
   // 特殊用途
   'WAVEBETA':   'pro',
   'OCEANTEAM':  'pro',
