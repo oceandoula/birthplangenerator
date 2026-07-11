@@ -440,13 +440,12 @@ A previous baby with GBS disease, or GBS found in your urine this pregnancy — 
 ## 8. 妊娠糖尿病篩檢（喝糖水）要不要做？
 
 ### 🌊 這是什麼狀況
-24～28 週的「喝糖水」（口服葡萄糖耐受試驗）⚑，是很多媽媽猶豫的一關。不想喝的理由都很真實：**空腹灌下濃糖水又甜又噁心**，孕吐嚴重的人可能當場吐掉重來，少數人甚至會頭暈、昏倒（昏厥是有紀錄的副作用——如果妳容易頭暈，檢查時請告知並坐著休息夠再離開）；有人質疑**一次灌 75 克糖根本不是正常飲食**，測出來能代表什麼；也有人怕的不是檢查本身，而是**檢查之後的連鎖**——只超標一點點，就被貼上標籤、開始被說寶寶太大、被建議提早催生。這些顧慮都值得被認真回答，而不是被一句「大家都要喝」帶過。先說結論：這個檢查找的是妊娠糖尿病——一個**沒有症狀、但確實影響妳和寶寶**的狀況。而且有一個很少人告訴妳的理由：**有數據，反而保護妳的選擇。**
+24～28 週的「喝糖水」（口服葡萄糖耐受試驗）⚑，是很多媽媽猶豫的一關。不想喝的理由都很真實：**空腹灌下濃糖水又甜又噁心**，孕吐嚴重的人可能當場吐掉重來，少數人甚至會頭暈、昏倒（昏厥是有紀錄的副作用——如果妳容易頭暈，檢查時請告知並坐著休息夠再離開）；有人質疑**一次灌 75 克糖根本不是正常飲食**，測出來能代表什麼；也有人怕的不是檢查本身，而是**檢查之後的連鎖**——只超標一點點，就被貼上標籤、開始被說寶寶太大、被建議提早催生。這些顧慮都值得被認真回答，而不是被一句「大家都要喝」帶過。這個檢查找的是妊娠糖尿病——一個**多半沒有症狀、但如果存在確實會影響妳和寶寶**的狀況。我想給妳的不是「一定要喝」也不是「不要喝」，而是：**妳了解它在測什麼、有哪些替代方式，然後自己決定。**
 
 ### 🔬 證據快照
 - 妊娠糖尿病多數**沒有任何症狀**；未治療會增加寶寶過大、子癲前症、新生兒低血糖的風險
 - 治療有效而且通常很溫和：多數確診的媽媽**只靠飲食調整和運動**就能控制，不需要藥物（ACHOIS 等研究證實治療改善結果）
 - 確診且控制良好（不用藥）的媽媽，**不一定需要提早催生**——這是可以和醫師討論的，不是自動套餐
-- 反過來想：如果後期被說「寶寶偏大」，一份正常的糖水報告是妳**最有力的談判籌碼**（見寶寶太大題）
 - **有替代方式可以和醫師討論**（證據強度不一，但對真的無法喝糖水的媽媽是選項）：
   - **更天然的糖飲**：國外有像 The Fresh Test 這類成分較單純的檢測飲品（無色素、無防腐劑），葡萄糖劑量與標準檢測相同
   - **糖果（雷根糖 Jelly Beans）**：臨床研究顯示，吃下精確份量（約 50 克糖，相當於 28 顆 Jelly Belly）能得到相近的血糖反應，噁心與副作用明顯較少
@@ -472,13 +471,12 @@ A previous baby with GBS disease, or GBS found in your urine this pregnancy — 
 ## 8. Should I take the glucose test?
 
 ### 🌊 What's happening
-The 24–28 week glucose drink (oral glucose tolerance test)⚑ is a step many mums hesitate over — and the reasons are all real. **Downing concentrated sugar water on an empty stomach is sickly and nauseating**; mums with bad morning sickness sometimes vomit it up and have to start over, and a few even feel faint or pass out (syncope is a documented side effect — if you're prone to dizziness, tell the staff and stay seated until you're steady). Some question whether **gulping 75g of sugar in one sitting reflects anything about how they actually eat**. And some fear not the test itself but **the cascade that follows** — barely over the line, suddenly labeled, then the "baby's looking big" comments and early-induction suggestions begin. These concerns deserve real answers, not a brush-off of "everyone does it." Here's the honest picture: this test looks for gestational diabetes — a condition with **no symptoms that genuinely affects you and your baby**. And here's the reason nobody tells you: **having the data protects your choices.**
+The 24–28 week glucose drink (oral glucose tolerance test)⚑ is a step many mums hesitate over — and the reasons are all real. **Downing concentrated sugar water on an empty stomach is sickly and nauseating**; mums with bad morning sickness sometimes vomit it up and have to start over, and a few even feel faint or pass out (syncope is a documented side effect — if you're prone to dizziness, tell the staff and stay seated until you're steady). Some question whether **gulping 75g of sugar in one sitting reflects anything about how they actually eat**. And some fear not the test itself but **the cascade that follows** — barely over the line, suddenly labeled, then the "baby's looking big" comments and early-induction suggestions begin. These concerns deserve real answers, not a brush-off of "everyone does it." This test looks for gestational diabetes — a condition that **usually has no symptoms but genuinely affects you and your baby if it's present**. What I want to offer isn't "you must do it" or "skip it" — it's this: **understand what it screens for and what the alternatives are, then decide for yourself.**
 
 ### 🔬 Evidence snapshot
 - Gestational diabetes usually has **no symptoms at all**; untreated, it raises the risk of a larger baby, preeclampsia, and newborn low blood sugar
 - Treatment works and is usually gentle: most diagnosed mothers manage it with **diet and exercise alone**, no medication (trials like ACHOIS confirmed treatment improves outcomes)
 - Well-controlled, diet-managed gestational diabetes does **not automatically require early induction** — that's a discussion, not a default
-- Flip it around: if you're later told "baby's looking big," a normal glucose result is your **strongest card in that conversation** (see the big-baby scenario)
 - **There are alternatives to discuss with your provider** (evidence varies, but they're options for mums who truly can't do the drink):
   - **A cleaner glucose drink**: abroad, products like The Fresh Test offer a simpler-ingredient test drink (no dyes or preservatives) with the same glucose dose as the standard test
   - **Jelly beans**: clinical studies show a precise amount (about 50g of sugar, roughly 28 Jelly Belly beans) produces an equivalent blood-sugar response with noticeably less nausea and fewer side effects
