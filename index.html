@@ -1373,7 +1373,7 @@ const CATEGORIES = [
     items:[
       {id:'support', name:'陪產與支持者', desc:'誰會在產房陪妳？', type:'text', placeholder:'例如：先生、Doula 陪產員'},
       {id:'place', name:'生產地點', desc:'醫院 / 助產所 / 居家', type:'text', placeholder:'例如：台北市某醫院'},
-      {id:'hospital_time', name:'什麼時候去醫院／待產中心', desc:'多數醫院會建議在規律陣痛、符合「5-1-1」原則（每5分鐘一次、每次持續1分鐘、持續1小時）時入院。提早抵達可能會被建議先回家，除非破水、胎動異常或有緊急狀況。',
+      {id:'hospital_time', name:'什麼時候去醫院／待產中心', desc:'多數醫院會建議在規律陣痛、符合「5-1-1」原則（每5分鐘一次、每次持續1分鐘、持續1小時）時入院。提早抵達可能會被建議先回家，除非大出血、胎動異常、37週前破水或有緊急狀況。破水時請聯繫照護者（醫生或助產師）告知時間、顏色、量多少。落紅出血量多，找照護者檢查（超過點狀出血）。',
         type:'choice', options:['一感覺到陣痛就想去','規律陣痛、符合5-1-1原則再去','由醫師／助產師判斷']},
       {id:'belief', name:'我最在意的生產信念', desc:'用一句話描述對妳最重要的事', type:'text', placeholder:'例如：希望被尊重、知情同意每一個決定'},
       {id:'perineal_prep', name:'產前會陰按摩', desc:'妳有在練習產前會陰按摩嗎？', type:'choice',
@@ -3007,8 +3007,10 @@ function renderVisualPlan(){
     '自由進食與飲水':'Eat & drink freely','與伴侶親密接觸':'Intimacy','寶寶伴侶隨行':'Partner with baby',
     '伴侶親膚':'Partner skin-to-skin'
   };
+  // 中文卡片標題覆寫(icon key 不動,只改顯示字):靠生產球其實是坐/靠皆可,標題用中性「生產球」
+  const ZH_LABEL_OVERRIDE = { '靠生產球': '生產球' };
   function dispLabel(label){
-    return currentLang === 'en' ? (ICON_LABEL_EN[label] || label) : label;
+    return currentLang === 'en' ? (ICON_LABEL_EN[label] || label) : (ZH_LABEL_OVERRIDE[label] || label);
   }
 
   // 蹲式把桿沒有專屬圖,借用「使用把桿」的 squat-bar 圖(但保留自己的標題)
@@ -3104,10 +3106,19 @@ function renderVisualPlan(){
           iconLabel = best || null;
         }
         if(!iconLabel) iconLabel = ITEM_ICON[item.id];
-        if(iconLabel && ICON_MAP[iconLabel] && !addedLabels.has(iconLabel)){
-          addedLabels.add(iconLabel);
+        if(iconLabel && ICON_MAP[iconLabel]){
           // 內文與標題重複/純英文註解交給 tidyNote,換行交給渲染
-          iconItems.push({label: iconLabel, note: tidyNote(iconLabel, xlateAnswer(item.id, v)), selected: true});
+          const noteVal = tidyNote(iconLabel, xlateAnswer(item.id, v));
+          if(!addedLabels.has(iconLabel)){
+            addedLabels.add(iconLabel);
+            iconItems.push({label: iconLabel, note: noteVal, selected: true, _srcItem: item.id});
+          } else if(item.type === 'multi'){
+            // 同一題多個選項共用同一張圖 → 內文用「、」串起實際勾選(如 自由活動:站立、走動、搖晃骨盆)
+            const exist = iconItems.find(x => x.label === iconLabel && x._srcItem === item.id);
+            if(exist && noteVal && (exist.note || '').split('、').indexOf(noteVal) < 0){
+              exist.note = exist.note ? (exist.note + '、' + noteVal) : noteVal;
+            }
+          }
         }
       });
 
