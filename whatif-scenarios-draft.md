@@ -260,13 +260,14 @@ Instrumental delivery, or fetal distress requiring immediate birth — even then
 子癲前症（妊娠毒血症）影響約 2～8% 的孕婦。先看清楚這三個字裡最重要的一個字：**「前」**——它的意思是，子癲症（癲癇發作）**還沒有發生**；好好控制，絕大多數孕婦都不會走到那一步。所以這一題有兩個階段：還沒發生之前，**預防有很多可以做的事**；真的確診了，它是真正的醫療狀況——但妳仍然有知情的權利，也仍然保有很多選擇。
 
 ### 🔬 證據快照
-- **預防（實證最強）**：高風險族群（曾有子癲前症、慢性高血壓、多胞胎等）從 **12～16 週起服用低劑量阿斯匹林**，已證實能顯著降低發生率——許多孕婦孕期都依醫師指示服用
+- **預防（實證最強）**：若在 16 週前被評估為高風險，醫師會視病情給予 **低劑量阿斯匹林**（低劑量阿斯匹靈）——能降低或延緩子癲前症的發生，同時降低早產與胎兒生長遲滯的風險，這也是國際指引建議的預防措施
 - **營養預防**也值得和醫師或營養師討論：**鈣質補充**（WHO 支持，尤其鈣攝取不足者）、**維他命 D**、**富含鎂的飲食**，以及**富含蛋白質與甘胺酸（glycine）的食物**——像大骨高湯、海鮮、雞肉
 - 診斷標準：20 週後血壓 ≥140/90 加上蛋白尿或器官影響指標；嚴重程度是一個光譜，處置隨嚴重度與週數而不同
-- 唯一根治的方法是讓寶寶出生；輕度且足月（37 週後）通常建議催生，嚴重時可能需要更早
-- **子癲前症不等於自動剖腹**——多數情況下催生後的陰道產仍是可行的第一選項
-- 嚴重時會用硫酸鎂預防癲癇——會有發熱、無力感，事先知道會比較不害怕
-- 即使在密集監測下，很多妳在意的事仍可以保留：陪產者在場、生產過程被告知、寶寶穩定時的肌膚接觸與延遲斷臍
+- **唯一根本的治療是「生產」**——住院監測、降血壓藥物都是為了爭取「安全的生產時機」，不是無限期延後分娩
+- **≥34 週的嚴重子癲前症**：即使血壓暫時被控制，多半仍建議儘早生產，因為病情隨時可能迅速惡化；此時生產本身就是最有效的治療
+- **<34 週的嚴重子癲前症**：是否延長孕期需高度個別化——若血壓穩定、器官功能未惡化、胎兒監測良好，可在高風險照護環境下短期期待治療，爭取數天完成類固醇促進胎兒肺部成熟；一旦血壓難控、器官惡化或胎兒窘迫，則不論孕週立即生產
+- **子癲前症不等於自動剖腹**——只要血壓穩定、胎兒狀況良好，陰道產仍是可行選項；生產方式依產程進展與母胎狀況綜合評估
+- 嚴重時會用硫酸鎂預防癲癇——會有發熱、無力感，事先知道會比較不害怕；寶寶穩定時，肌膚接觸與延遲斷臍多可保留
 
 ### 💬 可以問醫師的問題
 1. 「我屬於**高風險群**嗎？需要從 12～16 週開始吃**低劑量阿斯匹林**嗎？」
@@ -291,12 +292,14 @@ Instrumental delivery, or fetal distress requiring immediate birth — even then
 Preeclampsia affects roughly 2–8% of pregnancies. Start with the most important part of the word: **"pre"** — the seizure condition it precedes (eclampsia) **has not happened**, and with good management, the vast majority of mothers never get there. So this scenario has two stages: before anything happens, **there's a lot you can do to prevent it**; and if you are diagnosed, it's a genuine medical condition — but you keep your right to be informed, and more choices than you might think.
 
 ### 🔬 Evidence snapshot
-- **Prevention (strongest evidence)**: for higher-risk women (previous preeclampsia, chronic hypertension, multiples, etc.), **low-dose aspirin from 12–16 weeks** significantly reduces the risk — many mothers take it through pregnancy under their provider's guidance
+- **Prevention (strongest evidence)**: if you're assessed as higher-risk before 16 weeks, your provider may prescribe **low-dose aspirin** — it reduces or delays preeclampsia and also lowers the risk of preterm birth and fetal growth restriction. This is the prevention step international guidelines recommend
 - **Nutritional prevention** is worth discussing with your provider or a dietitian: **calcium supplementation** (WHO-backed, especially where dietary calcium is low), **vitamin D**, **magnesium-rich foods**, and **foods rich in protein and glycine** — think bone broth, seafood, chicken
 - Diagnosis: blood pressure ≥140/90 after 20 weeks plus protein in urine or signs of organ involvement; severity is a spectrum, and management depends on severity and gestational age
-- The only cure is birth; mild cases at term (after 37 weeks) are usually managed with induction, while severe cases may need earlier delivery
-- **Preeclampsia does not automatically mean cesarean** — in most cases, induction aiming for vaginal birth remains the first option
-- Severe cases involve magnesium sulfate to prevent seizures — it can make you feel flushed and weak; knowing in advance makes it far less frightening
+- **The only definitive treatment is birth** — hospital monitoring and blood-pressure medication exist to buy a *safe timing* for birth, not to delay it indefinitely
+- **Severe preeclampsia at ≥34 weeks**: even if blood pressure is temporarily controlled, early birth is usually advised, because the condition can deteriorate rapidly; here, birth itself is the most effective treatment
+- **Severe preeclampsia before 34 weeks**: whether to prolong the pregnancy is highly individualized — if blood pressure is stable, organ function holds, and fetal monitoring is reassuring, short-term expectant care in a high-risk unit can buy a few days for steroids to mature baby's lungs; but uncontrolled pressure, worsening organ function, or fetal distress means immediate birth, whatever the gestation
+- **Preeclampsia does not automatically mean cesarean** — with stable pressure and a reassuring baby, vaginal birth stays a viable option; mode of birth is judged on labor's progress and mother-and-baby status
+- Severe cases involve magnesium sulfate to prevent seizures — it can make you feel flushed and weak; knowing in advance makes it far less frightening; skin-to-skin and delayed cord clamping usually stay possible when baby is stable
 - Even under close monitoring, much of what matters to you can stay: your support person present, being kept informed, skin-to-skin and delayed cord clamping when baby is stable
 
 ### 💬 Questions to ask your provider
@@ -377,20 +380,21 @@ Over 40 with additional risk factors (hypertension, diabetes, IVF multiples), or
 ## 7. GBS 篩檢要不要做？陽性了怎麼辦？
 
 ### 🌊 這是什麼狀況
-乙型鏈球菌（GBS）是約 2 成孕婦體內本來就有的常見菌，對媽媽無害，但生產時可能傳給寶寶，極少數會造成新生兒感染。台灣在 35～37 週提供篩檢⚑。陽性不是生病——它只是資訊，讓妳決定生產時要不要用抗生素。
+乙型鏈球菌（GBS）是約 2 成孕婦體內本來就有的常見菌，對媽媽無害，但生產時可能傳給寶寶，極少數會造成新生兒感染。台灣在 35～37 週提供篩檢⚑。陽性不是生病——它只是資訊，讓妳決定生產時要不要用抗生素。而且有一件重要的事很少人說：**GBS 會來來去去**——這一週陽性，下週可能就驗不到，反之亦然。所以一次篩檢，只是那一刻的快照。
 
 ### 🔬 證據快照
-- 約 **20%** 的孕婦帶菌；帶菌媽媽的寶寶約半數會接觸到菌，其中極少數發展成早發性感染
-- 沒有抗生素的情況下，帶菌媽媽的寶寶早發性 GBS 感染機率約 **1/200**；產程中靜脈抗生素可降到約 **1/4000**——這是有效的預防，也是多數指引推薦的做法
+- 約 **20%** 的孕婦帶菌；GBS 是**暫時性、時有時無**的，帶菌媽媽的寶寶約半數會接觸到菌，其中極少數才發展成早發性感染
+- 這也是為什麼**不是每個國家都常規篩檢**：英國就不做全面篩檢，改用風險因子判斷（早產、破水 >18 小時、產程發燒）——兩種制度並存，都是合理的政策選擇
+- 感染很罕見，所以「要打多少支才防到一個」的數字很驚人：英國估計 **約 440 位產婦施打產程抗生素，才預防 1 例早發性 GBS 感染；約 3000 位才預防 1 例死亡或嚴重後遺症**（Stephens 等 2023，Sara Wickham 引用）
+- 抗生素不是沒有代價：靜脈注射時**可能有灼熱感**、需要接點滴而**限制妳的活動與行動**，對想要自由活動、水中減痛、順順生的媽媽，會實際影響生理生產的節奏
 - 抗生素在**陣痛開始或破水後**才給（產前吃藥沒有用，菌會回來）；理想上出生前 4 小時給到第一劑
-- 陽性通常**不影響**生產方式本身——多數醫院仍可陰道產、可待產活動；但可能影響破水後能等多久（見破水題）
-- 拒絕篩檢的話，醫院通常改用風險因子判斷（早產、破水 >18 小時、發燒）決定是否給抗生素
+- 陽性通常**不影響**生產方式本身——多數醫院仍可陰道產；但可能影響破水後能等多久（見破水題）
 
 ### 💬 可以問醫師的問題
 1. 「如果陽性，除了產程中的抗生素，**還會改變我生產的哪些安排**？」
-2. 「打抗生素的時候，我還可以**自由活動、用水中減痛**嗎？」
-3. 「如果我破水了但還沒陣痛，陽性會讓**等待的時間**變短嗎？」
-4. 「如果我不做篩檢，你們會**怎麼判斷**要不要給抗生素？」
+2. 「打抗生素的時候，我還可以**自由活動、下水、順順生**嗎？點滴可以用間歇式、不要一直接著嗎？」
+3. 「以我的情況，**不打抗生素的實際風險**有多高？可以改成密切觀察寶寶嗎？」
+4. 「如果我破水了但還沒陣痛，陽性會讓**等待的時間**變短嗎？」
 
 ### ⚠️ 這些情況建議直接用抗生素
 前一胎寶寶曾有 GBS 感染、這胎孕期驗出 GBS 菌尿——不論篩檢結果，指引都建議產程中使用抗生素。
@@ -406,20 +410,21 @@ Over 40 with additional risk factors (hypertension, diabetes, IVF multiples), or
 ## 7. Should I take the GBS test? And what if it's positive?
 
 ### 🌊 What's happening
-Group B strep (GBS) is a common bacterium that about 1 in 5 pregnant women naturally carry. It's harmless to you, but can occasionally pass to the baby during birth, and rarely causes newborn infection. Taiwan offers screening at 35–37 weeks⚑. Testing positive isn't being sick — it's information that lets you decide about antibiotics in labor.
+Group B strep (GBS) is a common bacterium that about 1 in 5 pregnant women naturally carry. It's harmless to you, but can occasionally pass to the baby during birth, and rarely causes newborn infection. Taiwan offers screening at 35–37 weeks⚑. Testing positive isn't being sick — it's information that lets you decide about antibiotics in labor. And here's something rarely said: **GBS comes and goes** — positive one week, undetectable the next, and vice versa. So a single test is only a snapshot of that moment.
 
 ### 🔬 Evidence snapshot
-- About **20%** of women carry GBS; around half of their babies are exposed during birth, and only a small fraction of those develop early-onset infection
-- Without antibiotics, a carrier's baby has roughly a **1 in 200** chance of early-onset GBS disease; IV antibiotics in labor lower it to about **1 in 4000** — effective prevention, and what most guidelines recommend
+- About **20%** of women carry GBS; carriage is **transient — it comes and goes.** Around half of carriers' babies are exposed during birth, and only a tiny fraction of those develop early-onset infection
+- That's why **not every country screens routinely**: the UK doesn't do universal screening, using risk factors instead (preterm labor, waters broken >18 hours, fever in labor) — both systems coexist and are reasonable policy choices
+- Because infection is so rare, the "how many treated to prevent one" numbers are striking: in the UK, an estimated **~440 women receive antibiotics in labor to prevent 1 early-onset GBS infection, and ~3000 to prevent 1 death or serious disability** (Stephens et al 2023, cited by Sara Wickham)
+- Antibiotics aren't free of downside: the IV **can cause a burning sensation**, and being tethered to a drip **restricts your movement** — for a mother wanting to move freely, use water, and birth physiologically, this genuinely disrupts the rhythm of labor
 - Antibiotics are given **once labor starts or waters break** (taking them beforehand doesn't work — the bacteria return); ideally the first dose lands 4+ hours before birth
-- A positive result usually **doesn't change** the birth itself — vaginal birth and moving around in labor are still fine at most hospitals; it mainly affects how long you can wait after your waters break (see the PROM scenario)
-- If you decline screening, hospitals typically fall back on risk factors (preterm labor, waters broken >18 hours, fever) to decide on antibiotics
+- A positive result usually **doesn't change** the birth itself — vaginal birth is still fine at most hospitals; it mainly affects how long you can wait after your waters break (see the PROM scenario)
 
 ### 💬 Questions to ask your provider
 1. "If I'm positive, besides antibiotics in labor, **what else changes** about my birth?"
-2. "While on the IV, can I still **move freely and use water for pain relief**?"
-3. "If my waters break before labor, does being positive **shorten how long I can wait**?"
-4. "If I skip the test, **how will you decide** whether I need antibiotics?"
+2. "While on the IV, can I still **move freely, use water, and birth physiologically**? Can the drip be intermittent rather than continuous?"
+3. "For my situation, **what's the actual risk of not having antibiotics**? Could we watch baby closely instead?"
+4. "If my waters break before labor, does being positive **shorten how long I can wait**?"
 
 ### ⚠️ When antibiotics are recommended regardless
 A previous baby with GBS disease, or GBS found in your urine this pregnancy — guidelines recommend antibiotics in labor either way.
